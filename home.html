@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema de Envíos - Guías y Pedidos (Local)</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Google Fonts: Roboto Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- jsPDF para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* Estilo oscuro elegante por defecto */
+    :root {
+  --bg: #e9eef3;            /* Fondo general claro */
+  --card: #ffffff;           /* Tarjetas blancas */
+  --muted: #475569;          /* Texto secundario gris */
+  --accent: #0ea5a4;         /* Acento turquesa */
+  --border: rgba(0,0,0,0.08);
+  --text: #0f172a;           /* Texto principal oscuro */
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tarjetas con sombra sutil */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* Navbar y botones primarios */
+.navbar, .btn-primary {
+  background: linear-gradient(90deg, #0ea5a4, #06b6d4) !important;
+  border: 0;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Colores de texto */
+.muted {
+  color: var(--muted);
+}
+.small-muted {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Campos de formulario */
+.form-control, .form-select {
+  background: #f8fafc;
+  color: var(--text);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+
+/* Tabla */
+.table {
+  color: var(--text);
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.table thead th {
+  background: #f1f5f9;
+  border-bottom: 2px solid var(--border);
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f8fafc;
+}
+
+/* Estados de pedidos */
+.badge-status {
+  padding: .4rem .6rem;
+  border-radius: .5rem;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.status-pend { background: #fbbf24; color: #1e293b; }
+.status-trans { background: #38bdf8; color: #082f49; }
+.status-ent { background: #34d399; color: #064e3b; }
+
+/* Botón transparente */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* Footer */
+footer {
+  opacity: 0.7;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Tipografía monoespaciada */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar navbar-expand-lg mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white ms-2" href="#"><i class="bi bi-box-seam-fill"></i> Envíos Local</a>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-light text-dark" id="btn-seed">Cargar ejemplo</button>
+        <button class="btn btn-sm btn-light text-dark" id="btn-backup">Exportar JSON</button>
+        <button class="btn btn-sm btn-light text-dark" id="btn-restore">Importar JSON</button>
+        <button class="btn btn.sm btn-light text-dark" onclick="logout()">Cerrar sesión</button>
+
+        <button class="btn btn-sm" id="btn-clear" title="Vaciar base de datos" style="background:#7f1d1d;color:#fff;"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- GRID -->
+    <div class="row g-3">
+
+      <!-- LEFT: Form crear guía -->
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h5 class="mb-3">Crear / Editar Guía</h5>
+          <form id="form-guia" autocomplete="off">
+            <input type="hidden" id="guia-id" value="">
+            <div class="mb-2">
+              <label class="form-label small-muted">Número de guía</label>
+              <input id="guia-num" class="form-control" required placeholder="Ej: GUA-2025-0001">
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Remitente</label>
+                <input id="guia-rem" class="form-control" required placeholder="Nombre remitente">
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Destinatario</label>
+                <input id="guia-dest" class="form-control" required placeholder="Nombre destinatario">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Dirección entrega</label>
+              <input id="guia-dir" class="form-control" placeholder="Dirección completa">
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Peso (kg)</label>
+                <input id="guia-peso" type="number" step="0.01" class="form-control" placeholder="0.5">
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Estado</label>
+                <select id="guia-estado" class="form-select">
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En tránsito">En tránsito</option>
+                  <option value="Entregado">Entregado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small-muted">Observaciones</label>
+              <textarea id="guia-obs" class="form-control" rows="2" placeholder="Notas internas..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btn-save-guia">Guardar guía</button>
+              <button type="button" class="btn btn-ghost" id="btn-reset">Limpiar</button>
+            </div>
+            <div class="mt-3">
+              <small class="muted">Cada guía puede contener varios pedidos (items). Guarda la guía y luego agrégale pedidos en la ficha.</small>
+            </div>
+          </form>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="card p-3 mt-3">
+          <h6 class="mb-2">Resumen</h6>
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="small-muted">Total guías</div>
+              <div id="stat-total" class="h4 mono">0</div>
+            </div>
+            <div>
+              <div class="small-muted">Pendientes</div>
+              <div id="stat-pend" class="h4 mono">0</div>
+            </div>
+            <div>
+              <div class="small-muted">En tránsito</div>
+              <div id="stat-trans" class="h4 mono">0</div>
+            </div>
+            <div>
+              <div class="small-muted">Entregadas</div>
+              <div id="stat-ent" class="h4 mono">0</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Listado y ficha -->
+      <div class="col-lg-8">
+
+        <!-- Search and filter -->
+        <div class="card p-3 mb-3">
+          <div class="d-flex gap-2 align-items-center">
+            <input id="search" class="form-control" placeholder="Buscar por número guía, remitente, destinatario, dirección...">
+            <select id="filter-estado" class="form-select" style="max-width:200px">
+              <option value="">Todos los estados</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En tránsito">En tránsito</option>
+              <option value="Entregado">Entregado</option>
+            </select>
+            <button class="btn btn-ghost" id="btn-new">Nueva guía</button>
+          </div>
+        </div>
+
+        <!-- Tabla de guías -->
+        <div class="card p-3 mb-3">
+          <h6>Guías registradas</h6>
+          <div class="table-responsive mt-2">
+            <table class="table table-borderless table-hover text-white align-middle" id="tabla-guias">
+              <thead>
+                <tr class="muted">
+                  <th>N° Guía</th>
+                  <th>Remitente</th>
+                  <th>Destinatario</th>
+                  <th>Peso</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="body-guias">
+                <!-- Rows dinámicas -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Ficha guía -->
+        <div class="card p-3" id="ficha-container" style="display:none;">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h5 id="ficha-num">Guía</h5>
+              <div class="small-muted" id="ficha-fecha">Fecha</div>
+            </div>
+            <div class="text-end">
+              <button class="btn btn-sm btn-light me-1" id="btn-export-pdf"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
+              <button class="btn btn-sm btn-light" id="btn-print"><i class="bi bi-printer"></i> Imprimir</button>
+            </div>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="row">
+            <div class="col-md-6">
+              <div><strong>Remitente:</strong> <span id="ficha-rem"></span></div>
+              <div><strong>Dirección:</strong> <span id="ficha-dir"></span></div>
+              <div><strong>Observaciones:</strong> <span id="ficha-obs"></span></div>
+            </div>
+            <div class="col-md-6">
+              <div><strong>Destinatario:</strong> <span id="ficha-dest"></span></div>
+              <div><strong>Peso:</strong> <span id="ficha-peso"></span> kg</div>
+              <div><strong>Estado:</strong> <span id="ficha-estado" class="badge-status"></span></div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Pedidos -->
+          <div class="mb-3">
+            <h6 class="d-flex justify-content-between">
+              <span>Pedidos / Items</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Añadir pedido</button>
+            </h6>
+
+            <div id="items-list" class="mt-2">
+              <!-- items dinámicos -->
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guía</button>
+            <button class="btn btn-ghost" id="btn-close-ficha">Cerrar ficha</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="container mt-4 pb-4">
+    <div class="d-flex justify-content-between">
+      <div>© Sistema de Envíos - Local · Diseñado para uso en un solo equipo</div>
+      <div class="muted">IndexedDB · Sin servidor · Archivo único</div>
+    </div>
+  </footer>
+
+  <!-- Modal: Añadir / Editar item -->
+  <div class="modal fade" id="modalItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar pedido</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="form-item">
+            <input type="hidden" id="item-id" value="">
+            <div class="mb-2">
+              <label class="form-label small-muted">Descripción</label>
+              <input id="item-desc" class="form-control" required placeholder="Ej: Caja electrónica">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Cantidad</label>
+              <input id="item-cant" type="number" min="1" value="1" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Valor (opcional)</label>
+              <input id="item-valor" type="number" step="0.01" class="form-control" placeholder="0.00">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Peso (kg) (opcional)</label>
+              <input id="item-peso" type="number" step="0.01" class="form-control" placeholder="0.2">
+            </div>
+            <div class="text-end">
+              <button class="btn btn-primary">Guardar pedido</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS: Bootstrap bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  // ---------- IndexedDB wrapper ----------
+  const DB_NAME = 'envios_db_v1';
+  const DB_VERSION = 1;
+  let db;
+
+  function openDB() {
+    return new Promise((res, rej) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = (e) => {
+        const idb = e.target.result;
+        if (!idb.objectStoreNames.contains('guias')) {
+          const store = idb.createObjectStore('guias', { keyPath: 'id', autoIncrement: true });
+          store.createIndex('num', 'numero', { unique: true });
+          store.createIndex('rem', 'remitente', { unique: false });
+          store.createIndex('dest', 'destinatario', { unique: false });
+          store.createIndex('estado', 'estado', { unique: false });
+        }
+      };
+      req.onsuccess = (e) => { db = e.target.result; res(db); };
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  function tx(storeName, mode='readonly') {
+    const t = db.transaction(storeName, mode);
+    return t.objectStore(storeName);
+  }
+
+  function addGuia(guia) {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readwrite');
+      const req = store.add(guia);
+      req.onsuccess = () => res(req.result);
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  function putGuia(guia) {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readwrite');
+      const req = store.put(guia);
+      req.onsuccess = () => res(req.result);
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  function deleteGuia(id) {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readwrite'); const req = store.delete(Number(id));
+      req.onsuccess = () => res(true);
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  function getAllGuias() {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readonly');
+      const req = store.getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  function getGuiaById(id) {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readonly');
+      const req = store.get(Number(id));
+      req.onsuccess = () => res(req.result);
+      req.onerror = (e) => rej(e);
+    });
+  }
+
+  // ---------- UI & lógica ----------
+  let bsModalItem;
+  document.addEventListener('DOMContentLoaded', async () => {
+    await openDB();
+    bsModalItem = new bootstrap.Modal(document.getElementById('modalItem'), {backdrop:'static'});
+    bindEvents();
+    refreshTabla();
+    updateStats();
+  });
+
+  // Bind botones y formularios
+  function bindEvents() {
+    document.getElementById('form-guia').addEventListener('submit', onSaveGuia);
+    document.getElementById('btn-reset').addEventListener('click', resetForm);
+    document.getElementById('btn-new').addEventListener('click', ()=>{ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); });
+    document.getElementById('search').addEventListener('input', refreshTabla);
+    document.getElementById('filter-estado').addEventListener('change', refreshTabla);
+    document.getElementById('btn-close-ficha').addEventListener('click', ()=> document.getElementById('ficha-container').style.display='none');
+    document.getElementById('btn-delete-guia').addEventListener('click', onDeleteGuia);
+    document.getElementById('btn-add-item').addEventListener('click', ()=> openItemModal());
+    document.getElementById('form-item').addEventListener('submit', onSaveItem);
+    document.getElementById('btn-export-pdf').addEventListener('click', exportPDFCurrent);
+    document.getElementById('btn-print').addEventListener('click', () => window.print());
+    document.getElementById('btn-seed').addEventListener('click', seedDemo);
+    document.getElementById('btn-backup').addEventListener('click', exportJSON);
+    document.getElementById('btn-restore').addEventListener('click', ()=> {
+      const f = document.createElement('input');
+      f.type='file'; f.accept='.json,application/json'; f.onchange = async (e) => {
+        const file = e.target.files[0];
+        const txt = await file.text();
+        await importJSON(txt);
+        refreshTabla();
+      };
+      f.click();
+    });
+    document.getElementById('btn-clear').addEventListener('click', async ()=> {
+      if (!confirm('¿Eliminar toda la base de datos local? Esta acción NO tiene vuelta atrás.')) return;
+      const r = indexedDB.deleteDatabase(DB_NAME);
+      r.onsuccess = () => { alert('Base de datos eliminada. Recarga la página.'); location.reload(); };
+      r.onerror = () => alert('No se pudo eliminar la base de datos.');
+    });
+  }
+
+  // Guardar o actualizar guía
+  async function onSaveGuia(e) {
+    e.preventDefault();
+    const id = document.getElementById('guia-id').value;
+    const numero = document.getElementById('guia-num').value.trim();
+    const remitente = document.getElementById('guia-rem').value.trim();
+    const destinatario = document.getElementById('guia-dest').value.trim();
+    const direccion = document.getElementById('guia-dir').value.trim();
+    const peso = parseFloat(document.getElementById('guia-peso').value || 0);
+    const estado = document.getElementById('guia-estado').value;
+    const obs = document.getElementById('guia-obs').value;
+
+    if (!numero || !remitente || !destinatario) { alert('Número, remitente y destinatario son obligatorios.'); return; }
+
+    const now = new Date().toISOString();
+
+    if (id) {
+      // update
+      const g = await getGuiaById(Number(id));
+      g.numero = numero;
+      g.remitente = remitente;
+      g.destinatario = destinatario;
+      g.direccion = direccion;
+      g.peso = peso;
+      g.estado = estado;
+      g.obs = obs;
+      g.updated_at = now;
+      await putGuia(g);
+      alert('Guía actualizada.');
+      loadFicha(g.id);
+    } else {
+      // add
+      const guia = {
+        numero, remitente, destinatario, direccion,
+        peso, estado, obs,
+        pedidos: [],
+        created_at: now,
+        updated_at: now
+      };
+      try {
+        const newId = await addGuia(guia);
+        alert('Guía creada con ID ' + newId);
+        resetForm();
+      } catch (err) {
+        if (err && err.target && err.target.error && /ConstraintError/.test(err.target.error.name)) {
+          alert('Ya existe una guía con ese número. Use otro número.');
+        } else {
+          alert('Error al crear la guía.');
+          console.error(err);
+        }
+      }
+    }
+    refreshTabla();
+    updateStats();
+  }
+
+  function resetForm() {
+    document.getElementById('guia-id').value = '';
+    document.getElementById('guia-num').value = '';
+    document.getElementById('guia-rem').value = '';
+    document.getElementById('guia-dest').value = '';
+    document.getElementById('guia-dir').value = '';
+    document.getElementById('guia-peso').value = '';
+    document.getElementById('guia-estado').value = 'Pendiente';
+    document.getElementById('guia-obs').value = '';
+  }
+
+  // Refrescar tabla con filtros
+  async function refreshTabla() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const estadoFilter = document.getElementById('filter-estado').value;
+    const list = await getAllGuias();
+    const tbody = document.getElementById('body-guias');
+    tbody.innerHTML = '';
+    const filtered = list.filter(g => {
+      const text = (g.numero + ' ' + g.remitente + ' ' + g.destinatario + ' ' + (g.direccion||'')).toLowerCase();
+      if (estadoFilter && g.estado !== estadoFilter) return false;
+      if (q && !text.includes(q)) return false;
+      return true;
+    }).sort((a,b)=> b.id - a.id);
+
+    for (const g of filtered) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="mono">${escapeHtml(g.numero)}</td>
+        <td>${escapeHtml(g.remitente)}</td>
+        <td>${escapeHtml(g.destinatario)}</td>
+        <td>${g.peso || '-'}</td>
+        <td>${renderEstado(g.estado)}</td>
+        <td class="text-end">
+          <div class="btn-group" role="group">
+            <button class="btn btn-sm btn-light" data-id="${g.id}" onclick="openFicha(${g.id})"><i class="bi bi-eye"></i></button>
+            <button class="btn btn-sm btn-ghost" data-id="${g.id}" onclick="editGuia(${g.id})"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-danger" data-id="${g.id}" onclick="confirmDelete(${g.id}, '${escapeQuotes(g.numero)}')"><i class="bi bi-trash"></i></button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Escapar helpers
+  function escapeHtml(s='') {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeQuotes(s=''){ return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+  function renderEstado(estado) {
+    if (!estado) return '';
+    if (estado === 'Pendiente') return '<span class="badge-status status-pend">Pendiente</span>';
+    if (estado === 'En tránsito') return '<span class="badge-status status-trans">En tránsito</span>';
+    if (estado === 'Entregado') return '<span class="badge-status status-ent">Entregado</span>';
+    return `<span class="badge-status">${escapeHtml(estado)}</span>`;
+  }
+
+  async function editGuia(id) {
+    const g = await getGuiaById(id);
+    if (!g) return alert('Guía no encontrada');
+    document.getElementById('guia-id').value = g.id;
+    document.getElementById('guia-num').value = g.numero;
+    document.getElementById('guia-rem').value = g.remitente;
+    document.getElementById('guia-dest').value = g.destinatario;
+    document.getElementById('guia-dir').value = g.direccion || '';
+    document.getElementById('guia-peso').value = g.peso || '';
+    document.getElementById('guia-estado').value = g.estado || 'Pendiente';
+    document.getElementById('guia-obs').value = g.obs || '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  async function confirmDelete(id, numero) {
+    if (!confirm('¿Eliminar la guía ' + numero + ' (ID ' + id + ')?')) return;
+    await deleteGuia(id);
+    alert('Guía eliminada.');
+    refreshTabla();
+    updateStats();
+  }
+
+  // Ficha detallada
+  async function openFicha(id) {
+    await loadFicha(id);
+    document.getElementById('ficha-container').style.display = 'block';
+    window.scrollTo({top: document.getElementById('ficha-container').offsetTop - 20, behavior:'smooth'});
+  }
+
+  async function loadFicha(id) {
+    const g = await getGuiaById(Number(id));
+    if (!g) return alert('Guía no encontrada.');
+    document.getElementById('ficha-num').innerText = g.numero;
+    document.getElementById('ficha-fecha').innerText = 'Creada: ' + (g.created_at ? new Date(g.created_at).toLocaleString() : '-');
+    document.getElementById('ficha-rem').innerText = g.remitente;
+    document.getElementById('ficha-dest').innerText = g.destinatario;
+    document.getElementById('ficha-dir').innerText = g.direccion || '-';
+    document.getElementById('ficha-obs').innerText = g.obs || '-';
+    document.getElementById('ficha-peso').innerText = g.peso || '-';
+    const estadoEl = document.getElementById('ficha-estado');
+    estadoEl.className = 'badge-status';
+    if (g.estado === 'Pendiente') estadoEl.classList.add('status-pend');
+    if (g.estado === 'En tránsito') estadoEl.classList.add('status-trans');
+    if (g.estado === 'Entregado') estadoEl.classList.add('status-ent');
+    estadoEl.innerText = g.estado;
+
+    // guardar guia-id en botón eliminar
+    document.getElementById('btn-delete-guia').dataset.id = g.id;
+
+    // render items
+    const itemsList = document.getElementById('items-list');
+    itemsList.innerHTML = '';
+    const pedidos = g.pedidos || [];
+    if (pedidos.length === 0) itemsList.innerHTML = '<div class="small-muted">Sin pedidos registrados.</div>';
+    pedidos.forEach((it, idx) => {
+      const card = document.createElement('div');
+      card.className = 'd-flex align-items-center justify-content-between p-2 mb-2';
+      card.style.border = '1px solid rgba(255,255,255,0.03); border-radius:6px;';
+      card.innerHTML = `
+        <div>
+          <div><strong>${escapeHtml(it.descripcion)}</strong> <span class="small-muted">x${it.cantidad}</span></div>
+          <div class="small-muted">Peso: ${it.peso||'-'} kg · Valor: ${it.valor||'-'}</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-ghost" onclick="editItem(${g.id}, ${idx})"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteItem(${g.id}, ${idx})"><i class="bi bi-trash"></i></button>
+        </div>
+      `;
+      itemsList.appendChild(card);
+    });
+    // keep current id
+    document.getElementById('ficha-container').dataset.current = g.id;
+  }
+
+  // Delete guia desde ficha
+  async function onDeleteGuia() {
+    const id = document.getElementById('ficha-container').dataset.current;
+    if (!id) return;
+    if (!confirm('Eliminar guía ID ' + id + '?')) return;
+    await deleteGuia(Number(id));
+    document.getElementById('ficha-container').style.display = 'none';
+    refreshTabla();
+    updateStats();
+  }
+
+  // Items (pedidos)
+  function openItemModal(edit=false) {
+    document.getElementById('item-id').value = '';
+    document.getElementById('item-desc').value = '';
+    document.getElementById('item-cant').value = 1;
+    document.getElementById('item-valor').value = '';
+    document.getElementById('item-peso').value = '';
+    document.querySelector('#modalItem .modal-title').innerText = edit ? 'Editar pedido' : 'Agregar pedido';
+    bsModalItem.show();
+  }
+
+  async function onSaveItem(e) {
+    e.preventDefault();
+    const itemId = document.getElementById('item-id').value;
+    const desc = document.getElementById('item-desc').value.trim();
+    const cant = Number(document.getElementById('item-cant').value) || 1;
+    const valor = parseFloat(document.getElementById('item-valor').value || 0) || 0;
+    const peso = parseFloat(document.getElementById('item-peso').value || 0) || 0;
+
+    const guiaId = Number(document.getElementById('ficha-container').dataset.current);
+    if (!guiaId) { alert('Primero abre la ficha de una guía y luego añade pedidos.'); return; }
+    const g = await getGuiaById(guiaId);
+    if (!g) return alert('Guía no encontrada.');
+
+    const item = { descripcion: desc, cantidad: cant, valor: valor || null, peso: peso || null };
+
+    if (itemId) {
+      // editar por índice (itemId contiene índice)
+      const idx = Number(itemId);
+      g.pedidos[idx] = item;
+    } else {
+      g.pedidos = g.pedidos || [];
+      g.pedidos.push(item);
+    }
+    g.updated_at = new Date().toISOString();
+    await putGuia(g);
+    bsModalItem.hide();
+    loadFicha(guiaId);
+    refreshTabla();
+    updateStats();
+  }
+
+  async function editItem(guiaId, idx) {
+    const g = await getGuiaById(guiaId);
+    const it = g.pedidos[idx];
+    document.getElementById('item-id').value = idx;
+    document.getElementById('item-desc').value = it.descripcion;
+    document.getElementById('item-cant').value = it.cantidad;
+    document.getElementById('item-valor').value = it.valor || '';
+    document.getElementById('item-peso').value = it.peso || '';
+    document.querySelector('#modalItem .modal-title').innerText = 'Editar pedido';
+    bsModalItem.show();
+  }
+
+  async function deleteItem(guiaId, idx) {
+    if (!confirm('Eliminar pedido?')) return;
+    const g = await getGuiaById(guiaId);
+    g.pedidos.splice(idx,1);
+    g.updated_at = new Date().toISOString();
+    await putGuia(g);
+    loadFicha(guiaId);
+    refreshTabla();
+    updateStats();
+  }
+
+  // Export / Import JSON (respaldo)
+  async function exportJSON() {
+    const all = await getAllGuias();
+    const data = { exported_at: new Date().toISOString(), guias: all };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'envios_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importJSON(text) {
+    try {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed.guias)) throw new Error('Formato inválido');
+      for (const g of parsed.guias) {
+        // eliminar id para evitar conflictos y preservar numero
+        const toAdd = Object.assign({}, g);
+        delete toAdd.id;
+        try { await addGuia(toAdd); } catch(e){ /* si numero existente, lo actualizamos */ 
+          // buscar por número y actualizar
+          const existing = await findGuiaByNumero(toAdd.numero);
+          if (existing) {
+            toAdd.id = existing.id;
+            await putGuia(toAdd);
+          }
+        }
+      }
+      alert('Importación finalizada.');
+      refreshTabla();
+      updateStats();
+    } catch (err) {
+      alert('Error importando JSON: ' + err.message);
+    }
+  }
+
+  function findGuiaByNumero(numero) {
+    return new Promise((res, rej) => {
+      const store = tx('guias', 'readonly');
+      const idx = store.index('num');
+      const r = idx.get(numero);
+      r.onsuccess = ()=> res(r.result);
+      r.onerror = ()=> res(null);
+    });
+  }
+
+  // Exportar PDF de la ficha (jsPDF)
+  async function exportPDFCurrent() {
+    const id = Number(document.getElementById('ficha-container').dataset.current);
+    if (!id) return alert('Abra la ficha de una guía primero.');
+    const g = await getGuiaById(id);
+    if (!g) return alert('Guía no encontrada.');
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const margin = 15;
+    let y = 20;
+
+    doc.setFontSize(14);
+    doc.text('Guía de envío', margin, y);
+    doc.setFontSize(10); y += 8;
+    doc.text('Número: ' + g.numero, margin, y);
+    doc.text('Fecha: ' + (g.created_at ? new Date(g.created_at).toLocaleString() : '-'), 120, y);
+    y += 8;
+    doc.text('Remitente: ' + g.remitente, margin, y); y += 6;
+    doc.text('Destinatario: ' + g.destinatario, margin, y); y += 6;
+    doc.text('Dirección: ' + (g.direccion || '-'), margin, y); y += 6;
+    doc.text('Peso total (kg): ' + (g.peso || '-'), margin, y); y += 6;
+    doc.text('Estado: ' + g.estado, margin, y); y += 8;
+    doc.text('Observaciones: ' + (g.obs || '-'), margin, y); y += 10;
+
+    doc.setFontSize(12);
+    doc.text('Pedidos', margin, y); y += 6;
+    doc.setFontSize(10);
+
+    if (!g.pedidos || g.pedidos.length === 0) {
+      doc.text('Sin pedidos.', margin, y);
+    } else {
+      const startY = y;
+      g.pedidos.forEach((it, i) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(`${i+1}. ${it.descripcion} — Cant: ${it.cantidad} — Peso: ${it.peso||'-'} kg — Valor: ${it.valor||'-'}`, margin, y);
+        y += 6;
+      });
+    }
+
+    doc.save('guia_' + g.numero + '.pdf');
+  }
+
+  // Stats
+  async function updateStats() {
+    const all = await getAllGuias();
+    const total = all.length;
+    const pend = all.filter(g=> g.estado === 'Pendiente').length;
+    const trans = all.filter(g=> g.estado === 'En tránsito').length;
+    const ent = all.filter(g=> g.estado === 'Entregado').length;
+    document.getElementById('stat-total').innerText = total;
+    document.getElementById('stat-pend').innerText = pend;
+    document.getElementById('stat-trans').innerText = trans;
+    document.getElementById('stat-ent').innerText = ent;
+  }
+
+  // Seed ejemplo rápido
+  async function seedDemo() {
+    if (!confirm('Cargar datos de ejemplo (no elimina existentes)?')) return;
+    const sample = [
+      { numero:'GUA-2025-0001', remitente:'Venta Online S.A.', destinatario:'Clara Gómez', direccion:'Calle 123 #45-67, Bogotá', peso:2.4, estado:'Pendiente', obs:'Fragil', pedidos:[{descripcion:'Libros',cantidad:2,valor:50,peso:2}]},
+      { numero:'GUA-2025-0002', remitente:'ElectroWorld', destinatario:'J. Pérez', direccion:'Carrera 10 #22-11, Medellín', peso:5.2, estado:'En tránsito', obs:'Entrega antes de 5pm', pedidos:[{descripcion:'Auriculares',cantidad:1,valor:120,peso:0.5},{descripcion:'Cargador',cantidad:1,valor:10,peso:0.2}]},
+      { numero:'GUA-2025-0003', remitente:'Mercado Local', destinatario:'Ana Ramirez', direccion:'Calle 8 #3-12, Cali', peso:1.1, estado:'Entregado', obs:'Recibido por vecino', pedidos:[{descripcion:'Caja de galletas',cantidad:3,valor:15,peso:1.1}]}
+    ];
+    for (const s of sample) {
+      try { await addGuia(Object.assign({}, s, {created_at:new Date().toISOString(), updated_at:new Date().toISOString()})); } catch(e){ /* si número repetido, omitir */ }
+    }
+    alert('Datos de ejemplo añadidos (si no existían).');
+    refreshTabla();
+    updateStats();
+  }
+
+  // Eliminar guía directamente (desde tabla)
+  async function confirmDelete(id, numero) {
+    if (!confirm('Eliminar guía ' + numero + ' ?')) return;
+    await deleteGuia(id);
+    refreshTabla();
+    updateStats();
+  }
+  // Cerrar sesión
+function logout(){
+  localStorage.removeItem("sessionActive");
+  window.location.href = "login.html";
+}
+
+
+  // Editar (función global para onclick)
+  window.editGuia = editGuia;
+  window.openFicha = openFicha;
+  window.confirmDelete = confirmDelete;
+  window.editItem = editItem;
+  window.deleteItem = deleteItem;
+
+  // Export PDF y Print ya definidos
+
+  // Util: escape en plantilla (si se necesita)
+  // ---------- End ----------
+  </script>
+</body>
+</html>
