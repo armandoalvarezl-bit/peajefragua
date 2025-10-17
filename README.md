@@ -12,9 +12,7 @@
 <style>
   * {margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif;}
 
-  body, html {
-    height: 100%;
-  }
+  body, html {height: 100%;}
 
   body {
     background: url('IMG/Diseño\ sin\ título\ \(4\).png') no-repeat center center fixed;
@@ -137,12 +135,12 @@
   <form onsubmit="return validarLogin(event)">
     <div class="input-box">
       <i class='bx bxs-user'></i>
-      <input type="text" id="usuario" placeholder="Usuario" value="Peaje Fragua" required>
+      <input type="text" id="usuario" placeholder="Usuario" required>
     </div>
 
     <div class="input-box">
       <i class='bx bxs-lock-alt'></i>
-      <input type="password" id="password" placeholder="Contraseña" value="Administrador" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
     </div>
 
     <div style="text-align:left; margin-bottom:16px;">
@@ -170,8 +168,11 @@ function validarLogin(event) {
   const user = document.getElementById('usuario').value.trim();
   const pass = document.getElementById('password').value.trim();
 
-  if (user === "Peaje Fragua" && pass === "Administrador") {
-    // Redirigir al home
+  // Credenciales válidas
+  const userValido = "Peaje Fragua";
+  const passValido = "Administrador";
+
+  if (user === userValido && pass === passValido) {
     window.location.href = "home.html";
   } else {
     alert("❌ Credenciales incorrectas. Intente de nuevo.");
