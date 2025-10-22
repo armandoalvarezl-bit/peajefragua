@@ -12,10 +12,10 @@
 <style>
   * {margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif;}
 
-  body, html {height: 100%;}
+  body, html { height: 100%; }
 
   body {
-    background: url('IMG/Diseño\ sin\ título\ \(4\).png') no-repeat center center fixed;
+    background: url('IMG/Diseño%20sin%20título%20(4).png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;
@@ -37,7 +37,6 @@
     to {opacity: 1; transform: translateY(0);}
   }
 
-  /* Foto tipo perfil */
   .login-box img {
     width: 120px;
     height: 120px;
@@ -76,10 +75,6 @@
     transform: translateY(-50%);
     color: #888;
     font-size: 20px;
-  }
-
-  .login-box input[type="checkbox"] {
-    margin-right: 6px;
   }
 
   .login-box button {
@@ -122,14 +117,70 @@
   a:hover {
     text-decoration: underline;
   }
+
+  /* ===== Modal de carga elegante ===== */
+  .modal-carga {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(141, 99, 7, 0.88);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+  }
+
+  .modal-carga img {
+    width: 120px;
+    margin-bottom: 25px;
+    animation: fadeInLogo 1s ease forwards;
+  }
+
+  @keyframes fadeInLogo {
+    from {opacity: 0; transform: scale(0.8);}
+    to {opacity: 1; transform: scale(1);}
+  }
+
+  .loader {
+    width: 70px;
+    height: 70px;
+    border: 6px solid #091b6b;
+    border-top: 6px solid #4cafac;
+    border-radius: 50%;
+    animation: girar 1s linear infinite;
+  }
+
+  @keyframes girar {
+    to {transform: rotate(360deg);}
+  }
+
+  .modal-carga p {
+    margin-top: 18px;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    animation: texto 1.5s ease infinite alternate;
+  }
+
+  @keyframes texto {
+    from {opacity: 0.5;}
+    to {opacity: 1;}
+  }
+
 </style>
 </head>
 <body>
 
-<div class="login-box">
-  <!-- Foto tipo perfil -->
-  <img src="IMG/OIP.jpeg" alt="Perfil Peaje Fragua">
+<!-- Modal de carga con logo de ZIMA -->
+<div class="modal-carga" id="modalCarga">
+  <img src="IMG/OIP.jpeg" alt="Logo ZIMA">
+  <div class="loader"></div>
+  <p>Cargando sistema...</p>
+</div>
 
+<div class="login-box">
+  <img src="IMG/OIP.jpeg" alt="Perfil Peaje Fragua">
   <h2>Bienvenido al Sistema de Facturación</h2>
 
   <form onsubmit="return validarLogin(event)">
@@ -144,8 +195,8 @@
     </div>
 
     <div style="text-align:left; margin-bottom:16px;">
-      <input type="checkbox" id="show-pass" onclick="togglePassword()">
-      <label for="show-pass">Mostrar Contraseña</label>
+      <input type="checkbox" id="show-pass" disabled>
+      
     </div>
 
     <button type="submit">Iniciar Sesión</button>
@@ -158,22 +209,20 @@
 </div>
 
 <script>
-function togglePassword() {
-  const passField = document.getElementById('password');
-  passField.type = passField.type === "password" ? "text" : "password";
-}
-
 function validarLogin(event) {
   event.preventDefault();
   const user = document.getElementById('usuario').value.trim();
   const pass = document.getElementById('password').value.trim();
 
-  // Credenciales válidas
-  const userValido = "Peaje Fragua";
-  const passValido = "Administrador";
+  if (user === "Peaje Fragua" && pass === "Administrador") {
+    // Mostrar modal de carga
+    const modal = document.getElementById('modalCarga');
+    modal.style.display = 'flex';
 
-  if (user === userValido && pass === passValido) {
-    window.location.href = "home.html";
+    // Redirigir después de un breve retraso
+    setTimeout(() => {
+      window.location.href = "home.html";
+    }, 2500);
   } else {
     alert("❌ Credenciales incorrectas. Intente de nuevo.");
   }
