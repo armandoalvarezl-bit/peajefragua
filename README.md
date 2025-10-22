@@ -15,7 +15,7 @@
   body, html { height: 100%; }
 
   body {
-    background: url('IMG/Diseño%20sin%20título%20(4).png') no-repeat center center fixed;
+    background: url('IMG/oiu.png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;
@@ -231,3 +231,4 @@ function validarLogin(event) {
 
 </body>
 </html>
+
