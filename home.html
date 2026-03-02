@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sistema de Envíos - Guías y Pedidos (Local)</title>
+  <title>Sistema de Envios - Guias y Pedidos (Local)</title>
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,14 +11,14 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-  <!-- Google Fonts: Roboto Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- jsPDF para exportar PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    /* ---------- Tema y tipografías ---------- */
+    /* ---------- Tema y tipografias ---------- */
     :root{
       --bg: #e9eef3;
       --card: #ffffff;
@@ -30,7 +30,7 @@
     html,body{
       background:var(--bg);
       color:var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* Tarjetas */
@@ -44,7 +44,7 @@
     .card:hover{ transform: translateY(-3px); }
 
     /* Navbar y botones primarios */
-    .navbar, .btn-primary{
+    .btn-primary{
       background: linear-gradient(90deg, #0ea5a4, #06b6d4) !important;
       border: 0;
       color: #fff !important;
@@ -63,7 +63,7 @@
       padding:.6rem .75rem;
     }
 
-    /* Tabla / contenedor de guías: limitar altura y scroll */
+    /* Tabla / contenedor de guias: limitar altura y scroll */
     .table {
       color:var(--text);
       background:#fff;
@@ -73,9 +73,9 @@
     .table thead th { background:#f1f5f9; border-bottom: 2px solid var(--border); }
     .table-striped > tbody > tr:nth-of-type(odd) { background-color: #f8fafc; }
 
-    /* Nuevo: caja con altura máxima para la lista de guías */
+    /* Nuevo: caja con altura maxima para la lista de guias */
     .guias-box {
-      max-height: 360px;        /* <--- ajusta esta altura si quieres más/menos */
+      max-height: 360px;        /* <--- ajusta esta altura si quieres mas/menos */
       overflow-y: auto;
       padding-right: 8px;       /* espacio para scrollbar */
     }
@@ -88,43 +88,323 @@
     .status-ent { background:#34d399; color:#064e3b; }
 
     .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .app-header{
+      position: relative;
+      background: linear-gradient(115deg, #0f766e 0%, #0891b2 55%, #0ea5a4 100%) !important;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 14px 32px rgba(8, 145, 178, 0.28);
+      overflow: hidden;
+      padding: .35rem 0;
+    }
+    .app-header::before{
+      content:"";
+      position:absolute;
+      inset:-40% auto auto -14%;
+      width:360px;
+      height:360px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(255,255,255,.2), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .app-header::after{
+      content:"";
+      position:absolute;
+      right:-80px;
+      top:-50px;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .app-nav-shell{
+      position: relative;
+      z-index: 1;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:.65rem;
+    }
+    .brand-stack{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand-title{
+      font-weight:800;
+      letter-spacing:.015em;
+      font-size:1.25rem;
+    }
+    .brand-sub{
+      font-size:.78rem;
+      opacity:.95;
+      font-weight:600;
+      letter-spacing:.01em;
+    }
+    .brand-icon{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.33);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+    }
+    .top-chip{
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.33);
+      color:#fff;
+      border-radius:999px;
+      padding:.34rem .72rem;
+      font-size:.8rem;
+      white-space:nowrap;
+      font-weight:700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+    }
+    .app-actions{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:.45rem;
+    }
+    .nav-action{
+      border:1px solid rgba(255,255,255,.44);
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
+      color:#0f172a;
+      font-weight:700;
+      font-size:.83rem;
+      padding:.42rem .7rem;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      box-shadow: 0 6px 12px rgba(2, 6, 23, 0.14);
+    }
+    .nav-action:hover{
+      transform: translateY(-1px);
+      background: #fff;
+      box-shadow: 0 9px 16px rgba(2, 6, 23, 0.18);
+    }
+    .nav-danger{
+      border:1px solid rgba(127,29,29,.45);
+      background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+      color:#fff;
+      min-width:36px;
+      padding:.42rem .62rem;
+    }
+    .nav-danger:hover{
+      background: linear-gradient(180deg, #dc2626, #991b1b);
+      color:#fff;
+    }
+    .hero-card{
+      background: linear-gradient(130deg, rgba(15, 118, 110, 0.96), rgba(14, 165, 164, 0.92));
+      color: #f8fafc;
+      border: 0;
+      border-radius: 14px;
+      box-shadow: 0 14px 26px rgba(15, 118, 110, 0.26);
+    }
+    .hero-subtitle{
+      color: rgba(241, 245, 249, 0.9);
+      max-width: 64ch;
+    }
+    .hero-pill{
+      display: inline-flex;
+      gap: .35rem;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: .3rem .7rem;
+      margin-right: .45rem;
+      margin-bottom: .45rem;
+      background: rgba(15, 23, 42, 0.14);
+      font-size: .85rem;
+    }
+    .mini-kpi{
+      border-radius: 12px;
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      padding: .75rem;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+    }
+    .mini-kpi .label{
+      color: var(--muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .mini-kpi .value{
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      margin-bottom:.35rem;
+    }
+    .empty-state{
+      border: 1px dashed rgba(15, 118, 110, 0.25);
+      border-radius: 10px;
+      background: #f8fafc;
+      text-align: center;
+      padding: 1rem;
+      color: var(--muted);
+    }
+    .progress-soft{
+      height: .55rem;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .progress-soft > span{
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #0891b2, #14b8a6);
+      width: 0%;
+      transition: width .2s ease;
+    }
 
     footer { opacity:.7; font-size:.85rem; text-align:center; margin-top:2rem; }
 
     .mono { font-family: ui-monospace, "Roboto Mono", monospace; }
 
-    /* Pequeño ajuste responsive */
+    /* Pequeno ajuste responsive */
     @media (max-width: 768px) {
       .guias-box { max-height: 280px; }
+      .brand-title{ font-size:1.08rem; }
+      .brand-sub{ font-size:.73rem; }
+      .app-actions{ width:100%; }
+    }
+    .print-sheet{
+      display:none;
+      color:#0f172a;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .print-card{
+      border:1.5px solid #d1d5db;
+      border-radius:12px;
+      padding:16px;
+    }
+    .print-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      border-bottom:2px solid #0f766e;
+      padding-bottom:10px;
+      margin-bottom:14px;
+    }
+    .print-brand{
+      font-size:1.1rem;
+      font-weight:700;
+      letter-spacing:.02em;
+      color:#0f766e;
+    }
+    .print-meta{
+      text-align:right;
+      font-size:.85rem;
+      color:#334155;
+    }
+    .print-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .print-block{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      padding:10px;
+      background:#f8fafc;
+    }
+    .print-block, .print-table td{
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .print-block h6{
+      margin:0 0 8px;
+      font-size:.82rem;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#0f766e;
+    }
+    .print-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:.9rem;
+      margin-top:8px;
+    }
+    .print-table th, .print-table td{
+      border:1px solid #e5e7eb;
+      padding:7px;
+      text-align:left;
+    }
+    .print-table th{
+      background:#ecfeff;
+      font-weight:700;
+      color:#0f172a;
+    }
+    .print-total{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      font-weight:700;
+    }
+    @media print{
+      @page{ size:A4; margin:12mm; }
+      body{ background:#fff !important; }
+      body *{ visibility:hidden !important; }
+      #print-sheet, #print-sheet *{ visibility:visible !important; }
+      #print-sheet{
+        display:block !important;
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+      }
     }
   </style>
 </head>
 <body>
   <!-- NAV -->
-  <nav class="navbar navbar-expand-lg mb-4">
-    <div class="container-fluid">
-      <a class="navbar-brand text-white ms-2" href="#"><i class="bi bi-box-seam-fill"></i> Envíos Local</a>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-light text-dark" id="btn-seed">Cargar ejemplo</button>
-        <button class="btn btn-sm btn-light text-dark" id="btn-backup">Exportar JSON</button>
-        <button class="btn btn-sm btn-light text-dark" id="btn-restore">Importar JSON</button>
-        <button class="btn btn-sm btn-light text-dark" onclick="logout()">Cerrar sesión</button>
-        <button class="btn btn-sm" id="btn-clear" title="Vaciar base de datos" style="background:#7f1d1d;color:#fff;"><i class="bi bi-trash"></i></button>
+  <nav class="navbar app-header navbar-expand-lg mb-4">
+    <div class="container-fluid app-nav-shell">
+      <a class="navbar-brand text-white ms-2 d-flex align-items-center gap-2" href="#">
+        <span class="brand-icon"><i class="bi bi-box-seam-fill"></i></span>
+        <span class="brand-stack">
+          <span class="brand-title">Envios Local</span>
+          <span class="brand-sub">Control de guias y pedidos</span>
+        </span>
+      </a>
+      <div class="app-actions">
+        <span class="top-chip"><i class="bi bi-calendar3"></i> <span id="top-date">--/--/----</span></span>
+        <button class="btn nav-action" id="btn-seed"><i class="bi bi-stars"></i> Cargar ejemplo</button>
+        <button class="btn nav-action" id="btn-backup"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+        <button class="btn nav-action" id="btn-restore"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+        <a class='btn nav-action' href='consulta.html'><i class='bi bi-search'></i> Consultar envio</a>
+        <button class="btn nav-action" id="btn-logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesion</button>
+        <button class="btn nav-danger" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   </nav>
 
   <div class="container">
+    
     <div class="row g-3">
 
-      <!-- LEFT: Form crear guía -->
+      <!-- LEFT: Form crear guia -->
       <div class="col-lg-4">
         <div class="card p-3">
-          <h5 class="mb-3">Crear / Editar Guía</h5>
+          <h5 class="mb-3">Crear / Editar Guia
+            
+          </h5>
           <form id="form-guia" autocomplete="off">
             <input type="hidden" id="guia-id" value="">
             <div class="mb-2">
-              <label class="form-label small-muted">Número de guía</label>
+              <label class="form-label small-muted">Numero de guia</label>
               <input id="guia-num" class="form-control" required placeholder="Ej: GUA-2025-0001">
             </div>
             <div class="row">
@@ -138,8 +418,8 @@
               </div>
             </div>
             <div class="mb-2">
-              <label class="form-label small-muted">Dirección entrega</label>
-              <input id="guia-dir" class="form-control" placeholder="Dirección completa">
+              <label class="form-label small-muted">Direccion entrega</label>
+              <input id="guia-dir" class="form-control" placeholder="Direccion completa">
             </div>
             <div class="row">
               <div class="col-6 mb-2">
@@ -150,7 +430,7 @@
                 <label class="form-label small-muted">Estado</label>
                 <select id="guia-estado" class="form-select">
                   <option value="Pendiente">Pendiente</option>
-                  <option value="En tránsito">En tránsito</option>
+                  <option value="En transito">En transito</option>
                   <option value="Entregado">Entregado</option>
                 </select>
               </div>
@@ -162,34 +442,52 @@
             </div>
 
             <div class="d-flex gap-2">
-              <button class="btn btn-primary" id="btn-save-guia">Guardar guía</button>
+              <button class="btn btn-primary" id="btn-save-guia">Guardar guia</button>
               <button type="button" class="btn btn-ghost" id="btn-reset">Limpiar</button>
             </div>
             <div class="mt-3">
-              <small class="muted">Cada guía puede contener varios pedidos (items). Guarda la guía y luego agrégale pedidos en la ficha.</small>
+              <small class="muted">Cada guia puede contener varios pedidos (items). Guarda la guia y luego agregale pedidos en la ficha.</small>
             </div>
           </form>
-        </div>
-
-        <!-- Quick stats -->
+        </div>        <!-- Quick stats -->
         <div class="card p-3 mt-3">
-          <h6 class="mb-2">Resumen</h6>
-          <div class="d-flex justify-content-between">
-            <div>
-              <div class="small-muted">Total guías</div>
-              <div id="stat-total" class="h4 mono">0</div>
+          <div class="section-head">
+            <h6 class="mb-0">Resumen rapido</h6>
+            <span class="small-muted"><i class="bi bi-graph-up-arrow"></i> En vivo</span>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Total guias</div>
+                <div id="stat-total" class="value mono">0</div>
+              </div>
             </div>
-            <div>
-              <div class="small-muted">Pendientes</div>
-              <div id="stat-pend" class="h4 mono">0</div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Pendientes</div>
+                <div id="stat-pend" class="value mono">0</div>
+              </div>
             </div>
-            <div>
-              <div class="small-muted">En tránsito</div>
-              <div id="stat-trans" class="h4 mono">0</div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">En transito</div>
+                <div id="stat-trans" class="value mono">0</div>
+              </div>
             </div>
-            <div>
-              <div class="small-muted">Entregadas</div>
-              <div id="stat-ent" class="h4 mono">0</div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Entregadas</div>
+                <div id="stat-ent" class="value mono">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="d-flex justify-content-between small-muted mb-1">
+              <span>Tasa de entrega</span>
+              <span id="stat-rate">0%</span>
+            </div>
+            <div class="progress-soft">
+              <span id="stat-rate-bar"></span>
             </div>
           </div>
         </div>
@@ -200,27 +498,33 @@
         <!-- Search and filter -->
         <div class="card p-3 mb-3">
           <div class="d-flex gap-2 align-items-center">
-            <input id="search" class="form-control" placeholder="Buscar por número guía, remitente, destinatario, dirección...">
+            <input id="search" class="form-control" placeholder="Buscar por numero guia, remitente, destinatario, direccion...">
             <select id="filter-estado" class="form-select" style="max-width:200px">
               <option value="">Todos los estados</option>
               <option value="Pendiente">Pendiente</option>
-              <option value="En tránsito">En tránsito</option>
+              <option value="En transito">En transito</option>
               <option value="Entregado">Entregado</option>
             </select>
-            <button class="btn btn-ghost" id="btn-new">Nueva guía</button>
+            <button class="btn btn-ghost" id="btn-new">Nueva guia</button>
+          </div>
+          <div class="small-muted mt-2">
+            Mostrando <span id="count-filtered" class="mono">0</span> resultado(s) segun tu filtro actual.
           </div>
         </div>
 
-        <!-- Tabla de guías -->
+        <!-- Tabla de guias -->
         <div class="card p-3 mb-3">
-          <h6>Guías registradas</h6>
+          <div class="section-head">
+            <h6 class="mb-0">Guias registradas</h6>
+            <span class="small-muted">Selecciona una fila para ver su ficha</span>
+          </div>
           <div class="mt-2 guias-box">
             <!-- guias-box limita la altura y agrega scroll vertical -->
             <div class="table-responsive">
               <table class="table table-borderless table-hover align-middle" id="tabla-guias">
                 <thead>
                   <tr class="muted">
-                    <th>N° Guía</th>
+                    <th>N° Guia</th>
                     <th>Remitente</th>
                     <th>Destinatario</th>
                     <th>Peso</th>
@@ -229,18 +533,18 @@
                   </tr>
                 </thead>
                 <tbody id="body-guias">
-                  <!-- Rows dinámicas -->
+                  <!-- Rows dinamicas -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Ficha guía -->
+        <!-- Ficha guia -->
         <div class="card p-3" id="ficha-container" style="display:none;">
           <div class="d-flex justify-content-between">
             <div>
-              <h5 id="ficha-num">Guía</h5>
+              <h5 id="ficha-num">Guia</h5>
               <div class="small-muted" id="ficha-fecha">Fecha</div>
             </div>
             <div class="text-end">
@@ -254,7 +558,7 @@
           <div class="row">
             <div class="col-md-6">
               <div><strong>Remitente:</strong> <span id="ficha-rem"></span></div>
-              <div><strong>Dirección:</strong> <span id="ficha-dir"></span></div>
+              <div><strong>Direccion:</strong> <span id="ficha-dir"></span></div>
               <div><strong>Observaciones:</strong> <span id="ficha-obs"></span></div>
             </div>
             <div class="col-md-6">
@@ -270,16 +574,16 @@
           <div class="mb-3">
             <h6 class="d-flex justify-content-between">
               <span>Pedidos / Items</span>
-              <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Añadir pedido</button>
+              <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Anadir pedido</button>
             </h6>
 
             <div id="items-list" class="mt-2">
-              <!-- items dinámicos -->
+              <!-- items dinamicos -->
             </div>
           </div>
 
           <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guía</button>
+            <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guia</button>
             <button class="btn btn-ghost" id="btn-close-ficha">Cerrar ficha</button>
           </div>
         </div>
@@ -288,14 +592,63 @@
     </div>
   </div>
 
+  <div id="print-sheet" class="print-sheet container">
+    <div class="print-card">
+      <div class="print-head">
+        <div>
+          <div class="print-brand">Envios Local</div>
+          <div>Guia de envio y detalle de pedidos</div>
+        </div>
+        <div class="print-meta">
+          <div><strong>No. Guia:</strong> <span id="print-guia-num">-</span></div>
+          <div><strong>Fecha:</strong> <span id="print-fecha">-</span></div>
+          <div><strong>Estado:</strong> <span id="print-estado">-</span></div>
+        </div>
+      </div>
+
+      <div class="print-grid">
+        <div class="print-block">
+          <h6>Remitente</h6>
+          <div><strong>Nombre:</strong> <span id="print-rem">-</span></div>
+          <div><strong>Direccion:</strong> <span id="print-dir">-</span></div>
+          <div><strong>Observaciones:</strong> <span id="print-obs">-</span></div>
+        </div>
+        <div class="print-block">
+          <h6>Destinatario</h6>
+          <div><strong>Nombre:</strong> <span id="print-dest">-</span></div>
+          <div><strong>Peso total:</strong> <span id="print-peso">-</span> kg</div>
+          <div><strong>Emitido:</strong> <span id="print-emitido">-</span></div>
+        </div>
+      </div>
+
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Descripcion</th>
+            <th>Cantidad</th>
+            <th>Peso (kg)</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="print-items"></tbody>
+      </table>
+
+      <div class="print-total">
+        <span>Total declarado:</span>
+        <span id="print-total">$0</span>
+      </div>
+    </div>
+  </div>
+
   <footer class="container mt-4 pb-4">
     <div class="d-flex justify-content-between">
-      <div>© Sistema de Envíos - Local · Diseñado para uso en un solo equipo</div>
-      <div class="muted">IndexedDB · Sin servidor · Archivo único</div>
+      <div>Sistema de Envios - Local | Disenado para uso en un solo equipo</div>
+      <div class="muted">IndexedDB | Sin servidor | Archivo unico</div>
     </div>
   </footer>
 
-  <!-- Modal: Añadir / Editar item -->
+  <!-- Modal: Anadir / Editar item -->
   <div class="modal fade" id="modalItem" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content bg-dark text-white">
@@ -307,8 +660,8 @@
           <form id="form-item">
             <input type="hidden" id="item-id" value="">
             <div class="mb-2">
-              <label class="form-label small-muted">Descripción</label>
-              <input id="item-desc" class="form-control" required placeholder="Ej: Caja electrónica">
+              <label class="form-label small-muted">Descripcion</label>
+              <input id="item-desc" class="form-control" required placeholder="Ej: Caja electronica">
             </div>
             <div class="mb-2">
               <label class="form-label small-muted">Cantidad</label>
@@ -337,8 +690,8 @@
   <script>
   /**
    * archivo: index.html (mejorado - fase 1)
-   * Objetivo: Mejorar estructura y legibilidad sin cambiar la lógica.
-   * Conserva: IndexedDB, export/import JSON, PDF, CRUD guías y pedidos, modal.
+   * Objetivo: Mejorar estructura y legibilidad sin cambiar la logica.
+   * Conserva: IndexedDB, export/import JSON, PDF, CRUD guias y pedidos, modal.
    */
 
   (function(){
@@ -350,6 +703,9 @@
     const DB_NAME = 'envios_db_v1';
     const DB_VERSION = 1;
     let db;
+    const EXCEL_API_URL = 'https://script.google.com/macros/s/AKfycbwgRMijbCWQfD2mRsAgAXSzWgT9FxzNQBBDIoisI0kk1f7Cw0pTLIez09Y9KdCZFRW9/exec';
+    const EXCEL_SHEET_NAME = 'Tabla_1';
+    const EXCEL_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
 
     /* ==========================
        Helpers: DOM shortcuts
@@ -435,6 +791,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       await openDB();
       bsModalItem = new bootstrap.Modal($('#modalItem'), { backdrop: 'static' });
+      startClock();
       bindEvents();
       await refreshTabla();
       await updateStats();
@@ -444,40 +801,69 @@
        Bind de eventos
        ========================== */
     function bindEvents(){
-      $('#form-guia').addEventListener('submit', onSaveGuia);
-      $('#btn-reset').addEventListener('click', resetForm);
-      $('#btn-new').addEventListener('click', ()=>{ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); });
-      $('#search').addEventListener('input', refreshTabla);
-      $('#filter-estado').addEventListener('change', refreshTabla);
-      $('#btn-close-ficha').addEventListener('click', ()=> $('#ficha-container').style.display = 'none');
-      $('#btn-delete-guia').addEventListener('click', onDeleteGuia);
-      $('#btn-add-item').addEventListener('click', ()=> openItemModal());
-      $('#form-item').addEventListener('submit', onSaveItem);
-      $('#btn-export-pdf').addEventListener('click', exportPDFCurrent);
-      $('#btn-print').addEventListener('click', () => window.print());
-      $('#btn-seed').addEventListener('click', seedDemo);
-      $('#btn-backup').addEventListener('click', exportJSON);
-      $('#btn-restore').addEventListener('click', ()=> {
+      const on = (id, evt, handler) => {
+        const el = $(id);
+        if (!el) return console.warn('No existe elemento', id);
+        el.addEventListener(evt, handler);
+      };
+
+      on('#form-guia', 'submit', onSaveGuia);
+      on('#btn-reset', 'click', resetForm);
+      on('#btn-new', 'click', ()=>{ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); });
+      on('#search', 'input', refreshTabla);
+      on('#filter-estado', 'change', refreshTabla);
+      on('#btn-close-ficha', 'click', ()=> $('#ficha-container').style.display = 'none');
+      on('#btn-delete-guia', 'click', onDeleteGuia);
+      on('#btn-add-item', 'click', ()=> openItemModal());
+      on('#form-item', 'submit', onSaveItem);
+      on('#btn-export-pdf', 'click', exportPDFCurrent);
+      on('#btn-print', 'click', printCurrentGuide);
+      on('#btn-logout', 'click', logout);
+      on('#btn-seed', 'click', seedDemo);
+      on('#btn-backup', 'click', exportJSON);
+      on('#btn-restore', 'click', ()=> {
         const f = document.createElement('input');
         f.type = 'file'; f.accept = '.json,application/json';
         f.onchange = async (e) => {
           const file = e.target.files[0];
+          if (!file) return;
           const txt = await file.text();
           await importJSON(txt);
           await refreshTabla();
         };
         f.click();
       });
-      $('#btn-clear').addEventListener('click', async ()=> {
-        if (!confirm('¿Eliminar toda la base de datos local? Esta acción NO tiene vuelta atrás.')) return;
+      on('#btn-clear', 'click', async ()=> {
+        if (!confirm('Eliminar toda la base de datos local? Esta accion NO tiene vuelta atras.')) return;
         const r = indexedDB.deleteDatabase(DB_NAME);
-        r.onsuccess = () => { alert('Base de datos eliminada. Recarga la página.'); location.reload(); };
+        r.onsuccess = () => { alert('Base de datos eliminada. Recarga la pagina.'); location.reload(); };
         r.onerror = () => alert('No se pudo eliminar la base de datos.');
+      });
+
+      on('#body-guias', 'click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = Number(btn.dataset.id);
+        const action = btn.dataset.action;
+        if (!id || !action) return;
+        if (action === 'view') return openFicha(id);
+        if (action === 'edit') return editGuia(id);
+        if (action === 'delete') return confirmDelete(id, btn.dataset.numero || '');
+      });
+
+      on('#items-list', 'click', (e) => {
+        const btn = e.target.closest('button[data-item-action]');
+        if (!btn) return;
+        const guiaId = Number(btn.dataset.guiaId);
+        const idx = Number(btn.dataset.idx);
+        if (!Number.isFinite(guiaId) || !Number.isFinite(idx)) return;
+        if (btn.dataset.itemAction === 'edit') return editItem(guiaId, idx);
+        if (btn.dataset.itemAction === 'delete') return deleteItem(guiaId, idx);
       });
     }
 
     /* ==========================
-       Guardar / Actualizar guía
+       Guardar / Actualizar guia
        ========================== */
     async function onSaveGuia(e){
       e.preventDefault();
@@ -490,7 +876,7 @@
       const estado = $('#guia-estado').value;
       const obs = $('#guia-obs').value;
 
-      if (!numero || !remitente || !destinatario) { alert('Número, remitente y destinatario son obligatorios.'); return; }
+      if (!numero || !remitente || !destinatario) { alert('Numero, remitente y destinatario son obligatorios.'); return; }
 
       const now = new Date().toISOString();
 
@@ -506,21 +892,24 @@
         g.obs = obs;
         g.updated_at = now;
         await putGuia(g);
-        alert('Guía actualizada.');
+        syncGuiaToExcel(g, 'upsert');
+        alert('Guia actualizada.');
         await loadFicha(g.id);
       } else {
-        // nueva guía
+        // nueva guia
         const guia = { numero, remitente, destinatario, direccion, peso, estado, obs, pedidos: [], created_at: now, updated_at: now };
         try {
           const newId = await addGuia(guia);
-          alert('Guía creada con ID ' + newId);
+          guia.id = newId;
+          syncGuiaToExcel(guia, 'upsert');
+          alert('Guia creada con ID ' + newId);
           resetForm();
         } catch (err) {
-          // ConstraintError -> número duplicado (índice unique)
+          // ConstraintError -> numero duplicado (indice unique)
           if (err && err.target && err.target.error && /ConstraintError/.test(err.target.error.name)) {
-            alert('Ya existe una guía con ese número. Use otro número.');
+            alert('Ya existe una guia con ese numero. Use otro numero.');
           } else {
-            alert('Error al crear la guía.');
+            alert('Error al crear la guia.');
             console.error(err);
           }
         }
@@ -552,10 +941,18 @@
 
       const filtered = list.filter(g => {
         const text = (g.numero + ' ' + g.remitente + ' ' + g.destinatario + ' ' + (g.direccion||'')).toLowerCase();
-        if (estadoFilter && g.estado !== estadoFilter) return false;
+        if (estadoFilter && normalizeEstado(g.estado) !== normalizeEstado(estadoFilter)) return false;
         if (q && !text.includes(q)) return false;
         return true;
       }).sort((a,b) => b.id - a.id);
+
+      
+      $("#count-filtered").innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `\r\n          <tr>\r\n            <td colspan="6">\r\n              <div class="empty-state">\r\n                <div class="mb-1"><i class="bi bi-inbox"></i> No hay guias para este filtro</div>\r\n                <div class="small-muted">Prueba limpiar la busqueda o crear una nueva guia.</div>\r\n              </div>\r\n            </td>\r\n          </tr>\r\n        `;
+        return;
+      }
 
       for (const g of filtered) {
         const tr = document.createElement('tr');
@@ -567,9 +964,9 @@
           <td>${renderEstado(g.estado)}</td>
           <td class="text-end">
             <div class="btn-group" role="group">
-              <button class="btn btn-sm btn-light" data-id="${g.id}" onclick="openFicha(${g.id})"><i class="bi bi-eye"></i></button>
-              <button class="btn btn-sm btn-ghost" data-id="${g.id}" onclick="editGuia(${g.id})"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-danger" data-id="${g.id}" onclick="confirmDelete(${g.id}, '${escapeQuotes(g.numero)}')"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-sm btn-light" data-action="view" data-id="${g.id}"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-ghost" data-action="edit" data-id="${g.id}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-danger" data-action="delete" data-id="${g.id}" data-numero="${escapeHtml(g.numero)}"><i class="bi bi-trash"></i></button>
             </div>
           </td>
         `;
@@ -584,13 +981,58 @@
       return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
     function escapeQuotes(s=''){ return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+    function normalizeEstado(estado=''){
+      return String(estado)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
 
     function renderEstado(estado){
       if (!estado) return '';
-      if (estado === 'Pendiente') return '<span class="badge-status status-pend">Pendiente</span>';
-      if (estado === 'En tránsito') return '<span class="badge-status status-trans">En tránsito</span>';
-      if (estado === 'Entregado') return '<span class="badge-status status-ent">Entregado</span>';
+      const n = normalizeEstado(estado);
+      if (n === 'pendiente') return '<span class="badge-status status-pend">Pendiente</span>';
+      if (n.includes('transito')) return '<span class="badge-status status-trans">En transito</span>';
+      if (n === 'entregado') return '<span class="badge-status status-ent">Entregado</span>';
       return `<span class="badge-status">${escapeHtml(estado)}</span>`;
+    }
+
+    function buildPedidosResumen(pedidos){
+      if (!Array.isArray(pedidos) || pedidos.length === 0) return '';
+      return pedidos.map((it) => `${it.descripcion || '-'} x${it.cantidad || 1}`).join(' | ');
+    }
+
+    function mapGuiaForExcel(guia){
+      return {
+        Numero: guia.numero || '',
+        Estado: guia.estado || '',
+        Remitente: guia.remitente || '',
+        Destinatario: guia.destinatario || '',
+        Direccion: guia.direccion || '',
+        Peso: guia.peso ?? '',
+        Observaciones: guia.obs || '',
+        Fecha: guia.created_at || guia.updated_at || new Date().toISOString(),
+        Pedidos: buildPedidosResumen(guia.pedidos || []),
+      };
+    }
+
+    async function syncGuiaToExcel(guia, action = 'upsert'){
+      if (!guia || !guia.numero) return;
+      try {
+        await fetch(EXCEL_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action,
+            hoja: EXCEL_SHEET_NAME,
+            spreadsheetId: EXCEL_SPREADSHEET_ID,
+            guia: mapGuiaForExcel(guia),
+          }),
+        });
+      } catch (err) {
+        console.warn('No se pudo sincronizar guia con Excel:', err);
+      }
     }
 
     /* ==========================
@@ -598,22 +1040,23 @@
        ========================== */
     async function editGuia(id){
       const g = await getGuiaById(id);
-      if (!g) return alert('Guía no encontrada');
+      if (!g) return alert('Guia no encontrada.');
       $('#guia-id').value = g.id;
       $('#guia-num').value = g.numero;
       $('#guia-rem').value = g.remitente;
       $('#guia-dest').value = g.destinatario;
       $('#guia-dir').value = g.direccion || '';
       $('#guia-peso').value = g.peso || '';
-      $('#guia-estado').value = g.estado || 'Pendiente';
+      const estadoEdit = normalizeEstado(g.estado);
+      $('#guia-estado').value = estadoEdit.includes('transito') ? 'En transito' : (g.estado || 'Pendiente');
       $('#guia-obs').value = g.obs || '';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function confirmDelete(id, numero){
-      if (!confirm('¿Eliminar la guía ' + numero + ' (ID ' + id + ')?')) return;
+      if (!confirm('Eliminar la guia ' + numero + ' (ID ' + id + ')?')) return;
       await deleteGuia(id);
-      alert('Guía eliminada.');
+      alert('Guia eliminada.');
       await refreshTabla();
       await updateStats();
     }
@@ -629,7 +1072,7 @@
 
     async function loadFicha(id){
       const g = await getGuiaById(Number(id));
-      if (!g) return alert('Guía no encontrada.');
+      if (!g) return alert('Guia no encontrada.');
       $('#ficha-num').innerText = g.numero;
       $('#ficha-fecha').innerText = 'Creada: ' + (g.created_at ? new Date(g.created_at).toLocaleString() : '-');
       $('#ficha-rem').innerText = g.remitente;
@@ -640,10 +1083,11 @@
 
       const estadoEl = $('#ficha-estado');
       estadoEl.className = 'badge-status';
-      if (g.estado === 'Pendiente') estadoEl.classList.add('status-pend');
-      if (g.estado === 'En tránsito') estadoEl.classList.add('status-trans');
-      if (g.estado === 'Entregado') estadoEl.classList.add('status-ent');
-      estadoEl.innerText = g.estado;
+      const estadoNorm = normalizeEstado(g.estado);
+      if (estadoNorm === 'pendiente') estadoEl.classList.add('status-pend');
+      if (estadoNorm.includes('transito')) estadoEl.classList.add('status-trans');
+      if (estadoNorm === 'entregado') estadoEl.classList.add('status-ent');
+      estadoEl.innerText = estadoNorm.includes('transito') ? 'En transito' : (g.estado || '-');
 
       $('#btn-delete-guia').dataset.id = g.id;
 
@@ -661,11 +1105,11 @@
         card.innerHTML = `
           <div>
             <div><strong>${escapeHtml(it.descripcion)}</strong> <span class="small-muted">x${it.cantidad}</span></div>
-            <div class="small-muted">Peso: ${it.peso||'-'} kg · Valor: ${it.valor||'-'}</div>
+            <div class="small-muted">Peso: ${it.peso||'-'} kg | Valor: ${it.valor||'-'}</div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-sm btn-ghost" onclick="editItem(${g.id}, ${idx})"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger" onclick="deleteItem(${g.id}, ${idx})"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-ghost" data-item-action="edit" data-guia-id="${g.id}" data-idx="${idx}"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-danger" data-item-action="delete" data-guia-id="${g.id}" data-idx="${idx}"><i class="bi bi-trash"></i></button>
           </div>
         `;
         itemsList.appendChild(card);
@@ -676,11 +1120,11 @@
     }
 
     async function onDeleteGuia(){
-      const id = $('#ficha-container').dataset.current;
+      const id = $("#ficha-container").dataset.current;
       if (!id) return;
-      if (!confirm('Eliminar guía ID ' + id + '?')) return;
+      if (!confirm('Eliminar guia ID ' + id + '?')) return;
       await deleteGuia(Number(id));
-      $('#ficha-container').style.display = 'none';
+      $("#ficha-container").style.display = 'none';
       await refreshTabla();
       await updateStats();
     }
@@ -707,9 +1151,9 @@
       const peso = parseFloat($('#item-peso').value || 0) || 0;
 
       const guiaId = Number($('#ficha-container').dataset.current);
-      if (!guiaId) { alert('Primero abre la ficha de una guía y luego añade pedidos.'); return; }
+      if (!guiaId) { alert('Primero abre la ficha de una guia y luego anade pedidos.'); return; }
       const g = await getGuiaById(guiaId);
-      if (!g) return alert('Guía no encontrada.');
+      if (!g) return alert('Guia no encontrada.');
 
       const item = { descripcion: desc, cantidad: cant, valor: valor || null, peso: peso || null };
 
@@ -723,6 +1167,7 @@
 
       g.updated_at = new Date().toISOString();
       await putGuia(g);
+      syncGuiaToExcel(g, 'upsert');
       bsModalItem.hide();
       await loadFicha(guiaId);
       await refreshTabla();
@@ -747,6 +1192,7 @@
       g.pedidos.splice(idx,1);
       g.updated_at = new Date().toISOString();
       await putGuia(g);
+      syncGuiaToExcel(g, 'upsert');
       await loadFicha(guiaId);
       await refreshTabla();
       await updateStats();
@@ -769,13 +1215,12 @@
     async function importJSON(text){
       try {
         const parsed = JSON.parse(text);
-        if (!Array.isArray(parsed.guias)) throw new Error('Formato inválido');
+        if (!Array.isArray(parsed.guias)) throw new Error('Formato invalido');
         for (const g of parsed.guias) {
           const toAdd = Object.assign({}, g);
           delete toAdd.id;
           try { await addGuia(toAdd); }
           catch(e){
-            // si número existente, lo actualizamos
             const existing = await findGuiaByNumero(toAdd.numero);
             if (existing) {
               toAdd.id = existing.id;
@@ -783,7 +1228,7 @@
             }
           }
         }
-        alert('Importación finalizada.');
+        alert('Importacion finalizada.');
         await refreshTabla();
         await updateStats();
       } catch (err){
@@ -792,7 +1237,7 @@
     }
 
     function findGuiaByNumero(numero){
-      return new Promise((res, rej) => {
+      return new Promise((res) => {
         const store = tx('guias','readonly');
         const idx = store.index('num');
         const r = idx.get(numero);
@@ -801,159 +1246,281 @@
       });
     }
 
-  async function exportPDFCurrent() {
-  const id = Number($('#ficha-container').dataset.current);
-  if (!id) return alert('Abra la ficha de una guía primero.');
-  const g = await getGuiaById(id);
-  if (!g) return alert('Guía no encontrada.');
+    async function printCurrentGuide() {
+      const id = Number($('#ficha-container').dataset.current);
+      if (!id) return alert('Abra la ficha de una guia primero.');
+      const g = await getGuiaById(id);
+      if (!g) return alert('Guia no encontrada.');
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: [100, 150] });
-  const pageWidth = 100;
-  const pageHeight = 150;
-  const margin = 10;
-  let y = 20;
+      $('#print-guia-num').innerText = g.numero || '-';
+      $('#print-fecha').innerText = new Date().toLocaleString();
+      $('#print-estado').innerText = g.estado || '-';
+      $('#print-rem').innerText = g.remitente || '-';
+      $('#print-dest').innerText = g.destinatario || '-';
+      $('#print-dir').innerText = g.direccion || '-';
+      $('#print-obs').innerText = g.obs || '-';
+      $('#print-peso').innerText = (g.peso ?? '-');
+      $('#print-emitido').innerText = g.created_at ? new Date(g.created_at).toLocaleString() : '-';
 
-  // --- Función para escribir texto largo dentro de un ancho máximo ---
-  function writeText(text, x, y, maxWidth, lineHeight = 4) {
-    const lines = doc.splitTextToSize(text, maxWidth);
-    lines.forEach(line => {
-      if (y > pageHeight - margin) { // Si llegamos al final de la página
-        doc.addPage();
-        y = margin;
+      const tbody = $('#print-items');
+      tbody.innerHTML = '';
+
+      let total = 0;
+      const pedidos = Array.isArray(g.pedidos) ? g.pedidos : [];
+      if (pedidos.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.innerText = 'Sin pedidos registrados.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      } else {
+        pedidos.forEach((it, i) => {
+          const tr = document.createElement('tr');
+          const valorNum = Number(it.valor || 0);
+          total += valorNum;
+
+          const c1 = document.createElement('td'); c1.innerText = String(i + 1);
+          const c2 = document.createElement('td'); c2.innerText = it.descripcion || '-';
+          const c3 = document.createElement('td'); c3.innerText = String(it.cantidad || 1);
+          const c4 = document.createElement('td'); c4.innerText = String(it.peso ?? '-');
+          const c5 = document.createElement('td'); c5.innerText = valorNum ? ('$' + valorNum.toLocaleString()) : '-';
+
+          tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); tr.appendChild(c5);
+          tbody.appendChild(tr);
+        });
       }
-      doc.text(line, x, y);
-      y += lineHeight;
-    });
-    return y;
-  }
 
-  // --- Logo ---
-  const img = new Image();
-  img.src = './img/logo.png';
-  img.onload = function() {
-    const imgWidth = 30;
-    const imgHeight = 18;
-    doc.addImage(img, "PNG", margin, 5, imgWidth, imgHeight);
-  };
+      $('#print-total').innerText = '$' + total.toLocaleString();
+      window.print();
+    }
 
-  // --- Encabezado ---
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("GUÍA DE ENVÍO", pageWidth / 2, 15, { align: "center" });
+    async function exportPDFCurrent() {
+      const id = Number($('#ficha-container').dataset.current);
+      if (!id) return alert('Abra la ficha de una guia primero.');
+      const g = await getGuiaById(id);
+      if (!g) return alert('Guia no encontrada.');
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.text(`Fecha: ${g.created_at ? new Date(g.created_at).toLocaleDateString() : "-"}`, pageWidth / 2, 20, { align: "center" });
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  doc.setDrawColor(0);
-  doc.line(margin, 25, pageWidth - margin, 25);
+      const labelX = 6;
+      const labelW = 198;
+      const labelH = 88;
+      const labelGap = 6;
+      const baseY = 8;
 
-  // --- Sección Remitente ---
-  y = 32;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("Remitente:", margin, y);
-  doc.setFont("helvetica", "normal");
-  y = writeText(g.remitente || "-", margin + 25, y, pageWidth - margin * 2 - 25);
+      const numero = (g.numero || ('GUIA-' + id)).toUpperCase();
+      const fecha = g.created_at ? new Date(g.created_at).toLocaleString() : new Date().toLocaleString();
+      const pedidos = Array.isArray(g.pedidos) ? g.pedidos : [];
+      const totalValor = pedidos.reduce((s, it) => s + Number(it.valor || 0), 0);
+      const totalUnidades = pedidos.reduce((s, it) => s + Number(it.cantidad || 1), 0);
+      const pesoTotal = Number(g.peso || 0) || pedidos.reduce((s, it) => s + (Number(it.peso || 0) * Number(it.cantidad || 1)), 0);
+      const logoDataUrl = await loadLogoDataUrl();
 
-  y += 2;
-  doc.setFont("helvetica", "bold");
-  doc.text("Dirección:", margin, y);
-  doc.setFont("helvetica", "normal");
-  y = writeText(g.direccion || "-", margin + 25, y, pageWidth - margin * 2 - 25);
-
-  // --- Sección Destinatario ---
-  y += 4;
-  doc.setFont("helvetica", "bold");
-  doc.text("Destinatario:", margin, y);
-  doc.setFont("helvetica", "normal");
-  y = writeText(g.destinatario || "-", margin + 25, y, pageWidth - margin * 2 - 25);
-
-  // --- Detalles del envío (caja flexible) ---
-  y += 6;
-  const detailsStartY = y;
-  const detailsWidth = pageWidth - 2 * margin;
-  const detailsContent = [
-    `Número de guía: ${g.numero}`,
-    `Peso total (kg): ${g.peso || "-"}`,
-    `Estado: ${g.estado}`,
-    `Observaciones: ${g.obs || "-"}`
-  ];
-
-  let detailsHeight = 6; // título
-  detailsContent.forEach(text => {
-    const lines = doc.splitTextToSize(text, detailsWidth - 4);
-    detailsHeight += lines.length * 4;
-  });
-
-  if (detailsStartY + detailsHeight > pageHeight - margin) {
-    doc.addPage();
-    y = margin;
-  }
-
-  doc.setDrawColor(180);
-  doc.rect(margin, y - 4, detailsWidth, detailsHeight);
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Detalles del envío:", margin + 2, y);
-  doc.setFont("helvetica", "normal");
-  y += 6;
-
-  detailsContent.forEach(text => {
-    y = writeText(text, margin + 2, y, detailsWidth - 4);
-  });
-
-  // --- Pedidos ---
-  y += 6;
-  doc.setFont("helvetica", "bold");
-  doc.text("Pedidos:", margin, y);
-  y += 4;
-  doc.setFont("helvetica", "normal");
-
-  if (!g.pedidos || g.pedidos.length === 0) {
-    y = writeText("Sin pedidos registrados.", margin, y, pageWidth - 2 * margin);
-  } else {
-    g.pedidos.forEach((it, i) => {
-      if (y > pageHeight - margin - 10) { // margen inferior
-        doc.addPage();
-        y = margin;
+      async function loadLogoDataUrl() {
+        const candidates = ['./img/OIP.png', './img/OIP.jpeg', './img/OIP.jpg'];
+        for (const path of candidates) {
+          try {
+            const res = await fetch(path, { cache: 'no-store' });
+            if (!res.ok) continue;
+            const blob = await res.blob();
+            const dataUrl = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(String(reader.result || ''));
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            if (dataUrl.startsWith('data:image/')) return dataUrl;
+          } catch (e) {
+            // Intentar siguiente formato
+          }
+        }
+        return null;
       }
-      const line = `${i + 1}. ${it.descripcion} — Cant: ${it.cantidad} — Peso: ${it.peso || "-"} kg`;
-      y = writeText(line, margin, y, pageWidth - 2 * margin);
-    });
-  }
 
-  // --- Código de guía ---
-  y += 5;
-  doc.setDrawColor(0);
-  doc.line(margin, y, pageWidth - margin, y);
-  y += 10;
+      function drawBarcode(x, y, w, h, text, showCode = true) {
+        const safe = String(text || '000000').replace(/[^A-Z0-9]/g, '');
+        const seed = safe.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        let cursor = x;
+        while (cursor < x + w - 1) {
+          const v = (seed + Math.floor(cursor * 10)) % 7;
+          const bw = v % 2 === 0 ? 0.45 : 0.9;
+          doc.setFillColor(0, 0, 0);
+          doc.rect(cursor, y, bw, h, 'F');
+          cursor += bw + 0.35;
+        }
+        if (showCode) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.3);
+          doc.text(safe || '000000', x + w / 2, y + h + 2.8, { align: 'center' });
+        }
+      }
 
-  doc.setFont("courier", "bold");
-  doc.setFontSize(14);
-  doc.text(`*${g.numero}*`, pageWidth / 2, y, { align: "center" });
+      function drawMockQr(x, y, size, text) {
+        doc.setDrawColor(0);
+        doc.rect(x, y, size, size);
+        const n = 17;
+        const cell = size / n;
+        const seed = String(text || '').split('').reduce((a, c) => a + c.charCodeAt(0), 13);
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const key = (r * 31 + c * 17 + seed) % 11;
+            if (key < 4) doc.rect(x + c * cell, y + r * cell, cell, cell, 'F');
+          }
+        }
+      }
 
-  // --- Pie ---
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  y += 10;
-  doc.text("Gracias por confiar en nuestro servicio", pageWidth / 2, y, { align: "center" });
+      function box(x, y, w, h, title, value, titleSize = 5.6, valueSize = 7.2, bold = false, lineHeight = 2.9) {
+        doc.setDrawColor(20);
+        doc.rect(x, y, w, h);
+        if (title) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(titleSize);
+          doc.text(title, x + 1.2, y + 2.8);
+        }
+        const lines = doc.splitTextToSize(String(value || '-'), w - 2.4);
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(valueSize);
+        const maxLines = Math.max(1, Math.floor((h - 5) / lineHeight));
+        const out = lines.slice(0, maxLines);
+        if (lines.length > maxLines && out.length) {
+          out[out.length - 1] = String(out[out.length - 1]).replace(/\s+$/, '') + '...';
+        }
+        doc.text(out, x + 1.2, y + 6);
+      }
 
-  // --- Guardar PDF ---
-  doc.save(`guia_${g.numero}.pdf`);
-}
+      function drawCopy(y, copyNo) {
+        const x = labelX;
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.35);
+        doc.rect(x, y, labelW, labelH);
 
+        const c1 = 70;
+        const c2 = 44;
+        const c3 = labelW - c1 - c2;
+        doc.line(x + c1, y, x + c1, y + labelH);
+        doc.line(x + c1 + c2, y, x + c1 + c2, y + labelH);
+
+        if (logoDataUrl) {
+          try {
+            const fmt = logoDataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+            const logoBoxX = x + 2.2;
+            const logoBoxY = y + 2;
+            const logoBoxW = 38;
+            const logoBoxH = 12;
+            const props = doc.getImageProperties(logoDataUrl);
+            const scale = Math.min(logoBoxW / props.width, logoBoxH / props.height);
+            const drawW = props.width * scale;
+            const drawH = props.height * scale;
+            const drawX = logoBoxX + 0.8;
+            const drawY = logoBoxY + (logoBoxH - drawH) / 2 - 0.2;
+            doc.addImage(logoDataUrl, fmt, drawX, drawY, drawW, drawH);
+          } catch (e) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.setTextColor(205, 0, 0);
+            doc.text('e', x + 3, y + 11);
+            doc.setFontSize(17);
+            doc.text('envia', x + 10, y + 10.6);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.2);
+            doc.setTextColor(0, 0, 0);
+            doc.text('pasion por lo que hacemos', x + 10.5, y + 13.5);
+          }
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(20);
+          doc.setTextColor(205, 0, 0);
+          doc.text('e', x + 3, y + 11);
+          doc.setFontSize(17);
+          doc.text('envia', x + 10, y + 10.6);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.2);
+          doc.setTextColor(0, 0, 0);
+          doc.text('pasion por lo que hacemos', x + 10.5, y + 13.5);
+        }
+
+        drawMockQr(x + 44, y + 2.2, 20, numero + '-' + copyNo);
+
+        box(x + 1.2, y + 24, c1 - 2.4, 6.8, 'REMITENTE', g.remitente || '-', 5.5, 7.1, true);
+        box(x + 1.2, y + 31.2, c1 - 2.4, 6.8, 'DIRECCION', g.direccion || '-', 5.5, 6.7);
+        box(x + 1.2, y + 38.4, (c1 - 2.4) / 2, 6.4, 'TEL', '-', 5.3, 6.5);
+        box(x + 1.2 + (c1 - 2.4) / 2, y + 38.4, (c1 - 2.4) / 2, 6.4, 'CUENTA', '01-0000000', 5.3, 6.5);
+
+        box(x + c1 + 1.2, y + 1.2, c2 - 2.4, 11.5, 'PREFIJO DOC', numero + ' / ' + copyNo, 5.3, 7);
+        box(x + c1 + 1.2, y + 13.2, c2 - 2.4, 11.6, 'DESTINO', (g.destinatario || '-') + ' / BARRANQUILLA', 5.2, 6.1, false, 2.7);
+
+        box(x + c1 + c2 + 1.2, y + 1.2, c3 - 2.4, 15, 'FACTURA / CODIGO', 'OC001 016004845558', 5.4, 7.1, true);
+        drawBarcode(x + c1 + c2 + 2.2, y + 17.2, c3 - 4.4, 9.2, numero + copyNo, false);
+
+        box(x + c1 + 1.2, y + 24, c2 - 2.4, 6.8, 'UNIDADES', totalUnidades || 1, 5.3, 8, true);
+        box(x + c1 + 1.2, y + 31.2, c2 - 2.4, 6.8, 'PESO KG', pesoTotal.toFixed(2), 5.3, 8, true);
+        box(x + c1 + 1.2, y + 38.4, c2 - 2.4, 6.8, 'VALOR DECLARADO', '$' + totalValor.toLocaleString(), 5.3, 7.2, true);
+
+        box(x + c1 + c2 + 1.2, y + 29, c3 - 2.4, 9.6, 'INTENTO DE ENTREGA', '1 [ ]   2 [ ]   3 [ ]', 5.1, 6.0, false, 2.6);
+        box(x + c1 + c2 + 1.2, y + 38.8, c3 - 2.4, 6.4, 'RECIBE', 'NOMBRE / CC / FIRMA', 5.0, 5.8, false, 2.5);
+
+        box(x + 1.2, y + 45.6, labelW - 2.4, 13.2, 'OBSERVACIONES', g.obs || '-', 5.3, 6.8);
+
+        const itemsText = pedidos.length
+          ? pedidos.slice(0, 3).map((it, i) => (i + 1) + '. ' + (it.descripcion || '-') + ' x' + (it.cantidad || 1)).join('   |   ')
+          : 'SIN ITEMS REGISTRADOS';
+        box(x + 1.2, y + 59.2, labelW - 2.4, 7.6, 'DETALLE CONTENIDO', itemsText, 5.1, 5.8, false, 2.55);
+
+        box(x + 1.2, y + 66.8, 58, 6.2, 'FECHA EMISION', fecha, 5.0, 5.7, false, 2.5);
+        box(x + 59.8, y + 66.8, 42, 6.2, 'ESTADO', g.estado || '-', 5.0, 5.7, true, 2.5);
+        box(x + 102.2, y + 66.8, 45, 6.2, 'COPIA', 'No. ' + copyNo, 5.0, 5.7, true, 2.5);
+        box(x + 147.6, y + 66.8, labelW - 148.8, 6.2, 'CODIGO INTERNO', String(id).padStart(6, '0'), 5.0, 5.7, false, 2.5);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(5.2);
+        doc.text('Documento generado por Sistema de Envios Local. Verifique datos antes de despacho.', x + 1.2, y + 75.8);
+        doc.text('Firma remitente: _____________________', x + 1.2, y + 81.5);
+        doc.text('Firma transportador: _____________________', x + 77, y + 81.5);
+        doc.text('Firma destinatario: _____________________', x + 152, y + 81.5);
+      }
+
+      for (let i = 0; i < 3; i++) drawCopy(baseY + i * (labelH + labelGap), i + 1);
+      doc.save(`guia_formato_${numero}.pdf`);
+    }
 
     /* ==========================
-       Estadísticas rápidas
+       Estadisticas rapidas
        ========================== */
     async function updateStats(){
       const all = await getAllGuias();
+      const normalizeEstado = (value='') => String(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const pendientes = all.filter(g => normalizeEstado(g.estado) === 'pendiente').length;
+      const transito = all.filter(g => normalizeEstado(g.estado).includes('transito')).length;
+      const entregadas = all.filter(g => normalizeEstado(g.estado) === 'entregado').length;
+
       $('#stat-total').innerText = all.length;
-      $('#stat-pend').innerText = all.filter(g=> g.estado === 'Pendiente').length;
-      $('#stat-trans').innerText = all.filter(g=> g.estado === 'En tránsito').length;
-      $('#stat-ent').innerText = all.filter(g=> g.estado === 'Entregado').length;
+      $('#stat-pend').innerText = pendientes;
+      $('#stat-trans').innerText = transito;
+      $('#stat-ent').innerText = entregadas;
+
+      const rate = all.length ? Math.round((entregadas / all.length) * 100) : 0;
+      $('#stat-rate').innerText = rate + '%';
+      $('#stat-rate-bar').style.width = rate + '%';
+    }
+
+    function startClock(){
+      const clockEl = $('#live-clock');
+      const dateEl = $('#top-date');
+      if (!clockEl && !dateEl) return;
+
+      const render = () => {
+        const now = new Date();
+        if (clockEl) clockEl.innerText = now.toLocaleTimeString();
+        if (dateEl) dateEl.innerText = now.toLocaleDateString();
+      };
+      render();
+      setInterval(render, 1000);
     }
 
     /* ==========================
@@ -962,15 +1529,15 @@
     async function seedDemo(){
       if (!confirm('Cargar datos de ejemplo (no elimina existentes)?')) return;
       const sample = [
-        { numero:'GUA-2025-0001', remitente:'Venta Online S.A.', destinatario:'Clara Gómez', direccion:'Calle 123 #45-67, Bogotá', peso:2.4, estado:'Pendiente', obs:'Fragil', pedidos:[{descripcion:'Libros',cantidad:2,valor:50,peso:2}]},
-        { numero:'GUA-2025-0002', remitente:'ElectroWorld', destinatario:'J. Pérez', direccion:'Carrera 10 #22-11, Medellín', peso:5.2, estado:'En tránsito', obs:'Entrega antes de 5pm', pedidos:[{descripcion:'Auriculares',cantidad:1,valor:120,peso:0.5},{descripcion:'Cargador',cantidad:1,valor:10,peso:0.2}]},
+        { numero:'GUA-2025-0001', remitente:'Venta Online S.A.', destinatario:'Clara Gomez', direccion:'Calle 123 #45-67, Bogota', peso:2.4, estado:'Pendiente', obs:'Fragil', pedidos:[{descripcion:'Libros',cantidad:2,valor:50,peso:2}]},
+        { numero:'GUA-2025-0002', remitente:'ElectroWorld', destinatario:'J. Perez', direccion:'Carrera 10 #22-11, Medellin', peso:5.2, estado:'En transito', obs:'Entrega antes de 5pm', pedidos:[{descripcion:'Auriculares',cantidad:1,valor:120,peso:0.5},{descripcion:'Cargador',cantidad:1,valor:10,peso:0.2}]},
         { numero:'GUA-2025-0003', remitente:'Mercado Local', destinatario:'Ana Ramirez', direccion:'Calle 8 #3-12, Cali', peso:1.1, estado:'Entregado', obs:'Recibido por vecino', pedidos:[{descripcion:'Caja de galletas',cantidad:3,valor:15,peso:1.1}]}
       ];
       for (const s of sample) {
         try { await addGuia(Object.assign({}, s, { created_at: new Date().toISOString(), updated_at: new Date().toISOString() })); }
-        catch(e){ /* si número repetido, omitir */ }
+        catch(e){ }
       }
-      alert('Datos de ejemplo añadidos (si no existían).');
+      alert('Datos de ejemplo anadidos (si no existian).');
       await refreshTabla();
       await updateStats();
     }
@@ -984,8 +1551,8 @@
        Logout
        ========================== */
     function logout(){
-      localStorage.removeItem("sessionActive");
-      window.location.href = "login.html";
+      localStorage.removeItem('sessionActive');
+      window.location.href = 'login.html';
     }
 
     /* ==========================
@@ -997,9 +1564,12 @@
     window.editItem = editItem;
     window.deleteItem = deleteItem;
     window.logout = logout;
-
     // Fin del IIFE
   })();
   </script>
 </body>
 </html>
+
+
+
+

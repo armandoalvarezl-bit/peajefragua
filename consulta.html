@@ -1,0 +1,353 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consulta de Envio | Zima</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root { --bg:#e9eef3; --card:#fff; --text:#0f172a; --muted:#475569; --accent:#0f766e; --accent2:#0891b2; --border:rgba(0,0,0,.1); }
+    body { margin:0; background:radial-gradient(circle at 12% 8%, rgba(14,165,164,.18), transparent 32%), linear-gradient(180deg,#ecfeff 0%,var(--bg) 55%); color:var(--text); font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; }
+    .topbar { background:linear-gradient(110deg,var(--accent),var(--accent2)); color:#fff; border-bottom-left-radius:14px; border-bottom-right-radius:14px; box-shadow:0 12px 24px rgba(8,145,178,.25); }
+    .shell { max-width:1020px; margin:0 auto; }
+    .card-soft { background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 6px 16px rgba(2,6,23,.06); }
+    .status { font-size:.78rem; padding:.32rem .56rem; border-radius:999px; font-weight:700; display:inline-block; }
+    .status-pend { background:#facc15; color:#422006; }
+    .status-trans { background:#7dd3fc; color:#082f49; }
+    .status-ent { background:#6ee7b7; color:#064e3b; }
+    .result-table th { background:#f1f5f9; }
+    .result-table td { vertical-align:middle; }
+    .small-muted { color:var(--muted); font-size:.9rem; }
+    .items-list li { margin-bottom:.2rem; }
+  </style>
+</head>
+<body>
+  <nav class="topbar py-3 mb-4">
+    <div class="shell px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <div class="fw-bold fs-5"><i class="bi bi-search me-1"></i>Consulta de Envio</div>
+        <div class="small">Consulta en linea (Google Apps Script)</div>
+      </div>
+      <div class="top-actions d-flex gap-2">
+        <a class="btn btn-light" href="home.html"><i class="bi bi-house"></i> Volver al panel</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shell px-3 pb-4">
+    <section class="card-soft p-3 p-md-4 mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-8">
+          <label for="search-numero" class="form-label fw-semibold">Numero de guia</label>
+          <input id="search-numero" class="form-control" placeholder="Ej: GUA-2026-07-3028" autocomplete="off" />
+          <div class="small-muted mt-1">Busca por coincidencia parcial o exacta.</div>
+        </div>
+        <div class="col-md-4 d-grid">
+          <button class="btn btn-primary" id="btn-consultar"><i class="bi bi-search"></i> Consultar</button>
+        </div>
+      </div>    </section>
+
+    <section class="card-soft p-3 p-md-4 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Resultados</h6>
+        <span id="count" class="small-muted">0 registros</span>
+      </div>
+      <div id="api-status" class="small-muted mb-2"></div>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped result-table mb-0">
+          <thead>
+            <tr>
+              <th>Guia</th>
+              <th>Estado</th>
+              <th>Remitente</th>
+              <th>Destinatario</th>
+              <th>Direccion</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="body-results">
+            <tr><td colspan="6" class="text-center py-4 small-muted">Sin resultados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card-soft p-3 p-md-4" id="detail-box" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Detalle de envio</h6>
+        <span id="detail-status"></span>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><strong>Guia:</strong> <span id="d-num">-</span></div>
+        <div class="col-md-6"><strong>Fecha:</strong> <span id="d-fecha">-</span></div>
+        <div class="col-md-6"><strong>Remitente:</strong> <span id="d-rem">-</span></div>
+        <div class="col-md-6"><strong>Destinatario:</strong> <span id="d-dest">-</span></div>
+        <div class="col-12"><strong>Direccion:</strong> <span id="d-dir">-</span></div>
+        <div class="col-12"><strong>Observaciones:</strong> <span id="d-obs">-</span></div>
+      </div>
+      <hr>
+      <div class="fw-semibold mb-2">Pedidos</div>
+      <ul id="d-items" class="items-list mb-0"></ul>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      'use strict';
+
+      const API_URL = 'https://script.google.com/macros/s/AKfycbzlMYhuU7GqB6a5r5Z1-nHYfrggwEJP1TxamLjYe9EtpA-7WurnTXOA4WI7CqvYaI_d/exec';
+      const API_HOJA = 'Tabla_1';
+      // Si luego usas openById en Apps Script, pega aqui el ID del spreadsheet.
+      const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+      const $ = (s) => document.querySelector(s);
+      let currentRows = [];
+
+      document.addEventListener('DOMContentLoaded', () => {
+        $('#btn-consultar').addEventListener('click', onSearch);
+        $('#search-numero').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            onSearch();
+          }
+        });
+      });
+
+      async function onSearch(){
+        const term = String($('#search-numero').value || '').trim();
+        if (!term) return alert('Escribe un numero de guia.');
+
+        const url = buildApiUrl(term);
+        setStatus('Consultando...');
+
+        try {
+          const payload = await fetchJson(url);
+          applyRowsFromPayload(payload);
+          return;
+        } catch (fetchErr) {
+          // Fallback para entornos donde fetch a Apps Script es bloqueado por CORS.
+          try {
+            const payload = await fetchJsonp(url);
+            applyRowsFromPayload(payload);
+            return;
+          } catch (jsonpErr) {
+            setStatus('Error de conexion con el API.');
+            alert(
+              'No se pudo consultar el API.\\n' +
+              'Detalle fetch: ' + fetchErr.message + '\\n' +
+              'Detalle jsonp: ' + jsonpErr.message + '\\n\\n' +
+              'Revisa que el Web App esté en acceso \"Anyone\" y desplegado.'
+            );
+          }
+        }
+      }
+
+      function applyRowsFromPayload(payload){
+        if (payload && payload.ok === false) {
+          currentRows = [];
+          renderResults(currentRows);
+          setStatus(payload.msg ? ('API: ' + payload.msg) : 'API respondio con error.');
+          return;
+        }
+
+        const rows = Array.isArray(payload)
+          ? payload
+          : (Array.isArray(payload.data) ? payload.data : []);
+
+        currentRows = rows.map((r, i) => normalizeRow(r, i + 1));
+        renderResults(currentRows);
+        setStatus(currentRows.length ? ('Consulta exitosa: ' + currentRows.length + ' registro(s).') : 'Consulta sin coincidencias.');
+
+        if (currentRows.length === 1) renderDetail(currentRows[0]);
+        if (!currentRows.length) $('#detail-box').style.display = 'none';
+      }
+
+      async function fetchJson(url){
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      }
+
+      function fetchJsonp(url){
+        return new Promise((resolve, reject) => {
+          const cbName = '__zima_cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+          const script = document.createElement('script');
+          const sep = url.includes('?') ? '&' : '?';
+          const src = url + sep + 'callback=' + cbName;
+          let done = false;
+
+          const cleanup = () => {
+            if (script.parentNode) script.parentNode.removeChild(script);
+            delete window[cbName];
+          };
+
+          const timeout = setTimeout(() => {
+            if (done) return;
+            done = true;
+            cleanup();
+            reject(new Error('Timeout JSONP'));
+          }, 12000);
+
+          window[cbName] = (data) => {
+            if (done) return;
+            done = true;
+            clearTimeout(timeout);
+            cleanup();
+            resolve(data);
+          };
+
+          script.onerror = () => {
+            if (done) return;
+            done = true;
+            clearTimeout(timeout);
+            cleanup();
+            reject(new Error('Fallo al cargar script JSONP'));
+          };
+
+          script.src = src;
+          document.head.appendChild(script);
+        });
+      }
+
+      function buildApiUrl(term){
+        const params = new URLSearchParams();
+        params.set('numero', term);
+        params.set('hoja', API_HOJA);
+        if (API_SPREADSHEET_ID) params.set('spreadsheetId', API_SPREADSHEET_ID);
+        return API_URL + '?' + params.toString();
+      }
+
+      function normalizeRow(r, id){
+        return {
+          __id: id,
+          numero: readAny(r, ['Numero','numero','N Guia','Guia']),
+          estado: readAny(r, ['Estado','estado']),
+          remitente: readAny(r, ['Remitente','remitente']),
+          destinatario: readAny(r, ['Destinatario','destinatario']),
+          direccion: readAny(r, ['Direccion','direccion','Dirección','Direccion entrega']),
+          created_at: readAny(r, ['Fecha','fecha','Fecha emision','Fecha Emision']),
+          obs: readAny(r, ['Observaciones','observaciones','Obs','obs']),
+          pedidos: parsePedidos(readAny(r, ['Pedidos','pedidos','Detalle','detalle','Detalle contenido']))
+        };
+      }
+
+      function readAny(obj, keys){
+        if (!obj || typeof obj !== 'object') return '';
+        const available = Object.keys(obj);
+        for (const k of keys) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) return String(obj[k] ?? '');
+          const nk = normalizeKey(k);
+          const found = available.find((a) => normalizeKey(a) === nk);
+          if (found) return String(obj[found] ?? '');
+        }
+        return '';
+      }
+
+      function normalizeKey(v){
+        return String(v || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+      }
+
+      function setStatus(msg){
+        const el = $('#api-status');
+        if (!el) return;
+        el.textContent = msg || '';
+      }
+
+      function parsePedidos(raw){
+        return String(raw || '')
+          .split('|')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map((txt) => ({ descripcion: txt, cantidad: 1, peso: '', valor: '' }));
+      }
+
+      function normalizeEstado(v=''){
+        return String(v)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+      }
+
+      function estadoBadge(v=''){
+        const n = normalizeEstado(v);
+        if (n === 'pendiente') return '<span class="status status-pend">Pendiente</span>';
+        if (n.includes('transito')) return '<span class="status status-trans">En transito</span>';
+        if (n === 'entregado') return '<span class="status status-ent">Entregado</span>';
+        return '<span class="status">' + escapeHtml(v || '-') + '</span>';
+      }
+
+      function fmtDate(v){
+        if (!v) return '-';
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return String(v);
+        return d.toLocaleString();
+      }
+
+      function escapeHtml(s=''){
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+
+      function renderResults(rows){
+        const body = $('#body-results');
+        $('#count').innerText = rows.length + ' registros';
+
+        if (!rows.length) {
+          body.innerHTML = '<tr><td colspan="6" class="text-center py-4 small-muted">Sin resultados.</td></tr>';
+          return;
+        }
+
+        body.innerHTML = rows.map(g => `
+          <tr data-id="${g.__id}" style="cursor:pointer;">
+            <td><strong>${escapeHtml(g.numero || '-')}</strong></td>
+            <td>${estadoBadge(g.estado)}</td>
+            <td>${escapeHtml(g.remitente || '-')}</td>
+            <td>${escapeHtml(g.destinatario || '-')}</td>
+            <td>${escapeHtml(g.direccion || '-')}</td>
+            <td>${escapeHtml(fmtDate(g.created_at))}</td>
+          </tr>
+        `).join('');
+
+        body.querySelectorAll('tr[data-id]').forEach((tr) => {
+          tr.addEventListener('click', () => {
+            const id = Number(tr.dataset.id);
+            const row = currentRows.find(x => x.__id === id);
+            if (row) renderDetail(row);
+          });
+        });
+      }
+
+      function renderDetail(g){
+        $('#detail-box').style.display = 'block';
+        $('#detail-status').innerHTML = estadoBadge(g.estado);
+        $('#d-num').innerText = g.numero || '-';
+        $('#d-fecha').innerText = fmtDate(g.created_at);
+        $('#d-rem').innerText = g.remitente || '-';
+        $('#d-dest').innerText = g.destinatario || '-';
+        $('#d-dir').innerText = g.direccion || '-';
+        $('#d-obs').innerText = g.obs || '-';
+
+        const ul = $('#d-items');
+        ul.innerHTML = '';
+        if (!g.pedidos.length) {
+          ul.innerHTML = '<li class="small-muted">Sin pedidos registrados.</li>';
+          return;
+        }
+
+        g.pedidos.forEach((it, idx) => {
+          const li = document.createElement('li');
+          li.textContent = `${idx + 1}. ${it.descripcion || '-'}`;
+          ul.appendChild(li);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
+
+
+
