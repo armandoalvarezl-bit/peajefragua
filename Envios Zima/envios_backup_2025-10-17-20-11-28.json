@@ -1,0 +1,57 @@
+{
+  "exported_at": "2025-10-17T20:11:28.797Z",
+  "guias": [
+    {
+      "numero": "GUA-2025-032525",
+      "remitente": "MARLIZ TIZIANA",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 0.5,
+      "estado": "Entregado",
+      "obs": "Aun no Se envia Rollos",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 24,
+          "valor": 0.23,
+          "peso": 2
+        }
+      ],
+      "created_at": "2025-10-17T12:52:27.620Z",
+      "updated_at": "2025-10-17T13:11:49.550Z",
+      "id": 1
+    },
+    {
+      "numero": "GUA-2025-032526",
+      "remitente": "Marliz Tizziana Herazo Londoño",
+      "destinatario": "Peaje Zaragoza",
+      "direccion": "Vía Troncal de la Paz Conexión Norte",
+      "peso": 0.6,
+      "estado": "Pendiente",
+      "obs": "Se envía Entrega POS_ Rollos Termicos",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 1,
+          "valor": 0.23,
+          "peso": 2
+        },
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 1,
+          "valor": 0.23,
+          "peso": 2
+        },
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 1,
+          "valor": 0.23,
+          "peso": 2
+        }
+      ],
+      "created_at": "2025-10-17T17:20:39.872Z",
+      "updated_at": "2025-10-17T17:50:22.469Z",
+      "id": 2
+    }
+  ]
+}

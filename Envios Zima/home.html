@@ -1,0 +1,1575 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema de Envios - Guias y Pedidos (Local)</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- jsPDF para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* ---------- Tema y tipografias ---------- */
+    :root{
+      --bg: #e9eef3;
+      --card: #ffffff;
+      --muted: #475569;
+      --accent: #0ea5a4;
+      --border: rgba(0,0,0,0.08);
+      --text: #0f172a;
+    }
+    html,body{
+      background:var(--bg);
+      color:var(--text);
+      font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Tarjetas */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.05);
+      transition: transform .18s ease;
+    }
+    .card:hover{ transform: translateY(-3px); }
+
+    /* Navbar y botones primarios */
+    .btn-primary{
+      background: linear-gradient(90deg, #0ea5a4, #06b6d4) !important;
+      border: 0;
+      color: #fff !important;
+    }
+    .btn-primary:hover { opacity: .95; }
+
+    .muted { color:var(--muted); }
+    .small-muted { font-size:.9rem; color:var(--muted); }
+
+    /* Inputs */
+    .form-control, .form-select {
+      background:#f8fafc;
+      color:var(--text);
+      border:1.5px solid var(--accent);
+      border-radius:8px;
+      padding:.6rem .75rem;
+    }
+
+    /* Tabla / contenedor de guias: limitar altura y scroll */
+    .table {
+      color:var(--text);
+      background:#fff;
+      border-radius:8px;
+      overflow:hidden;
+    }
+    .table thead th { background:#f1f5f9; border-bottom: 2px solid var(--border); }
+    .table-striped > tbody > tr:nth-of-type(odd) { background-color: #f8fafc; }
+
+    /* Nuevo: caja con altura maxima para la lista de guias */
+    .guias-box {
+      max-height: 360px;        /* <--- ajusta esta altura si quieres mas/menos */
+      overflow-y: auto;
+      padding-right: 8px;       /* espacio para scrollbar */
+    }
+    /* Mantener las filas visibles y accesibles */
+    .guias-box table { margin-bottom: 0; }
+
+    .badge-status { padding:.4rem .6rem; border-radius:.5rem; font-weight:600; font-size:.85rem; }
+    .status-pend { background:#fbbf24; color:#1e293b; }
+    .status-trans { background:#38bdf8; color:#082f49; }
+    .status-ent { background:#34d399; color:#064e3b; }
+
+    .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .app-header{
+      position: relative;
+      background: linear-gradient(115deg, #0f766e 0%, #0891b2 55%, #0ea5a4 100%) !important;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 14px 32px rgba(8, 145, 178, 0.28);
+      overflow: hidden;
+      padding: .35rem 0;
+    }
+    .app-header::before{
+      content:"";
+      position:absolute;
+      inset:-40% auto auto -14%;
+      width:360px;
+      height:360px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(255,255,255,.2), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .app-header::after{
+      content:"";
+      position:absolute;
+      right:-80px;
+      top:-50px;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .app-nav-shell{
+      position: relative;
+      z-index: 1;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:.65rem;
+    }
+    .brand-stack{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand-title{
+      font-weight:800;
+      letter-spacing:.015em;
+      font-size:1.25rem;
+    }
+    .brand-sub{
+      font-size:.78rem;
+      opacity:.95;
+      font-weight:600;
+      letter-spacing:.01em;
+    }
+    .brand-icon{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.33);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+    }
+    .top-chip{
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.33);
+      color:#fff;
+      border-radius:999px;
+      padding:.34rem .72rem;
+      font-size:.8rem;
+      white-space:nowrap;
+      font-weight:700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+    }
+    .app-actions{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:.45rem;
+    }
+    .nav-action{
+      border:1px solid rgba(255,255,255,.44);
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
+      color:#0f172a;
+      font-weight:700;
+      font-size:.83rem;
+      padding:.42rem .7rem;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      box-shadow: 0 6px 12px rgba(2, 6, 23, 0.14);
+    }
+    .nav-action:hover{
+      transform: translateY(-1px);
+      background: #fff;
+      box-shadow: 0 9px 16px rgba(2, 6, 23, 0.18);
+    }
+    .nav-danger{
+      border:1px solid rgba(127,29,29,.45);
+      background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+      color:#fff;
+      min-width:36px;
+      padding:.42rem .62rem;
+    }
+    .nav-danger:hover{
+      background: linear-gradient(180deg, #dc2626, #991b1b);
+      color:#fff;
+    }
+    .hero-card{
+      background: linear-gradient(130deg, rgba(15, 118, 110, 0.96), rgba(14, 165, 164, 0.92));
+      color: #f8fafc;
+      border: 0;
+      border-radius: 14px;
+      box-shadow: 0 14px 26px rgba(15, 118, 110, 0.26);
+    }
+    .hero-subtitle{
+      color: rgba(241, 245, 249, 0.9);
+      max-width: 64ch;
+    }
+    .hero-pill{
+      display: inline-flex;
+      gap: .35rem;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: .3rem .7rem;
+      margin-right: .45rem;
+      margin-bottom: .45rem;
+      background: rgba(15, 23, 42, 0.14);
+      font-size: .85rem;
+    }
+    .mini-kpi{
+      border-radius: 12px;
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      padding: .75rem;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+    }
+    .mini-kpi .label{
+      color: var(--muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .mini-kpi .value{
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      margin-bottom:.35rem;
+    }
+    .empty-state{
+      border: 1px dashed rgba(15, 118, 110, 0.25);
+      border-radius: 10px;
+      background: #f8fafc;
+      text-align: center;
+      padding: 1rem;
+      color: var(--muted);
+    }
+    .progress-soft{
+      height: .55rem;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .progress-soft > span{
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #0891b2, #14b8a6);
+      width: 0%;
+      transition: width .2s ease;
+    }
+
+    footer { opacity:.7; font-size:.85rem; text-align:center; margin-top:2rem; }
+
+    .mono { font-family: ui-monospace, "Roboto Mono", monospace; }
+
+    /* Pequeno ajuste responsive */
+    @media (max-width: 768px) {
+      .guias-box { max-height: 280px; }
+      .brand-title{ font-size:1.08rem; }
+      .brand-sub{ font-size:.73rem; }
+      .app-actions{ width:100%; }
+    }
+    .print-sheet{
+      display:none;
+      color:#0f172a;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .print-card{
+      border:1.5px solid #d1d5db;
+      border-radius:12px;
+      padding:16px;
+    }
+    .print-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      border-bottom:2px solid #0f766e;
+      padding-bottom:10px;
+      margin-bottom:14px;
+    }
+    .print-brand{
+      font-size:1.1rem;
+      font-weight:700;
+      letter-spacing:.02em;
+      color:#0f766e;
+    }
+    .print-meta{
+      text-align:right;
+      font-size:.85rem;
+      color:#334155;
+    }
+    .print-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .print-block{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      padding:10px;
+      background:#f8fafc;
+    }
+    .print-block, .print-table td{
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .print-block h6{
+      margin:0 0 8px;
+      font-size:.82rem;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#0f766e;
+    }
+    .print-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:.9rem;
+      margin-top:8px;
+    }
+    .print-table th, .print-table td{
+      border:1px solid #e5e7eb;
+      padding:7px;
+      text-align:left;
+    }
+    .print-table th{
+      background:#ecfeff;
+      font-weight:700;
+      color:#0f172a;
+    }
+    .print-total{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      font-weight:700;
+    }
+    @media print{
+      @page{ size:A4; margin:12mm; }
+      body{ background:#fff !important; }
+      body *{ visibility:hidden !important; }
+      #print-sheet, #print-sheet *{ visibility:visible !important; }
+      #print-sheet{
+        display:block !important;
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar app-header navbar-expand-lg mb-4">
+    <div class="container-fluid app-nav-shell">
+      <a class="navbar-brand text-white ms-2 d-flex align-items-center gap-2" href="#">
+        <span class="brand-icon"><i class="bi bi-box-seam-fill"></i></span>
+        <span class="brand-stack">
+          <span class="brand-title">Envios Local</span>
+          <span class="brand-sub">Control de guias y pedidos</span>
+        </span>
+      </a>
+      <div class="app-actions">
+        <span class="top-chip"><i class="bi bi-calendar3"></i> <span id="top-date">--/--/----</span></span>
+        <button class="btn nav-action" id="btn-seed"><i class="bi bi-stars"></i> Cargar ejemplo</button>
+        <button class="btn nav-action" id="btn-backup"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+        <button class="btn nav-action" id="btn-restore"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+        <a class='btn nav-action' href='consulta.html'><i class='bi bi-search'></i> Consultar envio</a>
+        <button class="btn nav-action" id="btn-logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesion</button>
+        <button class="btn nav-danger" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    
+    <div class="row g-3">
+
+      <!-- LEFT: Form crear guia -->
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h5 class="mb-3">Crear / Editar Guia
+            
+          </h5>
+          <form id="form-guia" autocomplete="off">
+            <input type="hidden" id="guia-id" value="">
+            <div class="mb-2">
+              <label class="form-label small-muted">Numero de guia</label>
+              <input id="guia-num" class="form-control" required placeholder="Ej: GUA-2025-0001">
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Remitente</label>
+                <input id="guia-rem" class="form-control" required placeholder="Nombre remitente">
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Destinatario</label>
+                <input id="guia-dest" class="form-control" required placeholder="Nombre destinatario">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Direccion entrega</label>
+              <input id="guia-dir" class="form-control" placeholder="Direccion completa">
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Peso (kg)</label>
+                <input id="guia-peso" type="number" step="0.01" class="form-control" placeholder="0.5">
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small-muted">Estado</label>
+                <select id="guia-estado" class="form-select">
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En transito">En transito</option>
+                  <option value="Entregado">Entregado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small-muted">Observaciones</label>
+              <textarea id="guia-obs" class="form-control" rows="2" placeholder="Notas internas..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btn-save-guia">Guardar guia</button>
+              <button type="button" class="btn btn-ghost" id="btn-reset">Limpiar</button>
+            </div>
+            <div class="mt-3">
+              <small class="muted">Cada guia puede contener varios pedidos (items). Guarda la guia y luego agregale pedidos en la ficha.</small>
+            </div>
+          </form>
+        </div>        <!-- Quick stats -->
+        <div class="card p-3 mt-3">
+          <div class="section-head">
+            <h6 class="mb-0">Resumen rapido</h6>
+            <span class="small-muted"><i class="bi bi-graph-up-arrow"></i> En vivo</span>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Total guias</div>
+                <div id="stat-total" class="value mono">0</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Pendientes</div>
+                <div id="stat-pend" class="value mono">0</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">En transito</div>
+                <div id="stat-trans" class="value mono">0</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mini-kpi">
+                <div class="label">Entregadas</div>
+                <div id="stat-ent" class="value mono">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="d-flex justify-content-between small-muted mb-1">
+              <span>Tasa de entrega</span>
+              <span id="stat-rate">0%</span>
+            </div>
+            <div class="progress-soft">
+              <span id="stat-rate-bar"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Listado y ficha -->
+      <div class="col-lg-8">
+        <!-- Search and filter -->
+        <div class="card p-3 mb-3">
+          <div class="d-flex gap-2 align-items-center">
+            <input id="search" class="form-control" placeholder="Buscar por numero guia, remitente, destinatario, direccion...">
+            <select id="filter-estado" class="form-select" style="max-width:200px">
+              <option value="">Todos los estados</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En transito">En transito</option>
+              <option value="Entregado">Entregado</option>
+            </select>
+            <button class="btn btn-ghost" id="btn-new">Nueva guia</button>
+          </div>
+          <div class="small-muted mt-2">
+            Mostrando <span id="count-filtered" class="mono">0</span> resultado(s) segun tu filtro actual.
+          </div>
+        </div>
+
+        <!-- Tabla de guias -->
+        <div class="card p-3 mb-3">
+          <div class="section-head">
+            <h6 class="mb-0">Guias registradas</h6>
+            <span class="small-muted">Selecciona una fila para ver su ficha</span>
+          </div>
+          <div class="mt-2 guias-box">
+            <!-- guias-box limita la altura y agrega scroll vertical -->
+            <div class="table-responsive">
+              <table class="table table-borderless table-hover align-middle" id="tabla-guias">
+                <thead>
+                  <tr class="muted">
+                    <th>N° Guia</th>
+                    <th>Remitente</th>
+                    <th>Destinatario</th>
+                    <th>Peso</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="body-guias">
+                  <!-- Rows dinamicas -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ficha guia -->
+        <div class="card p-3" id="ficha-container" style="display:none;">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h5 id="ficha-num">Guia</h5>
+              <div class="small-muted" id="ficha-fecha">Fecha</div>
+            </div>
+            <div class="text-end">
+              <button class="btn btn-sm btn-light me-1" id="btn-export-pdf"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
+              <button class="btn btn-sm btn-light" id="btn-print"><i class="bi bi-printer"></i> Imprimir</button>
+            </div>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="row">
+            <div class="col-md-6">
+              <div><strong>Remitente:</strong> <span id="ficha-rem"></span></div>
+              <div><strong>Direccion:</strong> <span id="ficha-dir"></span></div>
+              <div><strong>Observaciones:</strong> <span id="ficha-obs"></span></div>
+            </div>
+            <div class="col-md-6">
+              <div><strong>Destinatario:</strong> <span id="ficha-dest"></span></div>
+              <div><strong>Peso:</strong> <span id="ficha-peso"></span> kg</div>
+              <div><strong>Estado:</strong> <span id="ficha-estado" class="badge-status"></span></div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Pedidos -->
+          <div class="mb-3">
+            <h6 class="d-flex justify-content-between">
+              <span>Pedidos / Items</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Anadir pedido</button>
+            </h6>
+
+            <div id="items-list" class="mt-2">
+              <!-- items dinamicos -->
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guia</button>
+            <button class="btn btn-ghost" id="btn-close-ficha">Cerrar ficha</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="print-sheet" class="print-sheet container">
+    <div class="print-card">
+      <div class="print-head">
+        <div>
+          <div class="print-brand">Envios Local</div>
+          <div>Guia de envio y detalle de pedidos</div>
+        </div>
+        <div class="print-meta">
+          <div><strong>No. Guia:</strong> <span id="print-guia-num">-</span></div>
+          <div><strong>Fecha:</strong> <span id="print-fecha">-</span></div>
+          <div><strong>Estado:</strong> <span id="print-estado">-</span></div>
+        </div>
+      </div>
+
+      <div class="print-grid">
+        <div class="print-block">
+          <h6>Remitente</h6>
+          <div><strong>Nombre:</strong> <span id="print-rem">-</span></div>
+          <div><strong>Direccion:</strong> <span id="print-dir">-</span></div>
+          <div><strong>Observaciones:</strong> <span id="print-obs">-</span></div>
+        </div>
+        <div class="print-block">
+          <h6>Destinatario</h6>
+          <div><strong>Nombre:</strong> <span id="print-dest">-</span></div>
+          <div><strong>Peso total:</strong> <span id="print-peso">-</span> kg</div>
+          <div><strong>Emitido:</strong> <span id="print-emitido">-</span></div>
+        </div>
+      </div>
+
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Descripcion</th>
+            <th>Cantidad</th>
+            <th>Peso (kg)</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="print-items"></tbody>
+      </table>
+
+      <div class="print-total">
+        <span>Total declarado:</span>
+        <span id="print-total">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="container mt-4 pb-4">
+    <div class="d-flex justify-content-between">
+      <div>Sistema de Envios - Local | Disenado para uso en un solo equipo</div>
+      <div class="muted">IndexedDB | Sin servidor | Archivo unico</div>
+    </div>
+  </footer>
+
+  <!-- Modal: Anadir / Editar item -->
+  <div class="modal fade" id="modalItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar pedido</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="form-item">
+            <input type="hidden" id="item-id" value="">
+            <div class="mb-2">
+              <label class="form-label small-muted">Descripcion</label>
+              <input id="item-desc" class="form-control" required placeholder="Ej: Caja electronica">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Cantidad</label>
+              <input id="item-cant" type="number" min="1" value="1" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Valor (opcional)</label>
+              <input id="item-valor" type="number" step="0.01" class="form-control" placeholder="0.00">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small-muted">Peso (kg) (opcional)</label>
+              <input id="item-peso" type="number" step="0.01" class="form-control" placeholder="0.2">
+            </div>
+            <div class="text-end">
+              <button class="btn btn-primary">Guardar pedido</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS: Bootstrap bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  /**
+   * archivo: index.html (mejorado - fase 1)
+   * Objetivo: Mejorar estructura y legibilidad sin cambiar la logica.
+   * Conserva: IndexedDB, export/import JSON, PDF, CRUD guias y pedidos, modal.
+   */
+
+  (function(){
+    'use strict';
+
+    /* ==========================
+       Constantes y variables DB
+       ========================== */
+    const DB_NAME = 'envios_db_v1';
+    const DB_VERSION = 1;
+    let db;
+    const EXCEL_API_URL = 'https://script.google.com/macros/s/AKfycbwgRMijbCWQfD2mRsAgAXSzWgT9FxzNQBBDIoisI0kk1f7Cw0pTLIez09Y9KdCZFRW9/exec';
+    const EXCEL_SHEET_NAME = 'Tabla_1';
+    const EXCEL_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+
+    /* ==========================
+       Helpers: DOM shortcuts
+       ========================== */
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    /* ==========================
+       IndexedDB: wrapper simple
+       ========================== */
+    function openDB(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const idb = e.target.result;
+          if (!idb.objectStoreNames.contains('guias')) {
+            const store = idb.createObjectStore('guias', { keyPath: 'id', autoIncrement: true });
+            store.createIndex('num', 'numero', { unique: true });
+            store.createIndex('rem', 'remitente', { unique: false });
+            store.createIndex('dest', 'destinatario', { unique: false });
+            store.createIndex('estado', 'estado', { unique: false });
+          }
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function tx(storeName, mode='readonly'){
+      const t = db.transaction(storeName, mode);
+      return t.objectStore(storeName);
+    }
+
+    function addGuia(guia){
+      return new Promise((res, rej) => {
+        const store = tx('guias','readwrite');
+        const req = store.add(guia);
+        req.onsuccess = () => res(req.result);
+        req.onerror = (e) => rej(e);
+      });
+    }
+
+    function putGuia(guia){
+      return new Promise((res, rej) => {
+        const store = tx('guias','readwrite');
+        const req = store.put(guia);
+        req.onsuccess = () => res(req.result);
+        req.onerror = (e) => rej(e);
+      });
+    }
+
+    function deleteGuia(id){
+      return new Promise((res, rej) => {
+        const store = tx('guias','readwrite');
+        const req = store.delete(Number(id));
+        req.onsuccess = () => res(true);
+        req.onerror = (e) => rej(e);
+      });
+    }
+
+    function getAllGuias(){
+      return new Promise((res, rej) => {
+        const store = tx('guias','readonly');
+        const req = store.getAll();
+        req.onsuccess = () => res(req.result || []);
+        req.onerror = (e) => rej(e);
+      });
+    }
+
+    function getGuiaById(id){
+      return new Promise((res, rej) => {
+        const store = tx('guias','readonly');
+        const req = store.get(Number(id));
+        req.onsuccess = () => res(req.result);
+        req.onerror = (e) => rej(e);
+      });
+    }
+
+    /* ==========================
+       Document ready: bind y carga inicial
+       ========================== */
+    let bsModalItem;
+    document.addEventListener('DOMContentLoaded', async () => {
+      await openDB();
+      bsModalItem = new bootstrap.Modal($('#modalItem'), { backdrop: 'static' });
+      startClock();
+      bindEvents();
+      await refreshTabla();
+      await updateStats();
+    });
+
+    /* ==========================
+       Bind de eventos
+       ========================== */
+    function bindEvents(){
+      const on = (id, evt, handler) => {
+        const el = $(id);
+        if (!el) return console.warn('No existe elemento', id);
+        el.addEventListener(evt, handler);
+      };
+
+      on('#form-guia', 'submit', onSaveGuia);
+      on('#btn-reset', 'click', resetForm);
+      on('#btn-new', 'click', ()=>{ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); });
+      on('#search', 'input', refreshTabla);
+      on('#filter-estado', 'change', refreshTabla);
+      on('#btn-close-ficha', 'click', ()=> $('#ficha-container').style.display = 'none');
+      on('#btn-delete-guia', 'click', onDeleteGuia);
+      on('#btn-add-item', 'click', ()=> openItemModal());
+      on('#form-item', 'submit', onSaveItem);
+      on('#btn-export-pdf', 'click', exportPDFCurrent);
+      on('#btn-print', 'click', printCurrentGuide);
+      on('#btn-logout', 'click', logout);
+      on('#btn-seed', 'click', seedDemo);
+      on('#btn-backup', 'click', exportJSON);
+      on('#btn-restore', 'click', ()=> {
+        const f = document.createElement('input');
+        f.type = 'file'; f.accept = '.json,application/json';
+        f.onchange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const txt = await file.text();
+          await importJSON(txt);
+          await refreshTabla();
+        };
+        f.click();
+      });
+      on('#btn-clear', 'click', async ()=> {
+        if (!confirm('Eliminar toda la base de datos local? Esta accion NO tiene vuelta atras.')) return;
+        const r = indexedDB.deleteDatabase(DB_NAME);
+        r.onsuccess = () => { alert('Base de datos eliminada. Recarga la pagina.'); location.reload(); };
+        r.onerror = () => alert('No se pudo eliminar la base de datos.');
+      });
+
+      on('#body-guias', 'click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = Number(btn.dataset.id);
+        const action = btn.dataset.action;
+        if (!id || !action) return;
+        if (action === 'view') return openFicha(id);
+        if (action === 'edit') return editGuia(id);
+        if (action === 'delete') return confirmDelete(id, btn.dataset.numero || '');
+      });
+
+      on('#items-list', 'click', (e) => {
+        const btn = e.target.closest('button[data-item-action]');
+        if (!btn) return;
+        const guiaId = Number(btn.dataset.guiaId);
+        const idx = Number(btn.dataset.idx);
+        if (!Number.isFinite(guiaId) || !Number.isFinite(idx)) return;
+        if (btn.dataset.itemAction === 'edit') return editItem(guiaId, idx);
+        if (btn.dataset.itemAction === 'delete') return deleteItem(guiaId, idx);
+      });
+    }
+
+    /* ==========================
+       Guardar / Actualizar guia
+       ========================== */
+    async function onSaveGuia(e){
+      e.preventDefault();
+      const id = $('#guia-id').value;
+      const numero = $('#guia-num').value.trim();
+      const remitente = $('#guia-rem').value.trim();
+      const destinatario = $('#guia-dest').value.trim();
+      const direccion = $('#guia-dir').value.trim();
+      const peso = parseFloat($('#guia-peso').value || 0);
+      const estado = $('#guia-estado').value;
+      const obs = $('#guia-obs').value;
+
+      if (!numero || !remitente || !destinatario) { alert('Numero, remitente y destinatario son obligatorios.'); return; }
+
+      const now = new Date().toISOString();
+
+      if (id) {
+        // update existente
+        const g = await getGuiaById(Number(id));
+        g.numero = numero;
+        g.remitente = remitente;
+        g.destinatario = destinatario;
+        g.direccion = direccion;
+        g.peso = peso;
+        g.estado = estado;
+        g.obs = obs;
+        g.updated_at = now;
+        await putGuia(g);
+        syncGuiaToExcel(g, 'upsert');
+        alert('Guia actualizada.');
+        await loadFicha(g.id);
+      } else {
+        // nueva guia
+        const guia = { numero, remitente, destinatario, direccion, peso, estado, obs, pedidos: [], created_at: now, updated_at: now };
+        try {
+          const newId = await addGuia(guia);
+          guia.id = newId;
+          syncGuiaToExcel(guia, 'upsert');
+          alert('Guia creada con ID ' + newId);
+          resetForm();
+        } catch (err) {
+          // ConstraintError -> numero duplicado (indice unique)
+          if (err && err.target && err.target.error && /ConstraintError/.test(err.target.error.name)) {
+            alert('Ya existe una guia con ese numero. Use otro numero.');
+          } else {
+            alert('Error al crear la guia.');
+            console.error(err);
+          }
+        }
+      }
+      await refreshTabla();
+      await updateStats();
+    }
+
+    function resetForm(){
+      $('#guia-id').value = '';
+      $('#guia-num').value = '';
+      $('#guia-rem').value = '';
+      $('#guia-dest').value = '';
+      $('#guia-dir').value = '';
+      $('#guia-peso').value = '';
+      $('#guia-estado').value = 'Pendiente';
+      $('#guia-obs').value = '';
+    }
+
+    /* ==========================
+       Listado y filtros (tabla)
+       ========================== */
+    async function refreshTabla(){
+      const q = $('#search').value.toLowerCase();
+      const estadoFilter = $('#filter-estado').value;
+      const list = await getAllGuias();
+      const tbody = $('#body-guias');
+      tbody.innerHTML = '';
+
+      const filtered = list.filter(g => {
+        const text = (g.numero + ' ' + g.remitente + ' ' + g.destinatario + ' ' + (g.direccion||'')).toLowerCase();
+        if (estadoFilter && normalizeEstado(g.estado) !== normalizeEstado(estadoFilter)) return false;
+        if (q && !text.includes(q)) return false;
+        return true;
+      }).sort((a,b) => b.id - a.id);
+
+      
+      $("#count-filtered").innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `\r\n          <tr>\r\n            <td colspan="6">\r\n              <div class="empty-state">\r\n                <div class="mb-1"><i class="bi bi-inbox"></i> No hay guias para este filtro</div>\r\n                <div class="small-muted">Prueba limpiar la busqueda o crear una nueva guia.</div>\r\n              </div>\r\n            </td>\r\n          </tr>\r\n        `;
+        return;
+      }
+
+      for (const g of filtered) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="mono">${escapeHtml(g.numero)}</td>
+          <td>${escapeHtml(g.remitente)}</td>
+          <td>${escapeHtml(g.destinatario)}</td>
+          <td>${g.peso || '-'}</td>
+          <td>${renderEstado(g.estado)}</td>
+          <td class="text-end">
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-light" data-action="view" data-id="${g.id}"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-ghost" data-action="edit" data-id="${g.id}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-danger" data-action="delete" data-id="${g.id}" data-numero="${escapeHtml(g.numero)}"><i class="bi bi-trash"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    /* ==========================
+       Helpers de escape / render
+       ========================== */
+    function escapeHtml(s=''){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function escapeQuotes(s=''){ return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+    function normalizeEstado(estado=''){
+      return String(estado)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    function renderEstado(estado){
+      if (!estado) return '';
+      const n = normalizeEstado(estado);
+      if (n === 'pendiente') return '<span class="badge-status status-pend">Pendiente</span>';
+      if (n.includes('transito')) return '<span class="badge-status status-trans">En transito</span>';
+      if (n === 'entregado') return '<span class="badge-status status-ent">Entregado</span>';
+      return `<span class="badge-status">${escapeHtml(estado)}</span>`;
+    }
+
+    function buildPedidosResumen(pedidos){
+      if (!Array.isArray(pedidos) || pedidos.length === 0) return '';
+      return pedidos.map((it) => `${it.descripcion || '-'} x${it.cantidad || 1}`).join(' | ');
+    }
+
+    function mapGuiaForExcel(guia){
+      return {
+        Numero: guia.numero || '',
+        Estado: guia.estado || '',
+        Remitente: guia.remitente || '',
+        Destinatario: guia.destinatario || '',
+        Direccion: guia.direccion || '',
+        Peso: guia.peso ?? '',
+        Observaciones: guia.obs || '',
+        Fecha: guia.created_at || guia.updated_at || new Date().toISOString(),
+        Pedidos: buildPedidosResumen(guia.pedidos || []),
+      };
+    }
+
+    async function syncGuiaToExcel(guia, action = 'upsert'){
+      if (!guia || !guia.numero) return;
+      try {
+        await fetch(EXCEL_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action,
+            hoja: EXCEL_SHEET_NAME,
+            spreadsheetId: EXCEL_SPREADSHEET_ID,
+            guia: mapGuiaForExcel(guia),
+          }),
+        });
+      } catch (err) {
+        console.warn('No se pudo sincronizar guia con Excel:', err);
+      }
+    }
+
+    /* ==========================
+       Editar / eliminar desde tabla
+       ========================== */
+    async function editGuia(id){
+      const g = await getGuiaById(id);
+      if (!g) return alert('Guia no encontrada.');
+      $('#guia-id').value = g.id;
+      $('#guia-num').value = g.numero;
+      $('#guia-rem').value = g.remitente;
+      $('#guia-dest').value = g.destinatario;
+      $('#guia-dir').value = g.direccion || '';
+      $('#guia-peso').value = g.peso || '';
+      const estadoEdit = normalizeEstado(g.estado);
+      $('#guia-estado').value = estadoEdit.includes('transito') ? 'En transito' : (g.estado || 'Pendiente');
+      $('#guia-obs').value = g.obs || '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function confirmDelete(id, numero){
+      if (!confirm('Eliminar la guia ' + numero + ' (ID ' + id + ')?')) return;
+      await deleteGuia(id);
+      alert('Guia eliminada.');
+      await refreshTabla();
+      await updateStats();
+    }
+
+    /* ==========================
+       Ficha detallada (abrir / render)
+       ========================== */
+    async function openFicha(id){
+      await loadFicha(id);
+      $('#ficha-container').style.display = 'block';
+      window.scrollTo({ top: $('#ficha-container').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    async function loadFicha(id){
+      const g = await getGuiaById(Number(id));
+      if (!g) return alert('Guia no encontrada.');
+      $('#ficha-num').innerText = g.numero;
+      $('#ficha-fecha').innerText = 'Creada: ' + (g.created_at ? new Date(g.created_at).toLocaleString() : '-');
+      $('#ficha-rem').innerText = g.remitente;
+      $('#ficha-dest').innerText = g.destinatario;
+      $('#ficha-dir').innerText = g.direccion || '-';
+      $('#ficha-obs').innerText = g.obs || '-';
+      $('#ficha-peso').innerText = g.peso || '-';
+
+      const estadoEl = $('#ficha-estado');
+      estadoEl.className = 'badge-status';
+      const estadoNorm = normalizeEstado(g.estado);
+      if (estadoNorm === 'pendiente') estadoEl.classList.add('status-pend');
+      if (estadoNorm.includes('transito')) estadoEl.classList.add('status-trans');
+      if (estadoNorm === 'entregado') estadoEl.classList.add('status-ent');
+      estadoEl.innerText = estadoNorm.includes('transito') ? 'En transito' : (g.estado || '-');
+
+      $('#btn-delete-guia').dataset.id = g.id;
+
+      // Render items
+      const itemsList = $('#items-list');
+      itemsList.innerHTML = '';
+      const pedidos = g.pedidos || [];
+      if (pedidos.length === 0) itemsList.innerHTML = '<div class="small-muted">Sin pedidos registrados.</div>';
+
+      pedidos.forEach((it, idx) => {
+        const card = document.createElement('div');
+        card.className = 'd-flex align-items-center justify-content-between p-2 mb-2';
+        card.style.border = '1px solid rgba(0,0,0,0.06)';
+        card.style.borderRadius = '6px';
+        card.innerHTML = `
+          <div>
+            <div><strong>${escapeHtml(it.descripcion)}</strong> <span class="small-muted">x${it.cantidad}</span></div>
+            <div class="small-muted">Peso: ${it.peso||'-'} kg | Valor: ${it.valor||'-'}</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-ghost" data-item-action="edit" data-guia-id="${g.id}" data-idx="${idx}"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-danger" data-item-action="delete" data-guia-id="${g.id}" data-idx="${idx}"><i class="bi bi-trash"></i></button>
+          </div>
+        `;
+        itemsList.appendChild(card);
+      });
+
+      // almacenar id actual
+      $('#ficha-container').dataset.current = g.id;
+    }
+
+    async function onDeleteGuia(){
+      const id = $("#ficha-container").dataset.current;
+      if (!id) return;
+      if (!confirm('Eliminar guia ID ' + id + '?')) return;
+      await deleteGuia(Number(id));
+      $("#ficha-container").style.display = 'none';
+      await refreshTabla();
+      await updateStats();
+    }
+
+    /* ==========================
+       Items (pedidos) - modal
+       ========================== */
+    function openItemModal(edit=false){
+      $('#item-id').value = '';
+      $('#item-desc').value = '';
+      $('#item-cant').value = 1;
+      $('#item-valor').value = '';
+      $('#item-peso').value = '';
+      document.querySelector('#modalItem .modal-title').innerText = edit ? 'Editar pedido' : 'Agregar pedido';
+      bsModalItem.show();
+    }
+
+    async function onSaveItem(e){
+      e.preventDefault();
+      const itemId = $('#item-id').value;
+      const desc = $('#item-desc').value.trim();
+      const cant = Number($('#item-cant').value) || 1;
+      const valor = parseFloat($('#item-valor').value || 0) || 0;
+      const peso = parseFloat($('#item-peso').value || 0) || 0;
+
+      const guiaId = Number($('#ficha-container').dataset.current);
+      if (!guiaId) { alert('Primero abre la ficha de una guia y luego anade pedidos.'); return; }
+      const g = await getGuiaById(guiaId);
+      if (!g) return alert('Guia no encontrada.');
+
+      const item = { descripcion: desc, cantidad: cant, valor: valor || null, peso: peso || null };
+
+      if (itemId) {
+        const idx = Number(itemId);
+        g.pedidos[idx] = item;
+      } else {
+        g.pedidos = g.pedidos || [];
+        g.pedidos.push(item);
+      }
+
+      g.updated_at = new Date().toISOString();
+      await putGuia(g);
+      syncGuiaToExcel(g, 'upsert');
+      bsModalItem.hide();
+      await loadFicha(guiaId);
+      await refreshTabla();
+      await updateStats();
+    }
+
+    async function editItem(guiaId, idx){
+      const g = await getGuiaById(guiaId);
+      const it = g.pedidos[idx];
+      $('#item-id').value = idx;
+      $('#item-desc').value = it.descripcion;
+      $('#item-cant').value = it.cantidad;
+      $('#item-valor').value = it.valor || '';
+      $('#item-peso').value = it.peso || '';
+      document.querySelector('#modalItem .modal-title').innerText = 'Editar pedido';
+      bsModalItem.show();
+    }
+
+    async function deleteItem(guiaId, idx){
+      if (!confirm('Eliminar pedido?')) return;
+      const g = await getGuiaById(guiaId);
+      g.pedidos.splice(idx,1);
+      g.updated_at = new Date().toISOString();
+      await putGuia(g);
+      syncGuiaToExcel(g, 'upsert');
+      await loadFicha(guiaId);
+      await refreshTabla();
+      await updateStats();
+    }
+
+    /* ==========================
+       Export / Import JSON (respaldo)
+       ========================== */
+    async function exportJSON(){
+      const all = await getAllGuias();
+      const data = { exported_at: new Date().toISOString(), guias: all };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'envios_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importJSON(text){
+      try {
+        const parsed = JSON.parse(text);
+        if (!Array.isArray(parsed.guias)) throw new Error('Formato invalido');
+        for (const g of parsed.guias) {
+          const toAdd = Object.assign({}, g);
+          delete toAdd.id;
+          try { await addGuia(toAdd); }
+          catch(e){
+            const existing = await findGuiaByNumero(toAdd.numero);
+            if (existing) {
+              toAdd.id = existing.id;
+              await putGuia(toAdd);
+            }
+          }
+        }
+        alert('Importacion finalizada.');
+        await refreshTabla();
+        await updateStats();
+      } catch (err){
+        alert('Error importando JSON: ' + err.message);
+      }
+    }
+
+    function findGuiaByNumero(numero){
+      return new Promise((res) => {
+        const store = tx('guias','readonly');
+        const idx = store.index('num');
+        const r = idx.get(numero);
+        r.onsuccess = ()=> res(r.result);
+        r.onerror = ()=> res(null);
+      });
+    }
+
+    async function printCurrentGuide() {
+      const id = Number($('#ficha-container').dataset.current);
+      if (!id) return alert('Abra la ficha de una guia primero.');
+      const g = await getGuiaById(id);
+      if (!g) return alert('Guia no encontrada.');
+
+      $('#print-guia-num').innerText = g.numero || '-';
+      $('#print-fecha').innerText = new Date().toLocaleString();
+      $('#print-estado').innerText = g.estado || '-';
+      $('#print-rem').innerText = g.remitente || '-';
+      $('#print-dest').innerText = g.destinatario || '-';
+      $('#print-dir').innerText = g.direccion || '-';
+      $('#print-obs').innerText = g.obs || '-';
+      $('#print-peso').innerText = (g.peso ?? '-');
+      $('#print-emitido').innerText = g.created_at ? new Date(g.created_at).toLocaleString() : '-';
+
+      const tbody = $('#print-items');
+      tbody.innerHTML = '';
+
+      let total = 0;
+      const pedidos = Array.isArray(g.pedidos) ? g.pedidos : [];
+      if (pedidos.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.innerText = 'Sin pedidos registrados.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      } else {
+        pedidos.forEach((it, i) => {
+          const tr = document.createElement('tr');
+          const valorNum = Number(it.valor || 0);
+          total += valorNum;
+
+          const c1 = document.createElement('td'); c1.innerText = String(i + 1);
+          const c2 = document.createElement('td'); c2.innerText = it.descripcion || '-';
+          const c3 = document.createElement('td'); c3.innerText = String(it.cantidad || 1);
+          const c4 = document.createElement('td'); c4.innerText = String(it.peso ?? '-');
+          const c5 = document.createElement('td'); c5.innerText = valorNum ? ('$' + valorNum.toLocaleString()) : '-';
+
+          tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); tr.appendChild(c5);
+          tbody.appendChild(tr);
+        });
+      }
+
+      $('#print-total').innerText = '$' + total.toLocaleString();
+      window.print();
+    }
+
+    async function exportPDFCurrent() {
+      const id = Number($('#ficha-container').dataset.current);
+      if (!id) return alert('Abra la ficha de una guia primero.');
+      const g = await getGuiaById(id);
+      if (!g) return alert('Guia no encontrada.');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+      const labelX = 6;
+      const labelW = 198;
+      const labelH = 88;
+      const labelGap = 6;
+      const baseY = 8;
+
+      const numero = (g.numero || ('GUIA-' + id)).toUpperCase();
+      const fecha = g.created_at ? new Date(g.created_at).toLocaleString() : new Date().toLocaleString();
+      const pedidos = Array.isArray(g.pedidos) ? g.pedidos : [];
+      const totalValor = pedidos.reduce((s, it) => s + Number(it.valor || 0), 0);
+      const totalUnidades = pedidos.reduce((s, it) => s + Number(it.cantidad || 1), 0);
+      const pesoTotal = Number(g.peso || 0) || pedidos.reduce((s, it) => s + (Number(it.peso || 0) * Number(it.cantidad || 1)), 0);
+      const logoDataUrl = await loadLogoDataUrl();
+
+      async function loadLogoDataUrl() {
+        const candidates = ['./img/OIP.png', './img/OIP.jpeg', './img/OIP.jpg'];
+        for (const path of candidates) {
+          try {
+            const res = await fetch(path, { cache: 'no-store' });
+            if (!res.ok) continue;
+            const blob = await res.blob();
+            const dataUrl = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(String(reader.result || ''));
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            if (dataUrl.startsWith('data:image/')) return dataUrl;
+          } catch (e) {
+            // Intentar siguiente formato
+          }
+        }
+        return null;
+      }
+
+      function drawBarcode(x, y, w, h, text, showCode = true) {
+        const safe = String(text || '000000').replace(/[^A-Z0-9]/g, '');
+        const seed = safe.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        let cursor = x;
+        while (cursor < x + w - 1) {
+          const v = (seed + Math.floor(cursor * 10)) % 7;
+          const bw = v % 2 === 0 ? 0.45 : 0.9;
+          doc.setFillColor(0, 0, 0);
+          doc.rect(cursor, y, bw, h, 'F');
+          cursor += bw + 0.35;
+        }
+        if (showCode) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.3);
+          doc.text(safe || '000000', x + w / 2, y + h + 2.8, { align: 'center' });
+        }
+      }
+
+      function drawMockQr(x, y, size, text) {
+        doc.setDrawColor(0);
+        doc.rect(x, y, size, size);
+        const n = 17;
+        const cell = size / n;
+        const seed = String(text || '').split('').reduce((a, c) => a + c.charCodeAt(0), 13);
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const key = (r * 31 + c * 17 + seed) % 11;
+            if (key < 4) doc.rect(x + c * cell, y + r * cell, cell, cell, 'F');
+          }
+        }
+      }
+
+      function box(x, y, w, h, title, value, titleSize = 5.6, valueSize = 7.2, bold = false, lineHeight = 2.9) {
+        doc.setDrawColor(20);
+        doc.rect(x, y, w, h);
+        if (title) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(titleSize);
+          doc.text(title, x + 1.2, y + 2.8);
+        }
+        const lines = doc.splitTextToSize(String(value || '-'), w - 2.4);
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(valueSize);
+        const maxLines = Math.max(1, Math.floor((h - 5) / lineHeight));
+        const out = lines.slice(0, maxLines);
+        if (lines.length > maxLines && out.length) {
+          out[out.length - 1] = String(out[out.length - 1]).replace(/\s+$/, '') + '...';
+        }
+        doc.text(out, x + 1.2, y + 6);
+      }
+
+      function drawCopy(y, copyNo) {
+        const x = labelX;
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.35);
+        doc.rect(x, y, labelW, labelH);
+
+        const c1 = 70;
+        const c2 = 44;
+        const c3 = labelW - c1 - c2;
+        doc.line(x + c1, y, x + c1, y + labelH);
+        doc.line(x + c1 + c2, y, x + c1 + c2, y + labelH);
+
+        if (logoDataUrl) {
+          try {
+            const fmt = logoDataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+            const logoBoxX = x + 2.2;
+            const logoBoxY = y + 2;
+            const logoBoxW = 38;
+            const logoBoxH = 12;
+            const props = doc.getImageProperties(logoDataUrl);
+            const scale = Math.min(logoBoxW / props.width, logoBoxH / props.height);
+            const drawW = props.width * scale;
+            const drawH = props.height * scale;
+            const drawX = logoBoxX + 0.8;
+            const drawY = logoBoxY + (logoBoxH - drawH) / 2 - 0.2;
+            doc.addImage(logoDataUrl, fmt, drawX, drawY, drawW, drawH);
+          } catch (e) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.setTextColor(205, 0, 0);
+            doc.text('e', x + 3, y + 11);
+            doc.setFontSize(17);
+            doc.text('envia', x + 10, y + 10.6);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.2);
+            doc.setTextColor(0, 0, 0);
+            doc.text('pasion por lo que hacemos', x + 10.5, y + 13.5);
+          }
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(20);
+          doc.setTextColor(205, 0, 0);
+          doc.text('e', x + 3, y + 11);
+          doc.setFontSize(17);
+          doc.text('envia', x + 10, y + 10.6);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.2);
+          doc.setTextColor(0, 0, 0);
+          doc.text('pasion por lo que hacemos', x + 10.5, y + 13.5);
+        }
+
+        drawMockQr(x + 44, y + 2.2, 20, numero + '-' + copyNo);
+
+        box(x + 1.2, y + 24, c1 - 2.4, 6.8, 'REMITENTE', g.remitente || '-', 5.5, 7.1, true);
+        box(x + 1.2, y + 31.2, c1 - 2.4, 6.8, 'DIRECCION', g.direccion || '-', 5.5, 6.7);
+        box(x + 1.2, y + 38.4, (c1 - 2.4) / 2, 6.4, 'TEL', '-', 5.3, 6.5);
+        box(x + 1.2 + (c1 - 2.4) / 2, y + 38.4, (c1 - 2.4) / 2, 6.4, 'CUENTA', '01-0000000', 5.3, 6.5);
+
+        box(x + c1 + 1.2, y + 1.2, c2 - 2.4, 11.5, 'PREFIJO DOC', numero + ' / ' + copyNo, 5.3, 7);
+        box(x + c1 + 1.2, y + 13.2, c2 - 2.4, 11.6, 'DESTINO', (g.destinatario || '-') + ' / BARRANQUILLA', 5.2, 6.1, false, 2.7);
+
+        box(x + c1 + c2 + 1.2, y + 1.2, c3 - 2.4, 15, 'FACTURA / CODIGO', 'OC001 016004845558', 5.4, 7.1, true);
+        drawBarcode(x + c1 + c2 + 2.2, y + 17.2, c3 - 4.4, 9.2, numero + copyNo, false);
+
+        box(x + c1 + 1.2, y + 24, c2 - 2.4, 6.8, 'UNIDADES', totalUnidades || 1, 5.3, 8, true);
+        box(x + c1 + 1.2, y + 31.2, c2 - 2.4, 6.8, 'PESO KG', pesoTotal.toFixed(2), 5.3, 8, true);
+        box(x + c1 + 1.2, y + 38.4, c2 - 2.4, 6.8, 'VALOR DECLARADO', '$' + totalValor.toLocaleString(), 5.3, 7.2, true);
+
+        box(x + c1 + c2 + 1.2, y + 29, c3 - 2.4, 9.6, 'INTENTO DE ENTREGA', '1 [ ]   2 [ ]   3 [ ]', 5.1, 6.0, false, 2.6);
+        box(x + c1 + c2 + 1.2, y + 38.8, c3 - 2.4, 6.4, 'RECIBE', 'NOMBRE / CC / FIRMA', 5.0, 5.8, false, 2.5);
+
+        box(x + 1.2, y + 45.6, labelW - 2.4, 13.2, 'OBSERVACIONES', g.obs || '-', 5.3, 6.8);
+
+        const itemsText = pedidos.length
+          ? pedidos.slice(0, 3).map((it, i) => (i + 1) + '. ' + (it.descripcion || '-') + ' x' + (it.cantidad || 1)).join('   |   ')
+          : 'SIN ITEMS REGISTRADOS';
+        box(x + 1.2, y + 59.2, labelW - 2.4, 7.6, 'DETALLE CONTENIDO', itemsText, 5.1, 5.8, false, 2.55);
+
+        box(x + 1.2, y + 66.8, 58, 6.2, 'FECHA EMISION', fecha, 5.0, 5.7, false, 2.5);
+        box(x + 59.8, y + 66.8, 42, 6.2, 'ESTADO', g.estado || '-', 5.0, 5.7, true, 2.5);
+        box(x + 102.2, y + 66.8, 45, 6.2, 'COPIA', 'No. ' + copyNo, 5.0, 5.7, true, 2.5);
+        box(x + 147.6, y + 66.8, labelW - 148.8, 6.2, 'CODIGO INTERNO', String(id).padStart(6, '0'), 5.0, 5.7, false, 2.5);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(5.2);
+        doc.text('Documento generado por Sistema de Envios Local. Verifique datos antes de despacho.', x + 1.2, y + 75.8);
+        doc.text('Firma remitente: _____________________', x + 1.2, y + 81.5);
+        doc.text('Firma transportador: _____________________', x + 77, y + 81.5);
+        doc.text('Firma destinatario: _____________________', x + 152, y + 81.5);
+      }
+
+      for (let i = 0; i < 3; i++) drawCopy(baseY + i * (labelH + labelGap), i + 1);
+      doc.save(`guia_formato_${numero}.pdf`);
+    }
+
+    /* ==========================
+       Estadisticas rapidas
+       ========================== */
+    async function updateStats(){
+      const all = await getAllGuias();
+      const normalizeEstado = (value='') => String(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const pendientes = all.filter(g => normalizeEstado(g.estado) === 'pendiente').length;
+      const transito = all.filter(g => normalizeEstado(g.estado).includes('transito')).length;
+      const entregadas = all.filter(g => normalizeEstado(g.estado) === 'entregado').length;
+
+      $('#stat-total').innerText = all.length;
+      $('#stat-pend').innerText = pendientes;
+      $('#stat-trans').innerText = transito;
+      $('#stat-ent').innerText = entregadas;
+
+      const rate = all.length ? Math.round((entregadas / all.length) * 100) : 0;
+      $('#stat-rate').innerText = rate + '%';
+      $('#stat-rate-bar').style.width = rate + '%';
+    }
+
+    function startClock(){
+      const clockEl = $('#live-clock');
+      const dateEl = $('#top-date');
+      if (!clockEl && !dateEl) return;
+
+      const render = () => {
+        const now = new Date();
+        if (clockEl) clockEl.innerText = now.toLocaleTimeString();
+        if (dateEl) dateEl.innerText = now.toLocaleDateString();
+      };
+      render();
+      setInterval(render, 1000);
+    }
+
+    /* ==========================
+       Seed demo
+       ========================== */
+    async function seedDemo(){
+      if (!confirm('Cargar datos de ejemplo (no elimina existentes)?')) return;
+      const sample = [
+        { numero:'GUA-2025-0001', remitente:'Venta Online S.A.', destinatario:'Clara Gomez', direccion:'Calle 123 #45-67, Bogota', peso:2.4, estado:'Pendiente', obs:'Fragil', pedidos:[{descripcion:'Libros',cantidad:2,valor:50,peso:2}]},
+        { numero:'GUA-2025-0002', remitente:'ElectroWorld', destinatario:'J. Perez', direccion:'Carrera 10 #22-11, Medellin', peso:5.2, estado:'En transito', obs:'Entrega antes de 5pm', pedidos:[{descripcion:'Auriculares',cantidad:1,valor:120,peso:0.5},{descripcion:'Cargador',cantidad:1,valor:10,peso:0.2}]},
+        { numero:'GUA-2025-0003', remitente:'Mercado Local', destinatario:'Ana Ramirez', direccion:'Calle 8 #3-12, Cali', peso:1.1, estado:'Entregado', obs:'Recibido por vecino', pedidos:[{descripcion:'Caja de galletas',cantidad:3,valor:15,peso:1.1}]}
+      ];
+      for (const s of sample) {
+        try { await addGuia(Object.assign({}, s, { created_at: new Date().toISOString(), updated_at: new Date().toISOString() })); }
+        catch(e){ }
+      }
+      alert('Datos de ejemplo anadidos (si no existian).');
+      await refreshTabla();
+      await updateStats();
+    }
+
+    /* ==========================
+       Confirm delete global para tabla (se usa en onclick)
+       ========================== */
+    // ya definido arriba como confirmDelete
+
+    /* ==========================
+       Logout
+       ========================== */
+    function logout(){
+      localStorage.removeItem('sessionActive');
+      window.location.href = 'login.html';
+    }
+
+    /* ==========================
+       Export: exponer funciones que se llaman desde HTML (onclick)
+       ========================== */
+    window.editGuia = editGuia;
+    window.openFicha = openFicha;
+    window.confirmDelete = confirmDelete;
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+    window.logout = logout;
+    // Fin del IIFE
+  })();
+  </script>
+</body>
+</html>
+
+
+
+
