@@ -1,234 +1,608 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login Sistema Envio Fragua </title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso | Empresa Zima Seguridad Ltda</title>
 
-<!-- Google Fonts & Boxicons -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-<style>
-  * {margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif;}
+  <style>
+    :root {
+      --bg-1: #0b1f2d;
+      --bg-2: #123a4a;
+      --accent: #00a3a3;
+      --accent-2: #0ec9bf;
+      --text: #102230;
+      --muted: #5c6f7c;
+      --danger: #b42318;
+      --card: rgba(255, 255, 255, 0.96);
+      --ring: rgba(14, 201, 191, 0.35);
+    }
 
-  body, html { height: 100%; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Sora", sans-serif;
+    }
 
-  body {
-    background: url('IMG/oiu.png') no-repeat center center fixed;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    html,
+    body {
+      min-height: 100%;
+    }
 
-  .login-box {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 40px 35px;
-    border-radius: 16px;
-    width: 360px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-    text-align: center;
-    animation: fadeIn 0.8s ease;
-  }
+    body {
+      display: grid;
+      place-items: center;
+      padding: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 15%, rgba(14, 201, 191, 0.22), transparent 34%),
+        radial-gradient(circle at 85% 90%, rgba(0, 163, 163, 0.25), transparent 35%),
+        linear-gradient(145deg, var(--bg-1), var(--bg-2));
+    }
 
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-10px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
+    .login-shell {
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: none;
+      background: var(--card);
+    }
 
-  .login-box img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #4cafac;
-    margin-bottom: 15px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  }
+    .brand-panel {
+      padding: 56px;
+      background:
+        linear-gradient(165deg, rgba(0, 163, 163, 0.18), rgba(18, 58, 74, 0.2)),
+        url("img/Dise%C3%B1o%20sin%20t%C3%ADtulo%20(4).png") center/cover no-repeat;
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  .login-box h2 {
-    margin-bottom: 25px;
-    font-size: 21px;
-    color: #333;
-    font-weight: 600;
-  }
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(150deg, rgba(10, 25, 36, 0.52), rgba(18, 58, 74, 0.62));
+    }
 
-  .input-box {
-    position: relative;
-    margin-bottom: 18px;
-  }
+    .brand-panel::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(226, 251, 249, 0.2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      pointer-events: none;
+    }
 
-  .input-box input {
-    width: 100%;
-    padding: 12px 40px 12px 40px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    outline: none;
-    font-size: 14px;
-  }
+    .brand-copy {
+      max-width: 420px;
+      color: #f8fffe;
+      text-align: center;
+    }
 
-  .input-box i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
-    font-size: 20px;
-  }
+    .brand-kicker {
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #c6f5f2;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
 
-  .login-box button {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #4cafac, #3a9b99);
-    border: none;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
+    .brand-copy h1 {
+      font-size: clamp(2rem, 3.2vw, 2.6rem);
+      line-height: 1.25;
+      margin-bottom: 16px;
+      text-wrap: balance;
+    }
 
-  .login-box button:hover {
-    transform: scale(1.03);
-    background: linear-gradient(135deg, #3a9b99, #4cafac);
-  }
+    .brand-copy p {
+      line-height: 1.6;
+      color: #d7eeec;
+      font-size: 1.05rem;
+    }
 
-  .support {
-    margin-top: 18px;
-    font-size: 14px;
-    color: #555;
-  }
+    .form-panel {
+      padding: 52px 46px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(14, 201, 191, 0.12), transparent 45%),
+        linear-gradient(180deg, #ffffff, #f8fcfd);
+    }
 
-  .support span {
-    color: #e67e22;
-    font-weight: bold;
-  }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
 
-  a {
-    display: inline-block;
-    margin-top: 8px;
-    color: #4cafac;
-    text-decoration: none;
-    font-size: 14px;
-  }
+    .logo-wrap img {
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 2px solid rgba(0, 163, 163, 0.18);
+    }
 
-  a:hover {
-    text-decoration: underline;
-  }
+    .logo-wrap strong {
+      display: block;
+      font-size: 1.12rem;
+      font-weight: 700;
+    }
 
-  /* ===== Modal de carga elegante ===== */
-  .modal-carga {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(141, 99, 7, 0.88);
-    backdrop-filter: blur(8px);
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 9999;
-  }
+    .logo-wrap span {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
 
-  .modal-carga img {
-    width: 120px;
-    margin-bottom: 25px;
-    animation: fadeInLogo 1s ease forwards;
-  }
+    .heading {
+      margin-bottom: 28px;
+    }
 
-  @keyframes fadeInLogo {
-    from {opacity: 0; transform: scale(0.8);}
-    to {opacity: 1; transform: scale(1);}
-  }
+    .heading h2 {
+      font-size: 1.7rem;
+      margin-bottom: 10px;
+    }
 
-  .loader {
-    width: 70px;
-    height: 70px;
-    border: 6px solid #091b6b;
-    border-top: 6px solid #4cafac;
-    border-radius: 50%;
-    animation: girar 1s linear infinite;
-  }
+    .heading p {
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
 
-  @keyframes girar {
-    to {transform: rotate(360deg);}
-  }
+    .field {
+      margin-bottom: 18px;
+    }
 
-  .modal-carga p {
-    margin-top: 18px;
-    color: #333;
-    font-size: 16px;
-    font-weight: 600;
-    animation: texto 1.5s ease infinite alternate;
-  }
+    .field label {
+      display: block;
+      font-size: 0.95rem;
+      color: #203645;
+      margin-bottom: 9px;
+      font-weight: 600;
+    }
 
-  @keyframes texto {
-    from {opacity: 0.5;}
-    to {opacity: 1;}
-  }
+    .input-wrap {
+      position: relative;
+    }
 
-</style>
+    .input-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64808f;
+      font-size: 1.3rem;
+      pointer-events: none;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 1.4px solid #d3e0e8;
+      border-radius: 12px;
+      outline: none;
+      padding: 15px 46px;
+      font-size: 1rem;
+      transition: 0.2s border-color, 0.2s box-shadow;
+      background: #fafdff;
+    }
+
+    .input-wrap input:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #446272;
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .row-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0 18px;
+      font-size: 0.93rem;
+      color: #3e5865;
+    }
+
+    .row-actions label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .row-actions a {
+      color: #0b6e88;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .row-actions a:hover {
+      text-decoration: underline;
+    }
+
+    .error-box {
+      display: none;
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+      color: var(--danger);
+      background: #fff3f2;
+      border: 1px solid #f8ceca;
+      border-radius: 9px;
+      padding: 9px 11px;
+    }
+
+    .btn-login {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 700;
+      font-size: 1.03rem;
+      cursor: pointer;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transition: 0.2s transform, 0.2s filter;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .support {
+      margin-top: 20px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .support strong {
+      color: #0a5d6f;
+    }
+
+    .loading-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(91, 231, 222, 0.16), transparent 36%),
+        radial-gradient(circle at 80% 80%, rgba(14, 201, 191, 0.18), transparent 38%),
+        rgba(6, 16, 24, 0.72);
+      backdrop-filter: blur(9px);
+      z-index: 1200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-card {
+      width: min(420px, 100%);
+      border-radius: 18px;
+      padding: 24px 22px;
+      text-align: center;
+      color: #ecfeff;
+      background: linear-gradient(180deg, rgba(10, 28, 38, 0.82), rgba(10, 28, 38, 0.68));
+      border: 1px solid rgba(185, 241, 236, 0.28);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+    }
+
+    .loading-modal img {
+      width: 78px;
+      height: 78px;
+      object-fit: cover;
+      border-radius: 18px;
+      border: 2px solid rgba(236, 254, 255, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .loader {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto;
+      border: 4px solid rgba(255, 255, 255, 0.18);
+      border-top-color: #5be7de;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    .loading-title {
+      margin-top: 14px;
+      font-size: 1.06rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .loading-subtitle {
+      margin-top: 6px;
+      color: #bfeeed;
+      font-size: 0.9rem;
+    }
+
+    .loading-progress {
+      margin-top: 14px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .loading-progress span {
+      display: block;
+      height: 100%;
+      width: 45%;
+      background: linear-gradient(90deg, #0ec9bf, #5be7de);
+      border-radius: 999px;
+      animation: loadingBar 1.2s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes loadingBar {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(260%); }
+    }
+
+    @media (max-width: 1100px) {
+      .brand-panel {
+        padding: 42px;
+      }
+
+      .form-panel {
+        padding: 40px 28px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+      }
+
+      .brand-panel {
+        min-height: 36vh;
+        align-items: center;
+      }
+
+      .form-panel {
+        max-width: 100%;
+        padding: 34px 22px 42px;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<!-- Modal de carga con logo de ZIMA -->
-<div class="modal-carga" id="modalCarga">
-  <img src="IMG/OIP.jpeg" alt="Logo ZIMA">
-  <div class="loader"></div>
-  <p>Cargando sistema...</p>
-</div>
-
-<div class="login-box">
-  <img src="IMG/OIP.jpeg" alt="Perfil Peaje Fragua">
-  <h2>Bienvenido al Sistema de Facturación</h2>
-
-  <form onsubmit="return validarLogin(event)">
-    <div class="input-box">
-      <i class='bx bxs-user'></i>
-      <input type="text" id="usuario" placeholder="Usuario" required>
+  <div class="loading-modal" id="loadingModal" aria-hidden="true">
+    <div class="loading-card" role="status" aria-live="polite">
+      <img src="img/OIP.jpeg" alt="Logo Envios Zima" />
+      <div class="loader" aria-hidden="true"></div>
+      <p class="loading-title">Validando acceso</p>
+      <p class="loading-subtitle">Preparando el panel de Envios Zima...</p>
+      <div class="loading-progress" aria-hidden="true"><span></span></div>
     </div>
-
-    <div class="input-box">
-      <i class='bx bxs-lock-alt'></i>
-      <input type="password" id="password" placeholder="Contraseña" required>
-    </div>
-
-    <div style="text-align:left; margin-bottom:16px;">
-      <input type="checkbox" id="show-pass" disabled>
-      
-    </div>
-
-    <button type="submit">Iniciar Sesión</button>
-  </form>
-
-  <div class="support">
-    ¿Tienes problemas para ingresar? Contáctanos al <span>3145014258</span>
   </div>
-  <a href="#">¿Has olvidado tu contraseña?</a>
-</div>
 
-<script>
-function validarLogin(event) {
-  event.preventDefault();
-  const user = document.getElementById('usuario').value.trim();
-  const pass = document.getElementById('password').value.trim();
+  <main class="login-shell" aria-label="Acceso al sistema">
+    <section class="brand-panel" aria-hidden="true">
+      <div class="brand-copy">
+        <div class="brand-kicker">EMPRESA ZIMA SEGURIDAD LTDA</div>
+        <h1>Area de envio de paquetes y control de guias.</h1>
+        <p>
+          Plataforma interna para registrar, organizar y dar seguimiento a cada envio
+          del equipo de logistica.
+        </p>
+      </div>
+    </section>
 
-  if (user === "Peaje Fragua" && pass === "Administrador") {
-    // Mostrar modal de carga
-    const modal = document.getElementById('modalCarga');
-    modal.style.display = 'flex';
+    <section class="form-panel">
+      <div class="logo-wrap">
+        <img src="img/OIP.jpeg" alt="Logo Envios Zima" />
+        <div>
+          <strong>Empresa Zima Seguridad Ltda</strong>
+          <span>Area de Envio de Paquetes</span>
+        </div>
+      </div>
 
-    // Redirigir después de un breve retraso
-    setTimeout(() => {
-      window.location.href = "home.html";
-    }, 2500);
-  } else {
-    alert("❌ Credenciales incorrectas. Intente de nuevo.");
-  }
-}
-</script>
+      <div class="heading">
+        <h2>Iniciar sesion</h2>
+        <p>Ingresa tus credenciales para continuar.</p>
+      </div>
 
+      <form id="loginForm" novalidate>
+        <div class="error-box" id="errorBox" role="alert"></div>
+
+        <div class="field">
+          <label for="usuario">Usuario</label>
+          <div class="input-wrap">
+            <i class="bx bxs-user"></i>
+            <input id="usuario" name="usuario" type="text" autocomplete="username" placeholder="Tu usuario" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Contrasena</label>
+          <div class="input-wrap">
+            <i class="bx bxs-lock-alt"></i>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Tu contrasena" required />
+            <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar u ocultar contrasena">
+              <i class="bx bx-show"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <label for="rememberSession">
+            <input id="rememberSession" type="checkbox" checked />
+            Mantener sesion activa
+          </label>
+          <a href="#" aria-disabled="true">Recuperar acceso</a>
+        </div>
+
+        <button class="btn-login" id="btnLogin" type="submit">Entrar</button>
+      </form>
+
+      <p class="support">Soporte: <strong>3145014258</strong></p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const USERS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzh1K6G6tpOD6Ofng3cz7g8GxlT09U6rJkHwiRRkr9bvwsA5XvTwbgLMPi1ycrIBX74/exec";
+
+      const form = document.getElementById("loginForm");
+      const inputUser = document.getElementById("usuario");
+      const inputPass = document.getElementById("password");
+      const errorBox = document.getElementById("errorBox");
+      const btnLogin = document.getElementById("btnLogin");
+      const rememberSession = document.getElementById("rememberSession");
+      const loadingModal = document.getElementById("loadingModal");
+      const togglePass = document.getElementById("togglePass");
+
+      if (localStorage.getItem("sessionActive") === "1") {
+        window.location.replace("home.html");
+      }
+
+      togglePass.addEventListener("click", function () {
+        const show = inputPass.type === "password";
+        inputPass.type = show ? "text" : "password";
+        togglePass.innerHTML = show ? '<i class="bx bx-hide"></i>' : '<i class="bx bx-show"></i>';
+      });
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        hideError();
+        const user = inputUser.value.trim();
+        const pass = inputPass.value.trim();
+
+        if (!user || !pass) {
+          showError("Debes completar usuario y contrasena.");
+          return;
+        }
+
+        btnLogin.disabled = true;
+
+        let authResult;
+        try {
+          authResult = await authenticateFromSheet(user, pass);
+        } catch (err) {
+          showError("No se pudo validar el acceso. Revisa internet e intenta de nuevo.");
+          btnLogin.disabled = false;
+          return;
+        }
+
+        if (!authResult.ok) {
+          showError(authResult.message || "Credenciales incorrectas. Verifica e intenta de nuevo.");
+          inputPass.value = "";
+          inputPass.focus();
+          btnLogin.disabled = false;
+          return;
+        }
+
+        loadingModal.style.display = "flex";
+
+        if (rememberSession.checked) {
+          localStorage.setItem("sessionActive", "1");
+          localStorage.setItem("sessionUser", JSON.stringify(authResult.user));
+        } else {
+          localStorage.removeItem("sessionActive");
+          localStorage.removeItem("sessionUser");
+        }
+
+        setTimeout(function () {
+          window.location.href = "home.html";
+        }, 1400);
+      });
+
+      function showError(message) {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+      }
+
+      function hideError() {
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
+      }
+
+      async function authenticateFromSheet(username, password) {
+        const response = await fetch(USERS_ENDPOINT, { method: "GET", cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+
+        const raw = await response.json();
+        if (!Array.isArray(raw) || raw.length < 2) throw new Error("Formato invalido");
+
+        const rows = raw.slice(1);
+        const users = rows
+          .filter((row) => Array.isArray(row) && row.length >= 6)
+          .map((row) => ({
+            nombre: String(row[1] || "").trim(),
+            usuario: String(row[2] || "").trim(),
+            password: String(row[3] || "").trim(),
+            rol: String(row[4] || "").trim(),
+            estado: String(row[5] || "").trim()
+          }));
+
+        const found = users.find((u) => u.usuario.toLowerCase() === username.toLowerCase());
+        if (!found) return { ok: false, message: "Usuario no encontrado." };
+
+        if (found.estado.toLowerCase() !== "activo") {
+          return { ok: false, message: "Tu usuario esta inactivo. Contacta al administrador." };
+        }
+
+        if (found.password !== password) {
+          return { ok: false, message: "Contrasena incorrecta." };
+        }
+
+        return {
+          ok: true,
+          user: {
+            nombre: found.nombre,
+            usuario: found.usuario,
+            rol: found.rol,
+            estado: found.estado
+          }
+        };
+      }
+    })();
+  </script>
 </body>
 </html>
-
