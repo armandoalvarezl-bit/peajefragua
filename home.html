@@ -20,47 +20,95 @@
   <style>
     /* ---------- Tema y tipografias ---------- */
     :root{
-      --bg: #e9eef3;
+      --bg: #e6edf4;
+      --bg-soft: #dce7f2;
       --card: #ffffff;
       --muted: #475569;
       --accent: #0ea5a4;
+      --accent-2: #0891b2;
+      --accent-soft: rgba(14,165,164,.15);
       --border: rgba(0,0,0,0.08);
       --text: #0f172a;
+      --shadow-sm: 0 8px 18px rgba(2,6,23,.08);
+      --shadow-md: 0 14px 26px rgba(2,6,23,.12);
     }
     html,body{
-      background:var(--bg);
+      background:
+        radial-gradient(circle at 8% 6%, rgba(8,145,178,.16), transparent 30%),
+        radial-gradient(circle at 90% 92%, rgba(14,165,164,.14), transparent 34%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 45%);
       color:var(--text);
       font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100%;
+    }
+    *{
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    ::selection{
+      background: rgba(14,165,164,.24);
+      color: #062022;
+    }
+    .container{
+      max-width: 1320px;
+    }
+    .card,
+    .btn,
+    .form-control,
+    .form-select,
+    .table tbody tr{
+      transition: all .2s ease;
     }
 
     /* Tarjetas */
     .card{
       background:var(--card);
       border:1px solid var(--border);
-      border-radius:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05);
-      transition: transform .18s ease;
+      border-radius:14px;
+      box-shadow:var(--shadow-sm);
+      backdrop-filter: saturate(1.02);
     }
-    .card:hover{ transform: translateY(-3px); }
+    .card:hover{
+      transform: translateY(-2px);
+      box-shadow:var(--shadow-md);
+    }
 
     /* Navbar y botones primarios */
     .btn-primary{
-      background: linear-gradient(90deg, #0ea5a4, #06b6d4) !important;
+      background: linear-gradient(95deg, #0ea5a4, #06b6d4) !important;
       border: 0;
       color: #fff !important;
+      box-shadow: 0 8px 18px rgba(8,145,178,.22);
     }
-    .btn-primary:hover { opacity: .95; }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 11px 22px rgba(8,145,178,.28);
+    }
+    .btn:focus-visible,
+    .form-control:focus-visible,
+    .form-select:focus-visible{
+      outline: none;
+      box-shadow: 0 0 0 .22rem rgba(14,165,164,.2);
+    }
 
     .muted { color:var(--muted); }
     .small-muted { font-size:.9rem; color:var(--muted); }
 
     /* Inputs */
     .form-control, .form-select {
-      background:#f8fafc;
+      background:#f7fbff;
       color:var(--text);
-      border:1.5px solid var(--accent);
+      border:1.5px solid rgba(14,165,164,.5);
       border-radius:8px;
       padding:.6rem .75rem;
+    }
+    .form-control:hover, .form-select:hover{
+      border-color: var(--accent);
+      background:#fff;
+    }
+    .form-control:focus, .form-select:focus{
+      border-color: var(--accent);
+      background:#fff;
     }
 
     /* Tabla / contenedor de guias: limitar altura y scroll */
@@ -70,14 +118,35 @@
       border-radius:8px;
       overflow:hidden;
     }
-    .table thead th { background:#f1f5f9; border-bottom: 2px solid var(--border); }
+    .table thead th {
+      background:#eef5fb;
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
     .table-striped > tbody > tr:nth-of-type(odd) { background-color: #f8fafc; }
+    .table-hover > tbody > tr:hover{
+      background: linear-gradient(90deg, rgba(14,165,164,.09), rgba(8,145,178,.06));
+      transform: translateX(1px);
+    }
 
     /* Nuevo: caja con altura maxima para la lista de guias */
     .guias-box {
       max-height: 360px;        /* <--- ajusta esta altura si quieres mas/menos */
       overflow-y: auto;
       padding-right: 8px;       /* espacio para scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(14,165,164,.55) rgba(148,163,184,.25);
+    }
+    .guias-box::-webkit-scrollbar{ width:10px; }
+    .guias-box::-webkit-scrollbar-track{
+      background: rgba(148,163,184,.2);
+      border-radius: 999px;
+    }
+    .guias-box::-webkit-scrollbar-thumb{
+      background: linear-gradient(180deg, #14b8a6, #0891b2);
+      border-radius: 999px;
     }
     /* Mantener las filas visibles y accesibles */
     .guias-box table { margin-bottom: 0; }
@@ -87,7 +156,16 @@
     .status-trans { background:#38bdf8; color:#082f49; }
     .status-ent { background:#34d399; color:#064e3b; }
 
-    .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-ghost {
+      background:linear-gradient(180deg, #fff, #f8fafc);
+      border:1px solid rgba(148,163,184,.36);
+      color:var(--text);
+    }
+    .btn-ghost:hover{
+      background:#fff;
+      border-color: rgba(14,165,164,.45);
+      transform: translateY(-1px);
+    }
     .app-header{
       position: relative;
       background: linear-gradient(115deg, #0f766e 0%, #0891b2 55%, #0ea5a4 100%) !important;
@@ -187,6 +265,7 @@
       background: #fff;
       box-shadow: 0 9px 16px rgba(2, 6, 23, 0.18);
     }
+    .nav-action:active{ transform: translateY(0); }
     .nav-danger{
       border:1px solid rgba(127,29,29,.45);
       background: linear-gradient(180deg, #b91c1c, #7f1d1d);
@@ -226,6 +305,7 @@
       border: 1px solid rgba(15, 118, 110, 0.18);
       padding: .75rem;
       background: linear-gradient(180deg, #ffffff, #f8fafc);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
     }
     .mini-kpi .label{
       color: var(--muted);
@@ -248,7 +328,7 @@
     .empty-state{
       border: 1px dashed rgba(15, 118, 110, 0.25);
       border-radius: 10px;
-      background: #f8fafc;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
       text-align: center;
       padding: 1rem;
       color: var(--muted);
@@ -270,6 +350,56 @@
     footer { opacity:.7; font-size:.85rem; text-align:center; margin-top:2rem; }
 
     .mono { font-family: ui-monospace, "Roboto Mono", monospace; }
+    .op-loading{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.45);
+      backdrop-filter: blur(3px);
+    }
+    .op-loading-card{
+      min-width: 260px;
+      max-width: 86vw;
+      border-radius: 14px;
+      padding: 16px 18px;
+      color: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.92), rgba(15, 118, 110, 0.88));
+      box-shadow: 0 18px 36px rgba(2, 6, 23, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+    .notify-chip{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 2100;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 12px 24px rgba(2, 6, 23, 0.3);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .18s ease, transform .18s ease;
+      pointer-events: none;
+      letter-spacing: .01em;
+    }
+    .notify-chip.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .notify-success{
+      background: linear-gradient(135deg, #0f766e, #059669);
+    }
+    .notify-error{
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+    }
 
     /* Pequeno ajuste responsive */
     @media (max-width: 768px) {
@@ -277,6 +407,12 @@
       .brand-title{ font-size:1.08rem; }
       .brand-sub{ font-size:.73rem; }
       .app-actions{ width:100%; }
+      .app-actions .btn, .app-actions a{
+        flex: 1 1 auto;
+        text-align:center;
+        justify-content:center;
+      }
+      .top-chip{ width:100%; text-align:center; }
     }
     .print-sheet{
       display:none;
@@ -384,6 +520,7 @@
         <button class="btn nav-action" id="btn-seed"><i class="bi bi-stars"></i> Cargar ejemplo</button>
         <button class="btn nav-action" id="btn-backup"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
         <button class="btn nav-action" id="btn-restore"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+        <button class="btn nav-action" id="btn-resync"><i class="bi bi-cloud-arrow-up"></i> Reenviar Excel</button>
         <a class='btn nav-action' href='consulta.html'><i class='bi bi-search'></i> Consultar envio</a>
         <button class="btn nav-action" id="btn-logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesion</button>
         <button class="btn nav-danger" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
@@ -686,6 +823,13 @@
 
   <!-- JS: Bootstrap bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <div id="op-loading" class="op-loading d-none" aria-live="polite" aria-busy="true">
+    <div class="op-loading-card">
+      <div class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></div>
+      <span id="op-loading-msg">Procesando...</span>
+    </div>
+  </div>
+  <div id="notify-chip" class="notify-chip" role="status" aria-live="polite"></div>
 
   <script>
   /**
@@ -703,15 +847,40 @@
     const DB_NAME = 'envios_db_v1';
     const DB_VERSION = 1;
     let db;
-    const EXCEL_API_URL = 'https://script.google.com/macros/s/AKfycbwgRMijbCWQfD2mRsAgAXSzWgT9FxzNQBBDIoisI0kk1f7Cw0pTLIez09Y9KdCZFRW9/exec';
+    const EXCEL_API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
     const EXCEL_SHEET_NAME = 'Tabla_1';
     const EXCEL_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+    const SYNC_QUEUE_KEY = 'envios_sync_queue_v1';
 
     /* ==========================
        Helpers: DOM shortcuts
        ========================== */
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    let notifyTimer = null;
+    function showOpLoading(msg = 'Procesando...'){
+      const box = $('#op-loading');
+      if (!box) return;
+      const text = $('#op-loading-msg');
+      if (text) text.innerText = msg;
+      box.classList.remove('d-none');
+    }
+    function hideOpLoading(){
+      const box = $('#op-loading');
+      if (!box) return;
+      box.classList.add('d-none');
+    }
+    function showNotify(msg, type = 'success'){
+      const chip = $('#notify-chip');
+      if (!chip) return;
+      chip.innerText = msg || '';
+      chip.classList.remove('notify-success', 'notify-error', 'show');
+      chip.classList.add(type === 'error' ? 'notify-error' : 'notify-success');
+      if (notifyTimer) clearTimeout(notifyTimer);
+      requestAnimationFrame(() => chip.classList.add('show'));
+      notifyTimer = setTimeout(() => chip.classList.remove('show'), 2600);
+    }
 
     /* ==========================
        IndexedDB: wrapper simple
@@ -793,6 +962,8 @@
       bsModalItem = new bootstrap.Modal($('#modalItem'), { backdrop: 'static' });
       startClock();
       bindEvents();
+      window.addEventListener('online', () => { flushPendingSyncQueue(); });
+      await flushPendingSyncQueue();
       await refreshTabla();
       await updateStats();
     });
@@ -821,6 +992,7 @@
       on('#btn-logout', 'click', logout);
       on('#btn-seed', 'click', seedDemo);
       on('#btn-backup', 'click', exportJSON);
+      on('#btn-resync', 'click', resyncAllGuiasToExcel);
       on('#btn-restore', 'click', ()=> {
         const f = document.createElement('input');
         f.type = 'file'; f.accept = '.json,application/json';
@@ -892,7 +1064,8 @@
         g.obs = obs;
         g.updated_at = now;
         await putGuia(g);
-        syncGuiaToExcel(g, 'upsert');
+        await syncGuiaToExcel(g, 'upsert');
+        await flushPendingSyncQueue();
         alert('Guia actualizada.');
         await loadFicha(g.id);
       } else {
@@ -901,7 +1074,8 @@
         try {
           const newId = await addGuia(guia);
           guia.id = newId;
-          syncGuiaToExcel(guia, 'upsert');
+          await syncGuiaToExcel(guia, 'upsert');
+          await flushPendingSyncQueue();
           alert('Guia creada con ID ' + newId);
           resetForm();
         } catch (err) {
@@ -1017,21 +1191,141 @@
       };
     }
 
-    async function syncGuiaToExcel(guia, action = 'upsert'){
-      if (!guia || !guia.numero) return;
+    function readSyncQueue(){
+      try {
+        const raw = localStorage.getItem(SYNC_QUEUE_KEY);
+        const parsed = JSON.parse(raw || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function writeSyncQueue(queue){
+      try {
+        localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
+      } catch (_) {
+        // Ignorar errores de cuota.
+      }
+    }
+
+    function enqueueSync(payload){
+      const queue = readSyncQueue();
+      queue.push({ at: new Date().toISOString(), payload });
+      writeSyncQueue(queue);
+    }
+
+    async function sendPayloadToExcel(payload){
+      const body = JSON.stringify(payload);
+      const guia = payload && payload.guia ? payload.guia : {};
+      const form = new URLSearchParams();
+      form.set('action', payload.action || 'upsert');
+      form.set('hoja', payload.hoja || EXCEL_SHEET_NAME);
+      form.set('spreadsheetId', payload.spreadsheetId || EXCEL_SPREADSHEET_ID);
+      form.set('numero', guia.Numero || '');
+      form.set('estado', guia.Estado || '');
+      form.set('remitente', guia.Remitente || '');
+      form.set('destinatario', guia.Destinatario || '');
+      form.set('direccion', guia.Direccion || '');
+      form.set('peso', String(guia.Peso ?? ''));
+      form.set('observaciones', guia.Observaciones || '');
+      form.set('fecha', guia.Fecha || '');
+      form.set('pedidos', guia.Pedidos || '');
+      form.set('guia', JSON.stringify(guia));
+      form.set('payload', body);
+
       try {
         await fetch(EXCEL_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action,
-            hoja: EXCEL_SHEET_NAME,
-            spreadsheetId: EXCEL_SPREADSHEET_ID,
-            guia: mapGuiaForExcel(guia),
-          }),
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: form.toString(),
+          keepalive: true,
         });
-      } catch (err) {
-        console.warn('No se pudo sincronizar guia con Excel:', err);
+        return true;
+      } catch (_) {
+        // Intentar siguiente estrategia.
+      }
+
+      try {
+        await fetch(EXCEL_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body,
+          keepalive: true,
+        });
+        return true;
+      } catch (_) {
+        // Intentar siguiente estrategia.
+      }
+
+      try {
+        if (navigator.sendBeacon) {
+          const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+          const sent = navigator.sendBeacon(EXCEL_API_URL, blob);
+          if (sent) return true;
+        }
+      } catch (_) {
+        // Intentar siguiente estrategia.
+      }
+
+      try {
+        const params = new URLSearchParams();
+        params.set('action', payload.action || 'upsert');
+        params.set('hoja', payload.hoja || EXCEL_SHEET_NAME);
+        params.set('spreadsheetId', payload.spreadsheetId || EXCEL_SPREADSHEET_ID);
+        params.set('numero', guia.Numero || '');
+        params.set('estado', guia.Estado || '');
+        params.set('remitente', guia.Remitente || '');
+        params.set('destinatario', guia.Destinatario || '');
+        params.set('direccion', guia.Direccion || '');
+        params.set('peso', String(guia.Peso ?? ''));
+        params.set('observaciones', guia.Observaciones || '');
+        params.set('fecha', guia.Fecha || '');
+        params.set('pedidos', guia.Pedidos || '');
+        params.set('guia', JSON.stringify(guia));
+        params.set('payload', body);
+        await fetch(EXCEL_API_URL + '?' + params.toString(), {
+          method: 'GET',
+          mode: 'no-cors',
+          cache: 'no-store',
+        });
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    async function flushPendingSyncQueue(){
+      const queue = readSyncQueue();
+      if (!queue.length) return;
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+
+      const remaining = [];
+      for (const item of queue) {
+        const ok = await sendPayloadToExcel(item.payload);
+        if (!ok) remaining.push(item);
+      }
+      writeSyncQueue(remaining);
+      if (remaining.length) {
+        console.warn('Pendientes por sincronizar:', remaining.length);
+      }
+    }
+
+    async function syncGuiaToExcel(guia, action = 'upsert'){
+      if (!guia || !guia.numero) return;
+      const payload = {
+        action,
+        hoja: EXCEL_SHEET_NAME,
+        spreadsheetId: EXCEL_SPREADSHEET_ID,
+        guia: mapGuiaForExcel(guia),
+      };
+
+      const ok = await sendPayloadToExcel(payload);
+      if (!ok) {
+        enqueueSync(payload);
+        console.warn('No se pudo sincronizar guia con Excel. Se guardo en cola para reintento.');
       }
     }
 
@@ -1055,10 +1349,23 @@
 
     async function confirmDelete(id, numero){
       if (!confirm('Eliminar la guia ' + numero + ' (ID ' + id + ')?')) return;
-      await deleteGuia(id);
-      alert('Guia eliminada.');
-      await refreshTabla();
-      await updateStats();
+      showOpLoading('Eliminando guia...');
+      try {
+        const g = await getGuiaById(Number(id));
+        if (g && g.numero) {
+          await syncGuiaToExcel({ numero: g.numero }, 'delete');
+          await flushPendingSyncQueue();
+        }
+        await deleteGuia(id);
+        await refreshTabla();
+        await updateStats();
+        showNotify('Guia eliminada correctamente.', 'success');
+      } catch (err) {
+        console.error(err);
+        showNotify('No se pudo eliminar la guia.', 'error');
+      } finally {
+        hideOpLoading();
+      }
     }
 
     /* ==========================
@@ -1123,10 +1430,24 @@
       const id = $("#ficha-container").dataset.current;
       if (!id) return;
       if (!confirm('Eliminar guia ID ' + id + '?')) return;
-      await deleteGuia(Number(id));
-      $("#ficha-container").style.display = 'none';
-      await refreshTabla();
-      await updateStats();
+      showOpLoading('Eliminando guia...');
+      try {
+        const g = await getGuiaById(Number(id));
+        if (g && g.numero) {
+          await syncGuiaToExcel({ numero: g.numero }, 'delete');
+          await flushPendingSyncQueue();
+        }
+        await deleteGuia(Number(id));
+        $("#ficha-container").style.display = 'none';
+        await refreshTabla();
+        await updateStats();
+        showNotify('Guia eliminada correctamente.', 'success');
+      } catch (err) {
+        console.error(err);
+        showNotify('No se pudo eliminar la guia.', 'error');
+      } finally {
+        hideOpLoading();
+      }
     }
 
     /* ==========================
@@ -1167,7 +1488,8 @@
 
       g.updated_at = new Date().toISOString();
       await putGuia(g);
-      syncGuiaToExcel(g, 'upsert');
+      await syncGuiaToExcel(g, 'upsert');
+      await flushPendingSyncQueue();
       bsModalItem.hide();
       await loadFicha(guiaId);
       await refreshTabla();
@@ -1192,7 +1514,8 @@
       g.pedidos.splice(idx,1);
       g.updated_at = new Date().toISOString();
       await putGuia(g);
-      syncGuiaToExcel(g, 'upsert');
+      await syncGuiaToExcel(g, 'upsert');
+      await flushPendingSyncQueue();
       await loadFicha(guiaId);
       await refreshTabla();
       await updateStats();
@@ -1227,12 +1550,35 @@
               await putGuia(toAdd);
             }
           }
+          await syncGuiaToExcel(toAdd, 'upsert');
         }
+        await flushPendingSyncQueue();
         alert('Importacion finalizada.');
         await refreshTabla();
         await updateStats();
       } catch (err){
         alert('Error importando JSON: ' + err.message);
+      }
+    }
+
+    async function resyncAllGuiasToExcel(){
+      const all = await getAllGuias();
+      if (!all.length) {
+        alert('No hay guias locales para reenviar.');
+        return;
+      }
+      if (!confirm('Reenviar ' + all.length + ' guia(s) al Excel ahora?')) return;
+
+      for (const g of all) {
+        await syncGuiaToExcel(g, 'upsert');
+      }
+      await flushPendingSyncQueue();
+
+      const pending = readSyncQueue().length;
+      if (pending > 0) {
+        alert('Reenvio iniciado. ' + pending + ' guia(s) quedaron en cola por red inestable.');
+      } else {
+        alert('Reenvio completado. Verifica el Excel en unos segundos.');
       }
     }
 
@@ -1569,7 +1915,3 @@
   </script>
 </body>
 </html>
-
-
-
-

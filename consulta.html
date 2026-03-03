@@ -96,7 +96,7 @@
     (function(){
       'use strict';
 
-      const API_URL = 'https://script.google.com/macros/s/AKfycbzlMYhuU7GqB6a5r5Z1-nHYfrggwEJP1TxamLjYe9EtpA-7WurnTXOA4WI7CqvYaI_d/exec';
+      const API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
       const API_HOJA = 'Tabla_1';
       // Si luego usas openById en Apps Script, pega aqui el ID del spreadsheet.
       const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
@@ -211,6 +211,8 @@
 
       function buildApiUrl(term){
         const params = new URLSearchParams();
+        params.set('action', 'search');
+        params.set('q', term);
         params.set('numero', term);
         params.set('hoja', API_HOJA);
         if (API_SPREADSHEET_ID) params.set('spreadsheetId', API_SPREADSHEET_ID);
