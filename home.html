@@ -20,13 +20,13 @@
   <style>
     /* ---------- Tema y tipografias ---------- */
     :root{
-      --bg: #e6edf4;
-      --bg-soft: #dce7f2;
+      --bg: #d9e7e4;
+      --bg-soft: #cfe0db;
       --card: #ffffff;
-      --muted: #475569;
-      --accent: #0ea5a4;
-      --accent-2: #0891b2;
-      --accent-soft: rgba(14,165,164,.15);
+      --muted: #4f6471;
+      --accent: #0b2a6f;
+      --accent-2: #15449f;
+      --accent-soft: rgba(11,42,111,.15);
       --border: rgba(0,0,0,0.08);
       --text: #0f172a;
       --shadow-sm: 0 8px 18px rgba(2,6,23,.08);
@@ -34,12 +34,13 @@
     }
     html,body{
       background:
-        radial-gradient(circle at 8% 6%, rgba(8,145,178,.16), transparent 30%),
-        radial-gradient(circle at 90% 92%, rgba(14,165,164,.14), transparent 34%),
-        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 45%);
+        radial-gradient(circle at 10% 8%, rgba(11,42,111,.14), transparent 32%),
+        radial-gradient(circle at 88% 90%, rgba(30,64,175,.1), transparent 34%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 55%);
       color:var(--text);
       font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100%;
+      margin: 0;
     }
     *{
       -webkit-font-smoothing: antialiased;
@@ -63,26 +64,26 @@
     /* Tarjetas */
     .card{
       background:var(--card);
-      border:1px solid var(--border);
-      border-radius:14px;
-      box-shadow:var(--shadow-sm);
+      border:1px solid rgba(148,163,184,.24);
+      border-radius:16px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.08);
       backdrop-filter: saturate(1.02);
     }
     .card:hover{
-      transform: translateY(-2px);
-      box-shadow:var(--shadow-md);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(15,23,42,.12);
     }
 
     /* Navbar y botones primarios */
     .btn-primary{
-      background: linear-gradient(95deg, #0ea5a4, #06b6d4) !important;
+      background: linear-gradient(95deg, #0b2a6f, #15449f) !important;
       border: 0;
       color: #fff !important;
-      box-shadow: 0 8px 18px rgba(8,145,178,.22);
+      box-shadow: 0 8px 18px rgba(11,42,111,.24);
     }
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 11px 22px rgba(8,145,178,.28);
+      box-shadow: 0 11px 22px rgba(11,42,111,.32);
     }
     .btn:focus-visible,
     .form-control:focus-visible,
@@ -263,49 +264,111 @@
       border-color: rgba(14,165,164,.45);
       transform: translateY(-1px);
     }
-    .app-header{
-      position: relative;
-      background: linear-gradient(115deg, #0f766e 0%, #0891b2 55%, #0ea5a4 100%) !important;
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 0 0 16px 16px;
-      box-shadow: 0 14px 32px rgba(8, 145, 178, 0.28);
-      overflow: hidden;
-      padding: .35rem 0;
+    .page-shell{
+      display:flex;
+      align-items:stretch;
+      gap: 1rem;
+      padding: 0;
+      max-width: none;
+      width: 100%;
+      margin: 0;
+      min-height: 100vh;
     }
-    .app-header::before{
+    .app-sidebar{
+      flex: 0 0 260px;
+      background: linear-gradient(180deg, #04144a 0%, #07236d 42%, #0b2f8a 100%);
+      border: 1px solid rgba(147, 197, 253, 0.22);
+      border-radius: 20px;
+      box-shadow: 0 20px 36px rgba(2, 6, 23, 0.28);
+      padding: 1.25rem 1.35rem;
+      display:flex;
+      flex-direction:column;
+      gap: .9rem;
+      color:#fff;
+      position:sticky;
+      top:0;
+      overflow:hidden;
+      align-self:flex-start;
+      min-height: 100vh;
+    }
+    .app-sidebar > *{ position:relative; z-index:1; }
+    .app-sidebar::before{
       content:"";
       position:absolute;
-      inset:-40% auto auto -14%;
-      width:360px;
-      height:360px;
+      inset:-25% auto auto -12%;
+      width:300px;
+      height:300px;
       border-radius:50%;
-      background: radial-gradient(circle, rgba(255,255,255,.2), rgba(255,255,255,0));
+      background: radial-gradient(circle, rgba(255,255,255,.25), rgba(255,255,255,0));
       pointer-events:none;
     }
-    .app-header::after{
+    .app-sidebar::after{
       content:"";
       position:absolute;
-      right:-80px;
-      top:-50px;
-      width:240px;
-      height:240px;
+      right:-60px;
+      top:-10px;
+      width:180px;
+      height:180px;
       border-radius:50%;
       background: radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,0));
       pointer-events:none;
     }
-    .app-nav-shell{
-      position: relative;
-      z-index: 1;
+    .app-main-header{
+      margin-bottom: 1rem;
+    }
+    .app-main{
+      flex:1;
+      background: transparent;
+      padding: 14px 14px 20px 0;
+    }
+    .app-content{
+      width:100%;
+      max-width:none;
+    }
+    .main-head-card{
+      border:1px solid rgba(148,163,184,.24);
+      border-radius:18px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 10px 22px rgba(15,23,42,.08);
+      padding: 1rem 1.2rem;
       display:flex;
-      flex-wrap:wrap;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
-      gap:.65rem;
+      gap:1rem;
+      margin-bottom: 1rem;
+    }
+    .main-head-title{
+      margin:0;
+      font-size:1.35rem;
+      font-weight:800;
+      letter-spacing:.01em;
+      color:#0f172a;
+    }
+    .main-head-meta{
+      margin-top:.2rem;
+      color:#64748b;
+      font-size:.9rem;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      flex-wrap:wrap;
+    }
+    .main-head-user{
+      text-align:right;
+      color:#334155;
+      font-weight:700;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:.35rem;
     }
     .brand-stack{
       display:flex;
       flex-direction:column;
       line-height:1.1;
+    }
+    .brand-link{
+      display:block;
     }
     .brand-title{
       font-weight:800;
@@ -329,38 +392,83 @@
       border:1px solid rgba(255,255,255,.33);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
     }
+    .brand-logo{
+      width: 100%;
+      max-width: 190px;
+      display:block;
+      margin: 0 auto;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.24);
+      box-shadow: 0 10px 20px rgba(2,6,23,.35);
+    }
     .top-chip{
-      background: rgba(255,255,255,.18);
-      border:1px solid rgba(255,255,255,.33);
-      color:#fff;
+      border:1px solid rgba(15,118,110,.28);
+      color:#0f766e;
       border-radius:999px;
-      padding:.34rem .72rem;
+      padding:.38rem .84rem;
       font-size:.8rem;
+      background: rgba(236,253,245,.92);
       white-space:nowrap;
       font-weight:700;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+      box-shadow: 0 6px 14px rgba(15,118,110,.14);
     }
-    .app-actions{
-      display:flex;
-      flex-wrap:wrap;
+    .sidebar-chip{
+      display:inline-flex;
       align-items:center;
       gap:.45rem;
+      padding:.35rem .9rem;
+      border-radius:999px;
+      border:1px solid rgba(147,197,253,.4);
+      background: rgba(2,6,23,.4);
+      font-weight:600;
+      font-size:.85rem;
+      color:#fff;
+      width:max-content;
+    }
+    .sidebar-actions{
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+      flex:1;
+    }
+    .sidebar-actions .btn{
+      text-align:left;
+      justify-content:flex-start;
+      border-radius:12px;
+      padding:.58rem .95rem;
+      font-weight:700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .sidebar-actions .btn i{
+      margin-right:.55rem;
+    }
+    .sidebar-footer{
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+      margin-top:auto;
+      padding-top:.5rem;
+    }
+    .sidebar-footer .btn{
+      border-radius:10px;
+      font-weight:700;
     }
     .nav-action{
-      border:1px solid rgba(255,255,255,.44);
+      border:1px solid rgba(147,197,253,.2);
       border-radius:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
-      color:#0f172a;
+      background: rgba(2,6,23,.2);
+      color:#eff6ff;
       font-weight:700;
       font-size:.83rem;
       padding:.42rem .7rem;
       transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
-      box-shadow: 0 6px 12px rgba(2, 6, 23, 0.14);
+      box-shadow: 0 8px 14px rgba(2, 6, 23, 0.2);
     }
     .nav-action:hover{
       transform: translateY(-1px);
-      background: #fff;
-      box-shadow: 0 9px 16px rgba(2, 6, 23, 0.18);
+      background: rgba(147,197,253,.2);
+      color:#ffffff;
+      box-shadow: 0 10px 16px rgba(2, 6, 23, 0.26);
     }
     .nav-action:active{ transform: translateY(0); }
     .nav-danger{
@@ -498,135 +606,452 @@
       background: linear-gradient(135deg, #b91c1c, #7f1d1d);
     }
 
+    .modal-custom{
+      border-radius: 20px;
+      border:1px solid rgba(14,165,164,.25);
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(243,248,255,.95));
+      box-shadow: 0 28px 60px rgba(2,6,23,.28);
+      overflow:hidden;
+    }
+    .modal-custom .modal-header{
+      border-bottom:none;
+      padding: 1.1rem 1.35rem;
+      background: linear-gradient(135deg, rgba(8,145,178,.95), rgba(14,165,164,.95));
+      color:#fff;
+    }
+    .modal-custom .modal-title{
+      font-size:1.1rem;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .modal-custom .modal-title-icon{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+      font-size:1.3rem;
+      color:#fff;
+    }
+    .modal-custom .btn-close{
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+    }
+    .modal-custom .modal-body{
+      padding: 1.5rem;
+      background: rgba(255,255,255,.92);
+    }
+    .modal-custom .modal-body .form-label{
+      font-size:.85rem;
+      color:#334155;
+    }
+    .modal-custom .modal-body .btn-primary{
+      width:100%;
+      font-weight:700;
+      border-radius:10px;
+      box-shadow: 0 12px 28px rgba(2, 6, 23, .15);
+    }
+    .modal-custom .modal-note{
+      margin-top: .85rem;
+      font-size:.78rem;
+      color:#475569;
+      text-align:center;
+    }
+    .confirm-modal{
+      border-radius: 20px;
+      padding: 2px;
+      background: radial-gradient(circle at top right, rgba(255,255,255,.85), rgba(255,255,255,0)) #0f172a;
+      box-shadow: 0 35px 60px rgba(2,6,23,.35);
+    }
+    .confirm-modal .modal-body{
+      background:#0f172a;
+      border-radius:18px;
+      padding:2rem 2rem 1.5rem;
+      color:#fff;
+      text-align:center;
+      position:relative;
+    }
+    .modal-confirm-icon{
+      width:64px;
+      height:64px;
+      border-radius:16px;
+      background: linear-gradient(135deg, rgba(14,165,164,.3), rgba(14,165,164,.9));
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:2rem;
+      margin:0 auto 1rem;
+      color:#fff;
+    }
+    .confirm-modal h5{
+      font-size:1.4rem;
+      letter-spacing:.03em;
+      font-weight:700;
+    }
+    .confirm-modal p{
+      margin-top:.35rem;
+      color:rgba(248,250,252,.9);
+      line-height:1.4;
+    }
+    .confirm-modal .btn-primary{
+      border-radius:999px;
+      padding:.65rem 2.4rem;
+      font-weight:700;
+      letter-spacing:.03em;
+      margin-top:1.35rem;
+      box-shadow: 0 12px 32px rgba(2,6,23,.45);
+    }
+
+    .confirm-delete-modal{
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(13, 27, 63, .98), rgba(15, 23, 42, .98));
+      border:1px solid rgba(14,165,164,.25);
+      box-shadow: 0 36px 60px rgba(2,6,23,.45);
+    }
+    .confirm-delete-modal .modal-body{
+      color:#fff;
+      padding:2rem 2.5rem;
+      text-align:center;
+    }
+    .confirm-delete-modal .modal-body .delete-icon{
+      width:70px;
+      height:70px;
+      border-radius:18px;
+      margin:0 auto 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:2.4rem;
+      background: linear-gradient(135deg, rgba(248,113,113,.3), rgba(239,68,68,.8));
+      box-shadow: 0 18px 36px rgba(248,113,113,.35);
+    }
+    .confirm-delete-modal .modal-body h5{
+      font-size:1.3rem;
+      letter-spacing:.04em;
+      font-weight:800;
+    }
+    .confirm-delete-modal .modal-body p{
+      color:rgba(248,250,252,.85);
+      margin-top:.5rem;
+      line-height:1.5;
+    }
+    .confirm-delete-modal .modal-footer{
+      border:none;
+      justify-content:center;
+      gap:.75rem;
+      padding-top:1.5rem;
+    }
+    .confirm-delete-modal .btn-cancel{
+      border-radius:999px;
+      border:1px solid rgba(248,250,252,.4);
+      padding:.55rem 1.6rem;
+      font-weight:700;
+      background:transparent;
+      color:#f8fafc;
+    }
+
     /* Pequeno ajuste responsive */
-    @media (max-width: 768px) {
-      .guias-box { max-height: 280px; }
-      .brand-title{ font-size:1.08rem; }
-      .brand-sub{ font-size:.73rem; }
-      .app-actions{ width:100%; }
-      .app-actions .btn, .app-actions a{
-        flex: 1 1 auto;
-        text-align:center;
-        justify-content:center;
+    @media (max-width: 992px) {
+      .page-shell{
+        flex-direction:column;
+        padding:0;
       }
-      .top-chip{ width:100%; text-align:center; }
+      .app-sidebar{
+        width:100%;
+        position:static;
+        min-height: auto;
+      }
+      .app-main-header{
+        justify-content:flex-start;
+      }
+      .main-head-card{
+        flex-direction:column;
+      }
+      .main-head-user{
+        align-items:flex-start;
+        text-align:left;
+      }
+      .app-content{
+        max-width:none;
+      }
+      .sidebar-actions{
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap:.45rem;
+      }
+      .sidebar-actions .btn{
+        flex: 1 1 48%;
+        text-align:center;
+      }
+      .sidebar-footer{
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .sidebar-footer .btn{
+        flex: 1 1 auto;
+      }
     }
     .print-sheet{
       display:none;
-      color:#0f172a;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color:#000;
+      font-family: "Roboto Mono", ui-monospace, monospace;
+      max-width: none;
+      padding: 0;
     }
-    .print-card{
-      border:1.5px solid #d1d5db;
-      border-radius:12px;
-      padding:16px;
+    .print-pairs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .print-slip{
+      border:1.2px solid #111;
+      background:#fff;
+      padding:5px;
+      font-size:10px;
+      line-height:1.2;
+      min-height:260mm;
+      display:flex;
+      flex-direction:column;
+    }
+    .print-topline{
+      border:1px solid #111;
+      padding:2px 4px;
+      font-size:8px;
+      margin-bottom:4px;
+      text-transform:uppercase;
+      letter-spacing:.02em;
     }
     .print-head{
+      border:1px solid #111;
+      display:grid;
+      grid-template-columns:68px 1fr;
+      gap:6px;
+      padding:4px;
+      margin-bottom:4px;
+      align-items:center;
+    }
+    .print-logo{
+      border:1px solid #111;
+      height:42px;
       display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      border-bottom:2px solid #0f766e;
-      padding-bottom:10px;
-      margin-bottom:14px;
+      align-items:center;
+      justify-content:center;
+      font-size:9px;
+      font-weight:700;
+    }
+    .print-head-main{
+      display:grid;
+      gap:2px;
     }
     .print-brand{
-      font-size:1.1rem;
+      font-size:11px;
       font-weight:700;
-      letter-spacing:.02em;
-      color:#0f766e;
+      text-transform:uppercase;
+    }
+    .print-subtitle{
+      font-size:8px;
+      text-transform:uppercase;
     }
     .print-meta{
-      text-align:right;
-      font-size:.85rem;
-      color:#334155;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      border:1px solid #111;
+      margin-bottom:4px;
+    }
+    .print-meta div{
+      border-right:1px solid #111;
+      padding:2px 4px;
+    }
+    .print-meta div:last-child{
+      border-right:none;
+    }
+    .print-label{
+      font-size:8px;
+      text-transform:uppercase;
+      font-weight:700;
+      margin-right:4px;
+    }
+    .print-dest{
+      border:1px solid #111;
+      padding:4px;
+      margin-bottom:4px;
+    }
+    .print-dest-city{
+      font-size:15px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.01em;
+      border:1px solid #111;
+      padding:3px 4px;
+      margin-top:3px;
     }
     .print-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-bottom:10px;
+      border:1px solid #111;
+      border-bottom:none;
+      margin-bottom:4px;
     }
     .print-block{
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      padding:10px;
-      background:#f8fafc;
+      border-right:1px solid #111;
+      border-bottom:1px solid #111;
+      padding:4px;
+      min-height:52px;
     }
-    .print-block, .print-table td{
-      overflow-wrap:anywhere;
-      word-break:break-word;
+    .print-grid .print-block:nth-child(2n){
+      border-right:none;
     }
     .print-block h6{
-      margin:0 0 8px;
-      font-size:.82rem;
+      margin:0 0 2px;
+      font-size:8px;
       text-transform:uppercase;
-      letter-spacing:.05em;
-      color:#0f766e;
+      font-weight:700;
+    }
+    .print-barcode-box{
+      border:1px solid #111;
+      padding:4px;
+      margin-bottom:4px;
+      text-align:center;
+    }
+    .print-bar-title{
+      font-size:8px;
+      text-transform:uppercase;
+      font-weight:700;
+      text-align:left;
+      margin-bottom:2px;
+    }
+    .print-barcode{
+      height:24px;
+      background: repeating-linear-gradient(
+        90deg,
+        #000 0 2px,
+        #fff 2px 3px,
+        #000 3px 4px,
+        #fff 4px 6px
+      );
+      border:1px solid #111;
+      margin:2px 0 3px;
     }
     .print-table{
       width:100%;
       border-collapse:collapse;
-      font-size:.9rem;
-      margin-top:8px;
+      font-size:9px;
+      margin-bottom:4px;
     }
     .print-table th, .print-table td{
-      border:1px solid #e5e7eb;
-      padding:7px;
+      border:1px solid #111;
+      padding:2px 3px;
       text-align:left;
+      vertical-align:top;
     }
     .print-table th{
-      background:#ecfeff;
       font-weight:700;
-      color:#0f172a;
+      text-transform:uppercase;
+      background:#efefef;
+      font-size:8px;
     }
     .print-total{
-      margin-top:10px;
       display:flex;
-      justify-content:flex-end;
-      gap:8px;
+      justify-content:space-between;
+      align-items:center;
+      border:1px solid #111;
+      padding:3px 4px;
+      margin-bottom:4px;
+      font-size:10px;
       font-weight:700;
+      text-transform:uppercase;
+    }
+    .print-legal{
+      border:1px solid #111;
+      padding:4px;
+      font-size:7.5px;
+      margin-bottom:4px;
+      min-height:36px;
+    }
+    .print-sign{
+      margin-top:auto;
+      border:1px solid #111;
+      padding:4px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      font-size:8px;
+      min-height:46px;
+      align-items:end;
+    }
+    .print-line{
+      border-top:1px solid #111;
+      margin-top:16px;
+      padding-top:2px;
+      text-align:center;
+      font-size:8px;
+      text-transform:uppercase;
     }
     @media print{
-      @page{ size:A4; margin:12mm; }
-      body{ background:#fff !important; }
-      body *{ visibility:hidden !important; }
-      #print-sheet, #print-sheet *{ visibility:visible !important; }
+      @page{ size:A4; margin:8mm; }
+      html, body{
+        background:#fff !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+      body > :not(#print-sheet){
+        display:none !important;
+      }
       #print-sheet{
         display:block !important;
-        position:absolute;
-        left:0;
-        top:0;
+        position:static !important;
+        left:auto;
+        top:auto;
         width:100%;
+      }
+      .print-pairs{
+        gap:4px;
+      }
+      .print-slip{
+        min-height:auto;
       }
     }
   </style>
-</head>
+  </head>
 <body>
-  <!-- NAV -->
-  <nav class="navbar app-header navbar-expand-lg mb-4">
-    <div class="container-fluid app-nav-shell">
-      <a class="navbar-brand text-white ms-2 d-flex align-items-center gap-2" href="#">
-        <span class="brand-icon"><i class="bi bi-box-seam-fill"></i></span>
-        <span class="brand-stack">
-          <span class="brand-title">Envios Local</span>
-          <span class="brand-sub">Control de guias y pedidos</span>
-        </span>
+  <div class="page-shell">
+    <aside class="app-sidebar">
+      <a class="navbar-brand brand-link text-white" href="#">
+        <img class="brand-logo" src="./img/OIP.jpeg" alt="Ziam seguridad LTDA">
       </a>
-      <div class="app-actions">
-        <span class="top-chip"><i class="bi bi-calendar3"></i> <span id="top-date">--/--/----</span></span>
+      <span class="sidebar-chip"><i class="bi bi-shield-check"></i> Ziam | Control local</span>
+      <div class="sidebar-actions">
         <button class="btn nav-action" id="btn-seed"><i class="bi bi-stars"></i> Cargar ejemplo</button>
         <button class="btn nav-action" id="btn-backup"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
         <button class="btn nav-action" id="btn-restore"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
         <button class="btn nav-action" id="btn-sync-excel"><i class="bi bi-cloud-arrow-down"></i> Cargar desde Excel</button>
         <button class="btn nav-action" id="btn-resync"><i class="bi bi-cloud-arrow-up"></i> Reenviar Excel</button>
-        <a class='btn nav-action' href='consulta.html'><i class='bi bi-search'></i> Consultar envio</a>
-        <button class="btn nav-action" id="btn-logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesion</button>
-        <button class="btn nav-danger" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
+        <a class="btn nav-action" href="consulta.html"><i class="bi bi-search"></i> Consultar envio</a>
       </div>
-    </div>
-  </nav>
-
-  <div class="container">
+      <div class="sidebar-footer">
+        <button class="btn nav-action" id="btn-logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesion</button>
+        <button class="btn nav-danger w-100" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
+      </div>
+    </aside>
+    <main class="app-main">
+      <div class="app-main-header">
+        <div class="main-head-card">
+          <div>
+            <h1 class="main-head-title">Panel general de envios | Zima</h1>
+            <div class="main-head-meta">
+              <span><i class="bi bi-calendar3"></i> <span id="top-date">--/--/----</span></span>
+              <span><i class="bi bi-clock-history"></i> <span id="live-clock">--:--:--</span></span>
+            </div>
+          </div>
+          <div class="main-head-user">
+            <span>admin</span>
+            <span class="top-chip"><i class="bi bi-check2-circle"></i> Sistema local activo</span>
+          </div>
+        </div>
+      </div>
+      <div class="app-content">
     
     <div class="row g-3">
 
@@ -684,47 +1109,6 @@
               <small class="muted">Cada guia puede contener varios pedidos (items). Guarda la guia y luego agregale pedidos en la ficha.</small>
             </div>
           </form>
-        </div>        <!-- Quick stats -->
-        <div class="card p-3 mt-3">
-          <div class="section-head">
-            <h6 class="mb-0">Resumen rapido</h6>
-            <span class="small-muted"><i class="bi bi-graph-up-arrow"></i> En vivo</span>
-          </div>
-          <div class="row g-2 mt-1">
-            <div class="col-6">
-              <div class="mini-kpi">
-                <div class="label">Total guias</div>
-                <div id="stat-total" class="value mono">0</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="mini-kpi">
-                <div class="label">Pendientes</div>
-                <div id="stat-pend" class="value mono">0</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="mini-kpi">
-                <div class="label">En transito</div>
-                <div id="stat-trans" class="value mono">0</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="mini-kpi">
-                <div class="label">Entregadas</div>
-                <div id="stat-ent" class="value mono">0</div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <div class="d-flex justify-content-between small-muted mb-1">
-              <span>Tasa de entrega</span>
-              <span id="stat-rate">0%</span>
-            </div>
-            <div class="progress-soft">
-              <span id="stat-rate-bar"></span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -747,131 +1131,275 @@
           </div>
         </div>
 
-        <!-- Tabla de guias -->
-        <div class="card p-3 mb-3">
-          <div class="section-head">
-            <h6 class="mb-0">Guias registradas</h6>
-            <span class="small-muted">Selecciona una fila para ver su ficha</span>
+        <div class="row g-3 mb-3">
+          <!-- Tabla de guias -->
+          <div class="col-xl-9">
+            <div class="card p-3 h-100">
+              <div class="section-head">
+                <h6 class="mb-0">Guias registradas</h6>
+                <span class="small-muted">Selecciona una fila para ver su ficha</span>
+              </div>
+              <div class="mt-2 guias-box">
+                <!-- guias-box limita la altura y agrega scroll vertical -->
+                <div class="table-responsive">
+                  <table class="table table-borderless table-hover align-middle" id="tabla-guias">
+                    <thead>
+                      <tr class="muted">
+                        <th>N° Guia</th>
+                        <th>Remitente</th>
+                        <th>Destinatario</th>
+                        <th>Peso</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="body-guias">
+                      <!-- Rows dinamicas -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mt-2 guias-box">
-            <!-- guias-box limita la altura y agrega scroll vertical -->
-            <div class="table-responsive">
-              <table class="table table-borderless table-hover align-middle" id="tabla-guias">
-                <thead>
-                  <tr class="muted">
-                    <th>N° Guia</th>
-                    <th>Remitente</th>
-                    <th>Destinatario</th>
-                    <th>Peso</th>
-                    <th>Estado</th>
-                    <th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="body-guias">
-                  <!-- Rows dinamicas -->
-                </tbody>
-              </table>
+
+          <!-- Quick stats -->
+          <div class="col-xl-3">
+            <div class="card p-3 h-100">
+              <div class="section-head">
+                <h6 class="mb-0">Resumen rapido</h6>
+                <span class="small-muted"><i class="bi bi-graph-up-arrow"></i> En vivo</span>
+              </div>
+              <div class="row g-2 mt-1">
+                <div class="col-12">
+                  <div class="mini-kpi">
+                    <div class="label">Total guias</div>
+                    <div id="stat-total" class="value mono">0</div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mini-kpi">
+                    <div class="label">Pendientes</div>
+                    <div id="stat-pend" class="value mono">0</div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mini-kpi">
+                    <div class="label">En transito</div>
+                    <div id="stat-trans" class="value mono">0</div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mini-kpi">
+                    <div class="label">Entregadas</div>
+                    <div id="stat-ent" class="value mono">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <div class="d-flex justify-content-between small-muted mb-1">
+                  <span>Tasa de entrega</span>
+                  <span id="stat-rate">0%</span>
+                </div>
+                <div class="progress-soft">
+                  <span id="stat-rate-bar"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Ficha guia -->
-        <div class="card p-3" id="ficha-container" style="display:none;">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h5 id="ficha-num">Guia</h5>
-              <div class="small-muted" id="ficha-fecha">Fecha</div>
-            </div>
-            <div class="text-end">
-              <button class="btn btn-sm btn-light me-1" id="btn-export-pdf"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
-              <button class="btn btn-sm btn-light" id="btn-print"><i class="bi bi-printer"></i> Imprimir</button>
-            </div>
-          </div>
-
-          <hr class="my-2">
-
-          <div class="row">
-            <div class="col-md-6">
-              <div><strong>Remitente:</strong> <span id="ficha-rem"></span></div>
-              <div><strong>Direccion:</strong> <span id="ficha-dir"></span></div>
-              <div><strong>Observaciones:</strong> <span id="ficha-obs"></span></div>
-            </div>
-            <div class="col-md-6">
-              <div><strong>Destinatario:</strong> <span id="ficha-dest"></span></div>
-              <div><strong>Peso:</strong> <span id="ficha-peso"></span> kg</div>
-              <div><strong>Estado:</strong> <span id="ficha-estado" class="badge-status"></span></div>
-            </div>
-          </div>
-
-          <hr>
-
-          <!-- Pedidos -->
-          <div class="mb-3">
-            <h6 class="d-flex justify-content-between">
-              <span>Pedidos / Items</span>
-              <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Anadir pedido</button>
-            </h6>
-
-            <div id="items-list" class="mt-2">
-              <!-- items dinamicos -->
-            </div>
-          </div>
-
-          <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guia</button>
-            <button class="btn btn-ghost" id="btn-close-ficha">Cerrar ficha</button>
-          </div>
-        </div>
       </div>
 
     </div>
   </div>
+  </main>
+  </div>
 
-  <div id="print-sheet" class="print-sheet container">
-    <div class="print-card">
-      <div class="print-head">
-        <div>
-          <div class="print-brand">Envios Local</div>
-          <div>Guia de envio y detalle de pedidos</div>
+  <div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-body p-0">
+          <div class="card p-3 m-0 border-0" id="ficha-container">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h5 id="ficha-num">Guia</h5>
+                <div class="small-muted" id="ficha-fecha">Fecha</div>
+              </div>
+              <div class="text-end">
+                <button class="btn btn-sm btn-light me-1" id="btn-export-pdf"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
+                <button class="btn btn-sm btn-light" id="btn-print"><i class="bi bi-printer"></i> Imprimir</button>
+              </div>
+            </div>
+
+            <hr class="my-2">
+
+            <div class="row">
+              <div class="col-md-6">
+                <div><strong>Remitente:</strong> <span id="ficha-rem"></span></div>
+                <div><strong>Direccion:</strong> <span id="ficha-dir"></span></div>
+                <div><strong>Observaciones:</strong> <span id="ficha-obs"></span></div>
+              </div>
+              <div class="col-md-6">
+                <div><strong>Destinatario:</strong> <span id="ficha-dest"></span></div>
+                <div><strong>Peso:</strong> <span id="ficha-peso"></span> kg</div>
+                <div><strong>Estado:</strong> <span id="ficha-estado" class="badge-status"></span></div>
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Pedidos -->
+            <div class="mb-3">
+              <h6 class="d-flex justify-content-between">
+                <span>Pedidos / Items</span>
+                <button class="btn btn-sm btn-primary" id="btn-add-item"><i class="bi bi-plus"></i> Anadir pedido</button>
+              </h6>
+
+              <div id="items-list" class="mt-2">
+                <!-- items dinamicos -->
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+              <button class="btn btn-danger" id="btn-delete-guia"><i class="bi bi-trash"></i> Eliminar guia</button>
+              <button class="btn btn-ghost" id="btn-close-ficha">Cerrar ficha</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="print-sheet" class="print-sheet">
+    <div class="print-pairs">
+      <div class="print-slip">
+        <div class="print-topline">Transporte nacional de carga | guia operativa</div>
+        <div class="print-head">
+          <div class="print-logo">ENVIOS<br>LOCAL</div>
+          <div class="print-head-main">
+            <div class="print-brand">GUIA DE TRANSPORTE No <span id="print-guia-num">-</span></div>
+            <div class="print-subtitle">Documento interno de despacho y entrega</div>
+          </div>
         </div>
         <div class="print-meta">
-          <div><strong>No. Guia:</strong> <span id="print-guia-num">-</span></div>
-          <div><strong>Fecha:</strong> <span id="print-fecha">-</span></div>
-          <div><strong>Estado:</strong> <span id="print-estado">-</span></div>
+          <div><span class="print-label">Fecha</span><span id="print-fecha">-</span></div>
+          <div><span class="print-label">Estado</span><span id="print-estado">-</span></div>
+        </div>
+        <div class="print-dest">
+          <div><span class="print-label">Destinatario</span><span id="print-dest">-</span></div>
+          <div class="print-dest-city">Destino: <span id="print-dir">-</span></div>
+        </div>
+        <div class="print-barcode-box">
+          <div class="print-bar-title">Numero de guia</div>
+          <div class="print-barcode"></div>
+          <div id="print-guia-barcode-text">-</div>
+        </div>
+        <div class="print-grid">
+          <div class="print-block">
+            <h6>Remitente</h6>
+            <div id="print-rem">-</div>
+          </div>
+          <div class="print-block">
+            <h6>Emitido</h6>
+            <div id="print-emitido">-</div>
+          </div>
+          <div class="print-block">
+            <h6>Peso total</h6>
+            <div><span id="print-peso">-</span> kg</div>
+          </div>
+          <div class="print-block">
+            <h6>Observaciones</h6>
+            <div id="print-obs">-</div>
+          </div>
+        </div>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Descripcion</th>
+              <th>Cant.</th>
+              <th>Peso</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="print-items"></tbody>
+        </table>
+        <div class="print-total">
+          <span>Total declarado</span>
+          <span id="print-total">$0</span>
+        </div>
+        <div class="print-legal">
+          La presente guia acredita recepcion de mercancia para transporte. Revisar cantidades y estado al momento de entrega.
+        </div>
+        <div class="print-sign">
+          <div class="print-line">Firma transportador</div>
+          <div class="print-line">Firma y sello de recibida</div>
         </div>
       </div>
 
-      <div class="print-grid">
-        <div class="print-block">
-          <h6>Remitente</h6>
-          <div><strong>Nombre:</strong> <span id="print-rem">-</span></div>
-          <div><strong>Direccion:</strong> <span id="print-dir">-</span></div>
-          <div><strong>Observaciones:</strong> <span id="print-obs">-</span></div>
+      <div class="print-slip">
+        <div class="print-topline">Transporte nacional de carga | copia cliente</div>
+        <div class="print-head">
+          <div class="print-logo">ENVIOS<br>LOCAL</div>
+          <div class="print-head-main">
+            <div class="print-brand">GUIA DE TRANSPORTE No <span data-mirror="print-guia-num">-</span></div>
+            <div class="print-subtitle">Documento interno de despacho y entrega</div>
+          </div>
         </div>
-        <div class="print-block">
-          <h6>Destinatario</h6>
-          <div><strong>Nombre:</strong> <span id="print-dest">-</span></div>
-          <div><strong>Peso total:</strong> <span id="print-peso">-</span> kg</div>
-          <div><strong>Emitido:</strong> <span id="print-emitido">-</span></div>
+        <div class="print-meta">
+          <div><span class="print-label">Fecha</span><span data-mirror="print-fecha">-</span></div>
+          <div><span class="print-label">Estado</span><span data-mirror="print-estado">-</span></div>
         </div>
-      </div>
-
-      <table class="print-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Descripcion</th>
-            <th>Cantidad</th>
-            <th>Peso (kg)</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody id="print-items"></tbody>
-      </table>
-
-      <div class="print-total">
-        <span>Total declarado:</span>
-        <span id="print-total">$0</span>
+        <div class="print-dest">
+          <div><span class="print-label">Destinatario</span><span data-mirror="print-dest">-</span></div>
+          <div class="print-dest-city">Destino: <span data-mirror="print-dir">-</span></div>
+        </div>
+        <div class="print-barcode-box">
+          <div class="print-bar-title">Numero de guia</div>
+          <div class="print-barcode"></div>
+          <div data-mirror="print-guia-barcode-text">-</div>
+        </div>
+        <div class="print-grid">
+          <div class="print-block">
+            <h6>Remitente</h6>
+            <div data-mirror="print-rem">-</div>
+          </div>
+          <div class="print-block">
+            <h6>Emitido</h6>
+            <div data-mirror="print-emitido">-</div>
+          </div>
+          <div class="print-block">
+            <h6>Peso total</h6>
+            <div><span data-mirror="print-peso">-</span> kg</div>
+          </div>
+          <div class="print-block">
+            <h6>Observaciones</h6>
+            <div data-mirror="print-obs">-</div>
+          </div>
+        </div>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Descripcion</th>
+              <th>Cant.</th>
+              <th>Peso</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="print-items-copy"></tbody>
+        </table>
+        <div class="print-total">
+          <span>Total declarado</span>
+          <span data-mirror="print-total">$0</span>
+        </div>
+        <div class="print-legal">
+          Copia para archivo del cliente. Cualquier novedad debe ser reportada al momento de la entrega.
+        </div>
+        <div class="print-sign">
+          <div class="print-line">Firma transportador</div>
+          <div class="print-line">Firma y sello de recibida</div>
+        </div>
       </div>
     </div>
   </div>
@@ -886,9 +1414,17 @@
   <!-- Modal: Anadir / Editar item -->
   <div class="modal fade" id="modalItem" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content bg-dark text-white">
+      <div class="modal-content modal-custom">
         <div class="modal-header">
-          <h5 class="modal-title">Agregar pedido</h5>
+          <div class="d-flex align-items-center gap-3">
+            <span class="modal-title-icon">
+              <i class="bi bi-bag-check-fill"></i>
+            </span>
+            <div>
+              <h5 class="modal-title mb-0">Agregar pedido</h5>
+              <small class="text-white-75">Revisa el detalle antes de guardar.</small>
+            </div>
+          </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
@@ -911,9 +1447,39 @@
               <input id="item-peso" type="number" step="0.01" class="form-control" placeholder="0.2">
             </div>
             <div class="text-end">
-              <button class="btn btn-primary">Guardar pedido</button>
+              <button type="submit" class="btn btn-primary">Guardar pedido</button>
+            </div>
+            <div class="modal-note">
+              <i class="bi bi-info-circle-fill"></i> El pedido se guarda localmente y se sincroniza con el Excel cuando lo requieras.
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modalConfirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 confirm-modal">
+        <div class="modal-body">
+          <span id="confirm-modal-icon" class="modal-confirm-icon bi bi-check-circle-fill" aria-hidden="true"></span>
+          <h5 id="confirm-modal-title">¡Guía registrada!</h5>
+          <p id="confirm-modal-message">Tu guía se guardó correctamente y se sincronizará en segundo plano.</p>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 confirm-delete-modal">
+        <div class="modal-body">
+          <div class="delete-icon bi bi-exclamation-circle-fill" aria-hidden="true"></div>
+          <h5 id="delete-modal-title">¿Eliminar guía?</h5>
+          <p id="delete-modal-message">Confirmar eliminación de la guía seleccionada.</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" data-bs-dismiss="modal" id="delete-modal-cancel">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="delete-modal-confirm">Eliminar guía</button>
+          </div>
         </div>
       </div>
     </div>
@@ -982,6 +1548,20 @@
       if (notifyTimer) clearTimeout(notifyTimer);
       requestAnimationFrame(() => chip.classList.add('show'));
       notifyTimer = setTimeout(() => chip.classList.remove('show'), 2600);
+    }
+
+    function showConfirmModal(title, message, iconClass = 'bi-check-circle-fill'){
+      const titleEl = $('#confirm-modal-title');
+      const msgEl = $('#confirm-modal-message');
+      const iconEl = $('#confirm-modal-icon');
+      if (titleEl) titleEl.innerText = title || '¡Listo!';
+      if (msgEl) msgEl.innerText = message || '';
+      if (iconEl) iconEl.className = 'modal-confirm-icon bi ' + (iconClass || 'bi-check-circle-fill');
+      if (bsModalConfirm) {
+        bsModalConfirm.show();
+      } else {
+        alert(message || title || 'Operación completada.');
+      }
     }
 
     /* ==========================
@@ -1059,11 +1639,22 @@
        Document ready: bind y carga inicial
        ========================== */
     let bsModalItem;
+    let bsModalFicha;
+    let bsModalDelete;
+    let pendingDeleteData = null;
+    let bsModalConfirm;
     document.addEventListener('DOMContentLoaded', async () => {
       await openDB();
       bsModalItem = new bootstrap.Modal($('#modalItem'), { backdrop: 'static' });
+      bsModalFicha = new bootstrap.Modal($('#modalFicha'));
+      bsModalDelete = new bootstrap.Modal($('#modalDelete'), { backdrop: 'static', keyboard: false });
+      bsModalConfirm = new bootstrap.Modal($('#modalConfirm'), { backdrop: 'static', keyboard: false });
       startClock();
       bindEvents();
+      const deleteConfirmBtn = $('#delete-modal-confirm');
+      if (deleteConfirmBtn) deleteConfirmBtn.addEventListener('click', () => performPendingDelete());
+      const modalDelete = $('#modalDelete');
+      if (modalDelete) modalDelete.addEventListener('hidden.bs.modal', () => { pendingDeleteData = null; });
       window.addEventListener('online', () => { flushPendingSyncQueue(); });
       await flushPendingSyncQueue();
       await refreshTabla();
@@ -1085,7 +1676,7 @@
       on('#btn-new', 'click', ()=>{ resetForm(); window.scrollTo({top:0, behavior:'smooth'}); });
       on('#search', 'input', refreshTabla);
       on('#filter-estado', 'change', refreshTabla);
-      on('#btn-close-ficha', 'click', ()=> $('#ficha-container').style.display = 'none');
+      on('#btn-close-ficha', 'click', ()=> { if (bsModalFicha) bsModalFicha.hide(); });
       on('#btn-delete-guia', 'click', onDeleteGuia);
       on('#btn-add-item', 'click', ()=> openItemModal());
       on('#form-item', 'submit', onSaveItem);
@@ -1169,8 +1760,8 @@
         await putGuia(g);
         await syncGuiaToExcel(g, 'upsert');
         await flushPendingSyncQueue();
-        alert('Guia actualizada.');
         await loadFicha(g.id);
+        showConfirmModal('Guía actualizada', 'Los cambios de ' + numero + ' se guardaron y sincronizaron.');
       } else {
         // nueva guia
         const guia = { numero, remitente, destinatario, direccion, peso, estado, obs, pedidos: [], created_at: now, updated_at: now };
@@ -1179,8 +1770,8 @@
           guia.id = newId;
           await syncGuiaToExcel(guia, 'upsert');
           await flushPendingSyncQueue();
-          alert('Guia creada con ID ' + newId);
           resetForm();
+          showConfirmModal('Guía creada', 'Guía creada con ID ' + newId + '.');
         } catch (err) {
           // ConstraintError -> numero duplicado (indice unique)
           if (err && err.target && err.target.error && /ConstraintError/.test(err.target.error.name)) {
@@ -1450,9 +2041,23 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    async function confirmDelete(id, numero){
-      if (!confirm('Eliminar la guia ' + numero + ' (ID ' + id + ')?')) return;
-      showOpLoading('Eliminando guia...');
+    function confirmDelete(id, numero){
+      pendingDeleteData = { id: Number(id), numero: String(numero || '') };
+      const titleEl = $('#delete-modal-title');
+      const msgEl = $('#delete-modal-message');
+      if (titleEl) titleEl.innerText = 'Eliminar guía ' + (numero || '');
+      if (msgEl) msgEl.innerText = '¿Deseas eliminar la guía ' + (numero || '') + ' (ID ' + id + ')? Esta acción no se puede deshacer.';
+      if (bsModalDelete) {
+        bsModalDelete.show();
+      }
+    }
+
+    async function performPendingDelete(){
+      if (!pendingDeleteData) return;
+      const { id, numero } = pendingDeleteData;
+      pendingDeleteData = null;
+      if (bsModalDelete) bsModalDelete.hide();
+      showOpLoading('Eliminando guía...');
       try {
         const g = await getGuiaById(Number(id));
         if (g && g.numero) {
@@ -1462,10 +2067,10 @@
         await deleteGuia(id);
         await refreshTabla();
         await updateStats();
-        showNotify('Guia eliminada correctamente.', 'success');
+        showNotify('Guía ' + (numero || '') + ' eliminada correctamente.', 'success');
       } catch (err) {
         console.error(err);
-        showNotify('No se pudo eliminar la guia.', 'error');
+        showNotify('No se pudo eliminar la guía.', 'error');
       } finally {
         hideOpLoading();
       }
@@ -1476,8 +2081,7 @@
        ========================== */
     async function openFicha(id){
       await loadFicha(id);
-      $('#ficha-container').style.display = 'block';
-      window.scrollTo({ top: $('#ficha-container').offsetTop - 20, behavior: 'smooth' });
+      if (bsModalFicha) bsModalFicha.show();
     }
 
     async function loadFicha(id){
@@ -1541,7 +2145,7 @@
           await flushPendingSyncQueue();
         }
         await deleteGuia(Number(id));
-        $("#ficha-container").style.display = 'none';
+        if (bsModalFicha) bsModalFicha.hide();
         await refreshTabla();
         await updateStats();
         showNotify('Guia eliminada correctamente.', 'success');
@@ -1856,6 +2460,7 @@
       $('#print-obs').innerText = g.obs || '-';
       $('#print-peso').innerText = (g.peso ?? '-');
       $('#print-emitido').innerText = g.created_at ? new Date(g.created_at).toLocaleString() : '-';
+      $('#print-guia-barcode-text').innerText = g.numero || '-';
 
       const tbody = $('#print-items');
       tbody.innerHTML = '';
@@ -1887,7 +2492,19 @@
       }
 
       $('#print-total').innerText = '$' + total.toLocaleString();
+      syncPrintMirror();
       window.print();
+    }
+
+    function syncPrintMirror(){
+      document.querySelectorAll('[data-mirror]').forEach((el) => {
+        const sourceId = el.getAttribute('data-mirror');
+        const src = sourceId ? document.getElementById(sourceId) : null;
+        el.innerText = src ? src.innerText : '-';
+      });
+      const sourceBody = $('#print-items');
+      const copyBody = $('#print-items-copy');
+      if (sourceBody && copyBody) copyBody.innerHTML = sourceBody.innerHTML;
     }
 
     async function exportPDFCurrent() {
@@ -2110,10 +2727,10 @@
       if (!clockEl && !dateEl) return;
 
       const render = () => {
-        const now = new Date();
-        if (clockEl) clockEl.innerText = now.toLocaleTimeString();
-        if (dateEl) dateEl.innerText = now.toLocaleDateString();
-      };
+      const now = new Date();
+      if (clockEl) clockEl.innerText = now.toLocaleTimeString();
+      if (dateEl) dateEl.innerText = now.toLocaleDateString();
+    };
       render();
       setInterval(render, 1000);
     }
