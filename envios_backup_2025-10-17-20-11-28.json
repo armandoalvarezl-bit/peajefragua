@@ -1,5 +1,5 @@
 {
-  "exported_at": "2025-10-17T20:11:28.797Z",
+  "exported_at": "2026-03-05T20:36:47.372Z",
   "guias": [
     {
       "numero": "GUA-2025-032525",
@@ -19,7 +19,7 @@
       ],
       "created_at": "2025-10-17T12:52:27.620Z",
       "updated_at": "2025-10-17T13:11:49.550Z",
-      "id": 1
+      "id": 2
     },
     {
       "numero": "GUA-2025-032526",
@@ -27,7 +27,7 @@
       "destinatario": "Peaje Zaragoza",
       "direccion": "Vía Troncal de la Paz Conexión Norte",
       "peso": 0.6,
-      "estado": "Pendiente",
+      "estado": "Entregado",
       "obs": "Se envía Entrega POS_ Rollos Termicos",
       "pedidos": [
         {
@@ -50,8 +50,358 @@
         }
       ],
       "created_at": "2025-10-17T17:20:39.872Z",
-      "updated_at": "2025-10-17T17:50:22.469Z",
-      "id": 2
+      "updated_at": "2025-10-18T13:22:24.526Z",
+      "id": 3
+    },
+    {
+      "numero": "GUA-2025-032527",
+      "remitente": "Jefe Peaje",
+      "destinatario": "Zaragoza",
+      "direccion": "Via Troncal de la PAZ - Conexion Norte",
+      "peso": 5,
+      "estado": "Entregado",
+      "obs": "Placas Vehiculo EQX201",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 12,
+          "valor": null,
+          "peso": null
+        },
+        {
+          "descripcion": "Un Paquete Bolsa",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-10-22T16:11:42.010Z",
+      "updated_at": "2025-10-22T17:37:19.568Z",
+      "id": 4
+    },
+    {
+      "numero": "GUA-2025-032528",
+      "remitente": "ARMANDO ALVAREZ",
+      "destinatario": "JAVIER BUELVAS",
+      "direccion": "CCO - PEAJE ZARAGOZA",
+      "peso": 0.5,
+      "estado": "Entregado",
+      "obs": "LO LLEVA LA JEFE BEATRIZ",
+      "pedidos": [
+        {
+          "descripcion": "ENGRASADORA",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-10-24T14:32:04.549Z",
+      "updated_at": "2025-10-24T14:41:00.197Z",
+      "id": 5
+    },
+    {
+      "numero": "CC0-20225-241025",
+      "remitente": "JAVIER JEFE",
+      "destinatario": "PEAJE FRAGUA",
+      "direccion": "PEAJE FRAGUA",
+      "peso": 0,
+      "estado": "Entregado",
+      "obs": "INFORMES TRAFICO Y RECAUDO",
+      "pedidos": [
+        {
+          "descripcion": "INFORMES DE PEAJE",
+          "cantidad": 15,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-10-25T16:47:55.530Z",
+      "updated_at": "2025-10-28T15:23:46.255Z",
+      "id": 6
+    },
+    {
+      "numero": "GUA-2025-032529",
+      "remitente": "Marliz Tizziana Herazo Londoño",
+      "destinatario": "Peaje Zaragoza",
+      "direccion": "Peaje Zaragoza",
+      "peso": 0.5,
+      "estado": "Entregado",
+      "obs": "PLACAS JLP812",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 18,
+          "valor": null,
+          "peso": null
+        },
+        {
+          "descripcion": "Boletas",
+          "cantidad": 50,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-10-28T15:16:55.030Z",
+      "updated_at": "2025-10-28T16:10:24.868Z",
+      "id": 7
+    },
+    {
+      "numero": "GUA-2025-032531",
+      "remitente": "ARMANDO ALVAREZ",
+      "destinatario": "AREA TECNICA",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 0.3,
+      "estado": "Entregado",
+      "obs": "",
+      "pedidos": [
+        {
+          "descripcion": "PONCHADORA",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-11-10T15:09:08.940Z",
+      "updated_at": "2025-11-11T14:09:46.240Z",
+      "id": 9
+    },
+    {
+      "numero": "GUA-2025-032532",
+      "remitente": "Marliz Tizziana Herazo Londoño",
+      "destinatario": "Peaje Zaragoza",
+      "direccion": "Peaje Zaragoza",
+      "peso": 2.5,
+      "estado": "Entregado",
+      "obs": "se envia con el señor javier",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 30,
+          "valor": null,
+          "peso": 2.5
+        }
+      ],
+      "created_at": "2025-11-11T14:10:31.423Z",
+      "updated_at": "2025-11-13T18:21:53.172Z",
+      "id": 10
+    },
+    {
+      "numero": "DOC-20250008",
+      "remitente": "BEATRIZ JEFE PEAJE",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "Peaje Zaragoza",
+      "peso": 12,
+      "estado": "Entregado",
+      "obs": "SE ENVIA CON\n EL SEÑOR JAVIER",
+      "pedidos": [
+        {
+          "descripcion": "CONTRATOS - AREA ADMINISTRATIVA",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-11-12T13:55:28.190Z",
+      "updated_at": "2025-11-12T21:41:14.419Z",
+      "id": 11
+    },
+    {
+      "numero": "GUA-2025-032534",
+      "remitente": "PEAJE FRAGUA",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 0.2,
+      "estado": "Entregado",
+      "obs": "PLACA: LUZ089",
+      "pedidos": [
+        {
+          "descripcion": "Plumilla - Tipo Barrera",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-11-12T21:07:35.587Z",
+      "updated_at": "2025-11-12T21:41:20.562Z",
+      "id": 12
+    },
+    {
+      "numero": "GUIA-2025-032535",
+      "remitente": "PEAJE FRAGUA",
+      "destinatario": "PEAJE SANTA ISABEL",
+      "direccion": "PEAJE SANTA ISABEL",
+      "peso": 0.2,
+      "estado": "Entregado",
+      "obs": "SE VA A ENVIAR CON VEHICULO PLACA : TEK945",
+      "pedidos": [
+        {
+          "descripcion": "BOLSAS DE RECAUDO",
+          "cantidad": 10,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2025-11-20T17:45:28.610Z",
+      "updated_at": "2025-12-09T12:49:22.840Z",
+      "id": 13
+    },
+    {
+      "numero": "GUIA: 2479546549",
+      "remitente": "PEAJE FRAGUA",
+      "destinatario": "PEAJE SANTA ISABEL",
+      "direccion": "PEAJE SANTA ISABEL",
+      "peso": 0.2,
+      "estado": "Entregado",
+      "obs": "PLACA: ",
+      "pedidos": [],
+      "created_at": "2025-12-22T13:17:10.703Z",
+      "updated_at": "2025-12-31T18:46:47.113Z",
+      "id": 14
+    },
+    {
+      "numero": "FRG-325465215",
+      "remitente": "FRAGUA",
+      "destinatario": "ZARAGOZA",
+      "direccion": "ESTACION DE PEAJE DE ZARAGOZA",
+      "peso": 2.5,
+      "estado": "Entregado",
+      "obs": "",
+      "pedidos": [],
+      "created_at": "2025-12-31T18:46:31.889Z",
+      "updated_at": "2026-01-02T22:06:16.155Z",
+      "id": 15
+    },
+    {
+      "numero": "FRG-325465216",
+      "remitente": "MARLIZ TIZZIANA HERAZO LONDOÑO",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 1.5,
+      "estado": "Entregado",
+      "obs": "Dotacion: \n4 Camisas Tipo Empresarial\n2 Pares de Botas de Seguridad Talla 36 -39\n4 Jeans Mujer, Talla 10y 12\n2 Reflectivos\n2 Riñoneras ",
+      "pedidos": [],
+      "created_at": "2026-01-03T01:29:18.625Z",
+      "updated_at": "2026-01-03T02:31:51.874Z",
+      "id": 16
+    },
+    {
+      "numero": "FRG-325465217",
+      "remitente": "MARLIZ TIZZIANA HERAZO LONDOÑO",
+      "destinatario": "PEAJE",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 0.3,
+      "estado": "Entregado",
+      "obs": "",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2026-01-09T16:23:09.663Z",
+      "updated_at": "2026-01-09T17:50:06.261Z",
+      "id": 17
+    },
+    {
+      "numero": "FRG-325465218",
+      "remitente": "FRAGUA",
+      "destinatario": "ESTACION DE PEAJE DE ZARAGOZA",
+      "direccion": "ZARAGOZA",
+      "peso": 0.3,
+      "estado": "Entregado",
+      "obs": "DOCUMENTOS DE LEGALIZACION",
+      "pedidos": [
+        {
+          "descripcion": "DOCUMENTOS - AREA ADMINISTRATIVA",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2026-01-10T15:39:46.174Z",
+      "updated_at": "2026-01-12T21:38:26.737Z",
+      "id": 18
+    },
+    {
+      "numero": "FRG-325465219",
+      "remitente": "MARLIZ TIZIANA HERAZO LONDOÑO",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "ZARAGOZA",
+      "peso": 0.5,
+      "estado": "Entregado",
+      "obs": "PLACA : FCK31H",
+      "pedidos": [
+        {
+          "descripcion": "Rollos Termicos",
+          "cantidad": 36,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2026-01-12T21:38:18.376Z",
+      "updated_at": "2026-03-02T15:47:03.503Z",
+      "id": 19
+    },
+    {
+      "numero": "IFOBE-SAS-INGE202607.01",
+      "remitente": "ING.ARMANDO ALVAREZ",
+      "destinatario": "VANESSA DIAS",
+      "direccion": "CACERI - IER CACERI",
+      "peso": 0.6,
+      "estado": "Entregado",
+      "obs": "ENVIO CON DIDIER ESTRADA",
+      "pedidos": [],
+      "created_at": "2026-02-05T20:13:52.518Z",
+      "updated_at": "2026-03-02T15:47:18.367Z",
+      "id": 20
+    },
+    {
+      "numero": "FRG-325465220",
+      "remitente": "MERLIZ TIZIANA",
+      "destinatario": "ZARAGOZA",
+      "direccion": "ZARAGOZA",
+      "peso": 1,
+      "estado": "Entregado",
+      "obs": "",
+      "pedidos": [],
+      "created_at": "2026-02-24T14:48:52.829Z",
+      "updated_at": "2026-03-02T15:47:27.110Z",
+      "id": 21
+    },
+    {
+      "numero": "FRG-32546522098",
+      "remitente": "PEAJE FRAGUA",
+      "destinatario": "PEAJE SANTA ISABLE",
+      "direccion": "PEAJE SANTA ISABLE",
+      "peso": 0.14,
+      "estado": "Entregado",
+      "obs": "ENTREGA TRANSABANK",
+      "pedidos": [
+        {
+          "descripcion": "DOTACION",
+          "cantidad": 1,
+          "valor": null,
+          "peso": null
+        }
+      ],
+      "created_at": "2026-03-02T15:48:28.431Z",
+      "updated_at": "2026-03-05T20:23:38.664Z",
+      "id": 22
+    },
+    {
+      "numero": "FRAGUA-04032026",
+      "remitente": "MARLIZ T.L",
+      "destinatario": "PEAJE ZARAGOZA",
+      "direccion": "PEAJE ZARAGOZA",
+      "peso": 10,
+      "estado": "En transito",
+      "obs": "Se Envia en Vehiculo de la Consecion ",
+      "pedidos": [],
+      "created_at": "2026-03-05T20:25:00.401Z",
+      "updated_at": "2026-03-05T20:25:00.401Z",
+      "id": 23
     }
   ]
 }

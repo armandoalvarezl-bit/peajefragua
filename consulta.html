@@ -6,49 +6,220 @@
   <title>Consulta de Envio | Zima</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#e9eef3; --card:#fff; --text:#0f172a; --muted:#475569; --accent:#0f766e; --accent2:#0891b2; --border:rgba(0,0,0,.1); }
-    body { margin:0; background:radial-gradient(circle at 12% 8%, rgba(14,165,164,.18), transparent 32%), linear-gradient(180deg,#ecfeff 0%,var(--bg) 55%); color:var(--text); font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; }
-    .topbar { background:linear-gradient(110deg,var(--accent),var(--accent2)); color:#fff; border-bottom-left-radius:14px; border-bottom-right-radius:14px; box-shadow:0 12px 24px rgba(8,145,178,.25); }
-    .shell { max-width:1020px; margin:0 auto; }
-    .card-soft { background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 6px 16px rgba(2,6,23,.06); }
-    .status { font-size:.78rem; padding:.32rem .56rem; border-radius:999px; font-weight:700; display:inline-block; }
-    .status-pend { background:#facc15; color:#422006; }
-    .status-trans { background:#7dd3fc; color:#082f49; }
-    .status-ent { background:#6ee7b7; color:#064e3b; }
-    .result-table th { background:#f1f5f9; }
-    .result-table td { vertical-align:middle; }
+    :root{
+      --bg: #d9e7e4;
+      --bg-soft: #cfe0db;
+      --card: #ffffff;
+      --muted: #4f6471;
+      --accent: #0b2a6f;
+      --accent-2: #15449f;
+      --border: rgba(0,0,0,0.08);
+      --text: #0f172a;
+      --line: rgba(148,163,184,.24);
+    }
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 10% 8%, rgba(11,42,111,.14), transparent 32%),
+        radial-gradient(circle at 88% 90%, rgba(30,64,175,.1), transparent 34%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 55%);
+      color:var(--text);
+      font-family:"Manrope","Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      min-height:100vh;
+    }
+    *{ -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    .topbar{
+      background:linear-gradient(95deg, #0b2a6f, #15449f);
+      color:#fff;
+      border-bottom-left-radius:18px;
+      border-bottom-right-radius:18px;
+      box-shadow:0 14px 26px rgba(2,6,23,.18);
+    }
+    .shell { max-width:1120px; margin:0 auto; }
+    .card-soft{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      box-shadow:0 10px 24px rgba(15,23,42,.08);
+    }
+    .heading-kicker { color:#c7d2fe; letter-spacing:.08em; text-transform:uppercase; font-size:.73rem; font-weight:700; }
+    .metric-pill { background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); padding:.32rem .62rem; border-radius:999px; font-size:.8rem; font-weight:600; }
+    .metric-pill-btn{
+      color:#fff;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .metric-pill-btn:hover{
+      background:rgba(255,255,255,.24);
+      transform: translateY(-1px);
+    }
+    .search-wrap { background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(247,250,255,.98)); }
+    .label-muted { color:var(--muted); font-size:.86rem; }
+    .btn-main{
+      background: linear-gradient(95deg, #0b2a6f, #15449f);
+      border:0;
+      color:#fff;
+      box-shadow:0 8px 18px rgba(11,42,111,.24);
+    }
+    .btn-main:hover{
+      transform:translateY(-1px);
+      box-shadow:0 11px 22px rgba(11,42,111,.32);
+      color:#fff;
+    }
+    .btn-outline-main{
+      background:linear-gradient(180deg, #fff, #f8fafc);
+      border:1px solid rgba(148,163,184,.36);
+      color:var(--text);
+    }
+    .btn-outline-main:hover{
+      background:#fff;
+      border-color: rgba(14,165,164,.45);
+      transform: translateY(-1px);
+      color:var(--text);
+    }
+    .form-control, .form-select{
+      background:#f7fbff;
+      color:var(--text);
+      border:1.5px solid rgba(14,165,164,.5);
+      border-radius:8px;
+      padding:.6rem .75rem;
+    }
+    .form-control:hover, .form-select:hover{ border-color: var(--accent); background:#fff; }
+    .form-control:focus, .form-select:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 .22rem rgba(14,165,164,.2);
+      background:#fff;
+    }
+    .input-group-text{
+      border:1.5px solid rgba(14,165,164,.5);
+      border-right:0;
+      background:#f7fbff !important;
+    }
+    .status { font-size:.78rem; padding:.32rem .58rem; border-radius:999px; font-weight:700; display:inline-block; }
+    .status-pend { background:#fbbf24; color:#1e293b; }
+    .status-trans { background:#38bdf8; color:#082f49; }
+    .status-ent { background:#34d399; color:#064e3b; }
+    .status-empty { background:#e2e8f0; color:#334155; }
+    .result-table{ color:var(--text); background:#fff; border-radius:8px; overflow:hidden; }
+    .result-table th {
+      background:#eef5fb;
+      color:#475569;
+      border-bottom:2px solid var(--border);
+      font-size:.8rem;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      position: sticky;
+      top: 0;
+      z-index:1;
+    }
+    .result-table td { vertical-align:middle; font-weight:500; }
     .small-muted { color:var(--muted); font-size:.9rem; }
-    .items-list li { margin-bottom:.2rem; }
+    .result-row { cursor:pointer; transition:all .2s ease; border-bottom:1px solid rgba(148,163,184,.15); }
+    .result-row:hover { background:linear-gradient(90deg, rgba(14,165,164,.09), rgba(8,145,178,.06)); transform: translateX(1px); }
+    .result-row.active { background:rgba(14,165,164,.12); }
+    .detail-grid .info-box { border:1px solid rgba(14,165,164,.25); border-radius:12px; padding:.62rem .7rem; background:#fff; }
+    .detail-grid .info-k { font-size:.76rem; color:#475569; text-transform:uppercase; font-weight:700; letter-spacing:.04em; }
+    .detail-grid .info-v { font-size:.94rem; font-weight:600; color:#0f172a; margin-top:.18rem; word-break:break-word; }
+    .items-list { list-style:none; padding:0; margin:0; }
+    .items-list li { margin-bottom:.44rem; border:1px dashed rgba(148,163,184,.45); border-radius:10px; padding:.46rem .6rem; background:#fbfdff; }
+    .copy-note { background:rgba(11,42,111,.06); border:1px solid rgba(11,42,111,.18); border-radius:10px; padding:.5rem .62rem; color:#1e3a8a; font-size:.84rem; }
+    .maintenance-alert{
+      border:1px solid rgba(245,158,11,.4);
+      background:linear-gradient(180deg, rgba(255,251,235,.96), rgba(254,243,199,.95));
+      color:#78350f;
+      border-radius:12px;
+      box-shadow:0 8px 20px rgba(120,53,15,.08);
+    }
+    .input-error-msg{
+      display:none;
+      margin-top:.35rem;
+      font-size:.82rem;
+      color:#b91c1c;
+      font-weight:600;
+    }
+    .history-wrap{
+      border-top:1px dashed rgba(148,163,184,.35);
+      margin-top:.85rem;
+      padding-top:.75rem;
+    }
+    .history-chip{
+      border-radius:999px;
+      padding:.24rem .65rem;
+      font-size:.8rem;
+    }
+
+    @media print {
+      body { background:#fff !important; }
+      .topbar, #maintenance-banner, #search-card, #results-card { display:none !important; }
+      main { padding:0 !important; margin:0 !important; }
+      #detail-box { display:block !important; border:none !important; box-shadow:none !important; margin:0 !important; }
+      #detail-actions { display:none !important; }
+    }
   </style>
 </head>
 <body>
   <nav class="topbar py-3 mb-4">
     <div class="shell px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div>
-        <div class="fw-bold fs-5"><i class="bi bi-search me-1"></i>Consulta de Envio</div>
-        <div class="small">Consulta en linea (Google Apps Script)</div>
+        <div class="heading-kicker">Seguimiento en linea</div>
+        <div class="fw-bold fs-4"><i class="bi bi-search me-1"></i>Consulta de Envio</div>
+        <div class="small">Visualiza guia, estado y detalle para sacar copia al instante</div>
       </div>
-      <div class="top-actions d-flex gap-2">
+      <div class="top-actions d-flex flex-wrap gap-2 align-items-center">
+        <button type="button" class="metric-pill metric-pill-btn" id="btn-guia-digital-top"><i class="bi bi-file-earmark-text me-1"></i>Guia digital</button>
+        <button type="button" class="metric-pill metric-pill-btn" id="btn-sacar-copia-top"><i class="bi bi-printer me-1"></i>Sacar copia</button>
         <a class="btn btn-light" href="home.html"><i class="bi bi-house"></i> Volver al panel</a>
       </div>
     </div>
   </nav>
 
   <main class="shell px-3 pb-4">
-    <section class="card-soft p-3 p-md-4 mb-3">
+    <section class="maintenance-alert p-3 mb-3" id="maintenance-banner" style="display:none;">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <div class="fw-bold"><i class="bi bi-tools me-1"></i>Mantenimiento temporal</div>
+          <div class="small" id="maintenance-text">Estamos aplicando mejoras en esta pagina.</div>
+        </div>
+        <span class="badge text-bg-warning">En proceso</span>
+      </div>
+    </section>
+
+    <section class="card-soft search-wrap p-3 p-md-4 mb-3" id="search-card">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+        <div>
+          <h5 class="mb-1">Buscar guia</h5>
+          <div class="label-muted">Ingresa el numero y consulta coincidencia parcial o exacta.</div>
+        </div>
+        <span class="label-muted"><i class="bi bi-shield-check me-1"></i>Consulta segura con Apps Script</span>
+      </div>
       <div class="row g-2 align-items-end">
         <div class="col-md-8">
           <label for="search-numero" class="form-label fw-semibold">Numero de guia</label>
-          <input id="search-numero" class="form-control" placeholder="Ej: GUA-2026-07-3028" autocomplete="off" />
-          <div class="small-muted mt-1">Busca por coincidencia parcial o exacta.</div>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-upc-scan"></i></span>
+            <input id="search-numero" class="form-control" placeholder="Ej: GUA-2026-07-3028" autocomplete="off" />
+          </div>
+          <div id="search-error" class="input-error-msg">Formato invalido. Usa letras, numeros y guiones.</div>
+          <div class="small-muted mt-1">Tambien puedes pegar codigo completo de la guia.</div>
         </div>
-        <div class="col-md-4 d-grid">
-          <button class="btn btn-primary" id="btn-consultar"><i class="bi bi-search"></i> Consultar</button>
+        <div class="col-md-4 d-grid gap-2">
+          <button class="btn btn-main text-white" id="btn-consultar"><i class="bi bi-search"></i> Consultar</button>
+          <button class="btn btn-outline-main" id="btn-share-link"><i class="bi bi-share"></i> Copiar enlace</button>
+          <button class="btn btn-outline-main" id="btn-clear"><i class="bi bi-eraser"></i> Limpiar</button>
         </div>
-      </div>    </section>
+      </div>
+      <div class="history-wrap" id="history-wrap" style="display:none;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          <span class="small-muted"><i class="bi bi-clock-history me-1"></i>Busquedas recientes</span>
+          <button class="btn btn-sm btn-outline-main" id="btn-clear-history" type="button">Limpiar historial</button>
+        </div>
+        <div class="d-flex flex-wrap gap-2" id="recent-searches"></div>
+      </div>
+    </section>
 
-    <section class="card-soft p-3 p-md-4 mb-3">
+    <section class="card-soft p-3 p-md-4 mb-3" id="results-card">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Resultados</h6>
         <span id="count" class="small-muted">0 registros</span>
@@ -78,13 +249,56 @@
         <h6 class="mb-0">Detalle de envio</h6>
         <span id="detail-status"></span>
       </div>
-      <div class="row g-3">
-        <div class="col-md-6"><strong>Guia:</strong> <span id="d-num">-</span></div>
-        <div class="col-md-6"><strong>Fecha:</strong> <span id="d-fecha">-</span></div>
-        <div class="col-md-6"><strong>Remitente:</strong> <span id="d-rem">-</span></div>
-        <div class="col-md-6"><strong>Destinatario:</strong> <span id="d-dest">-</span></div>
-        <div class="col-12"><strong>Direccion:</strong> <span id="d-dir">-</span></div>
-        <div class="col-12"><strong>Observaciones:</strong> <span id="d-obs">-</span></div>
+      <div class="copy-note mb-3">
+        <i class="bi bi-info-circle me-1"></i>Selecciona una fila para actualizar este detalle. Luego puedes sacar copia o copiar los datos.
+      </div>
+      <div class="row g-2 detail-grid">
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-k">Guia</div>
+            <div class="info-v" id="d-num">-</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-k">Fecha</div>
+            <div class="info-v" id="d-fecha">-</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-k">Estado</div>
+            <div class="info-v" id="d-estado-text">-</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="info-box">
+            <div class="info-k">Remitente</div>
+            <div class="info-v" id="d-rem">-</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="info-box">
+            <div class="info-k">Destinatario</div>
+            <div class="info-v" id="d-dest">-</div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="info-box">
+            <div class="info-k">Direccion</div>
+            <div class="info-v" id="d-dir">-</div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="info-box">
+            <div class="info-k">Observaciones</div>
+            <div class="info-v" id="d-obs">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3" id="detail-actions">
+        <button class="btn btn-main text-white" id="btn-print-copy"><i class="bi bi-printer"></i> Sacar copia</button>
+        <button class="btn btn-outline-main" id="btn-copy-data"><i class="bi bi-clipboard-check"></i> Copiar datos</button>
       </div>
       <hr>
       <div class="fw-semibold mb-2">Pedidos</div>
@@ -92,43 +306,96 @@
     </section>
   </main>
 
+  <div class="modal fade" id="not-found-modal" tabindex="-1" aria-labelledby="not-found-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="not-found-title"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Guia no encontrada</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-2" id="not-found-msg">No se encontraron guias en la base de datos.</p>
+          <p class="small-muted mb-0">Revisa la informacion ingresada o valida la guia emitida antes de intentar nuevamente.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-main" data-bs-dismiss="modal">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function(){
       'use strict';
+
+      if (localStorage.getItem('sessionActive') !== '1') {
+        window.location.replace('login.html');
+        return;
+      }
 
       const API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
       const API_HOJA = 'Tabla_1';
       // Si luego usas openById en Apps Script, pega aqui el ID del spreadsheet.
       const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+      const SHOW_MAINTENANCE_BANNER = false;
+      const MAINTENANCE_MESSAGE = 'La pagina esta en mantenimiento por mejoras de consulta, historial y enlace compartible.';
+      const SEARCH_HISTORY_KEY = 'consultaSearchHistoryV1';
+      const SEARCH_HISTORY_MAX = 8;
       const $ = (s) => document.querySelector(s);
       let currentRows = [];
+      let notFoundModal = null;
 
       document.addEventListener('DOMContentLoaded', () => {
+        setupMaintenanceBanner();
         $('#btn-consultar').addEventListener('click', onSearch);
+        $('#btn-clear').addEventListener('click', onClear);
+        $('#btn-share-link').addEventListener('click', onShareLink);
+        $('#btn-clear-history').addEventListener('click', onClearHistory);
+        $('#btn-print-copy').addEventListener('click', onPrintCopy);
+        $('#btn-copy-data').addEventListener('click', onCopyData);
+        $('#btn-guia-digital-top').addEventListener('click', onTopGuiaDigital);
+        $('#btn-sacar-copia-top').addEventListener('click', onPrintCopy);
+        $('#search-numero').addEventListener('input', onSearchInput);
         $('#search-numero').addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
             onSearch();
           }
         });
+
+        renderSearchHistory();
+        restoreSearchFromUrl();
       });
 
-      async function onSearch(){
-        const term = String($('#search-numero').value || '').trim();
-        if (!term) return alert('Escribe un numero de guia.');
+      async function onSearch(termOverride){
+        const termRaw = typeof termOverride === 'string' ? termOverride : String($('#search-numero').value || '');
+        const term = normalizeGuideInput(termRaw);
+        $('#search-numero').value = term;
 
+        if (!term) return alert('Escribe un numero de guia.');
+        if (!isValidGuideTerm(term)) {
+          setSearchInputError('Formato invalido. Usa letras, numeros y guiones (minimo 4 caracteres).');
+          return;
+        }
+        setSearchInputError('');
+        rememberSearchTerm(term);
+        renderSearchHistory();
+        syncUrlWithGuide(term);
+
+        setLoading(true);
         const url = buildApiUrl(term);
         setStatus('Consultando...');
 
         try {
           const payload = await fetchJson(url);
-          applyRowsFromPayload(payload);
+          applyRowsFromPayload(payload, term);
           return;
         } catch (fetchErr) {
           // Fallback para entornos donde fetch a Apps Script es bloqueado por CORS.
           try {
             const payload = await fetchJsonp(url);
-            applyRowsFromPayload(payload);
+            applyRowsFromPayload(payload, term);
             return;
           } catch (jsonpErr) {
             setStatus('Error de conexion con el API.');
@@ -139,10 +406,189 @@
               'Revisa que el Web App esté en acceso \"Anyone\" y desplegado.'
             );
           }
+        } finally {
+          setLoading(false);
         }
       }
 
-      function applyRowsFromPayload(payload){
+      function onClear(){
+        $('#search-numero').value = '';
+        currentRows = [];
+        $('#detail-box').style.display = 'none';
+        renderResults([]);
+        setStatus('Consulta reiniciada.');
+        setSearchInputError('');
+        clearGuideFromUrl();
+        $('#search-numero').focus();
+      }
+
+      function onSearchInput(e){
+        const value = normalizeGuideInput(e.target.value);
+        if (e.target.value !== value) e.target.value = value;
+        if (value) setSearchInputError('');
+      }
+
+      async function onShareLink(){
+        const detailTerm = normalizeGuideInput($('#d-num').innerText || '');
+        const inputTerm = normalizeGuideInput($('#search-numero').value || '');
+        const term = isValidGuideTerm(detailTerm) ? detailTerm : inputTerm;
+
+        if (!term || !isValidGuideTerm(term)) {
+          alert('Primero consulta una guia valida para compartir el enlace.');
+          $('#search-numero').focus();
+          return;
+        }
+
+        const shareUrl = buildShareUrl(term);
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(shareUrl);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = shareUrl;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          setStatus('Enlace de consulta copiado al portapapeles.');
+        } catch (err) {
+          prompt('Copia este enlace de consulta:', shareUrl);
+        }
+      }
+
+      function setupMaintenanceBanner(){
+        const el = $('#maintenance-banner');
+        const msg = $('#maintenance-text');
+        if (!el) return;
+        if (!SHOW_MAINTENANCE_BANNER) {
+          el.style.display = 'none';
+          return;
+        }
+        if (msg) msg.innerText = MAINTENANCE_MESSAGE;
+        el.style.display = 'block';
+      }
+
+      function normalizeGuideInput(v){
+        return String(v || '')
+          .toUpperCase()
+          .replace(/\s+/g, '')
+          .trim();
+      }
+
+      function isValidGuideTerm(term){
+        return /^[A-Z0-9-]{4,40}$/.test(String(term || ''));
+      }
+
+      function setSearchInputError(msg){
+        const input = $('#search-numero');
+        const err = $('#search-error');
+        if (!input || !err) return;
+        const hasError = !!String(msg || '').trim();
+        input.classList.toggle('is-invalid', hasError);
+        err.style.display = hasError ? 'block' : 'none';
+        err.innerText = msg || '';
+      }
+
+      function getSearchHistory(){
+        try {
+          const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
+          const parsed = JSON.parse(raw || '[]');
+          if (!Array.isArray(parsed)) return [];
+          return parsed.map(normalizeGuideInput).filter(isValidGuideTerm).slice(0, SEARCH_HISTORY_MAX);
+        } catch (err) {
+          return [];
+        }
+      }
+
+      function saveSearchHistory(list){
+        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(list.slice(0, SEARCH_HISTORY_MAX)));
+      }
+
+      function rememberSearchTerm(term){
+        const clean = normalizeGuideInput(term);
+        if (!isValidGuideTerm(clean)) return;
+        const history = getSearchHistory().filter((x) => x !== clean);
+        history.unshift(clean);
+        saveSearchHistory(history);
+      }
+
+      function onClearHistory(){
+        localStorage.removeItem(SEARCH_HISTORY_KEY);
+        renderSearchHistory();
+        setStatus('Historial de busquedas limpiado.');
+      }
+
+      function renderSearchHistory(){
+        const wrap = $('#history-wrap');
+        const box = $('#recent-searches');
+        if (!wrap || !box) return;
+
+        const history = getSearchHistory();
+        if (!history.length) {
+          wrap.style.display = 'none';
+          box.innerHTML = '';
+          return;
+        }
+
+        wrap.style.display = 'block';
+        box.innerHTML = history.map((term) => (
+          '<button type="button" class="btn btn-sm btn-outline-main history-chip" data-term="' + escapeHtml(term) + '">' +
+            '<i class="bi bi-search me-1"></i>' + escapeHtml(term) +
+          '</button>'
+        )).join('');
+
+        box.querySelectorAll('button[data-term]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const term = btn.dataset.term || '';
+            $('#search-numero').value = term;
+            onSearch(term);
+          });
+        });
+      }
+
+      function restoreSearchFromUrl(){
+        let term = '';
+        try {
+          const params = new URLSearchParams(window.location.search || '');
+          term = normalizeGuideInput(params.get('guia') || params.get('numero') || params.get('q') || '');
+        } catch (err) {
+          return;
+        }
+        if (!term || !isValidGuideTerm(term)) return;
+        $('#search-numero').value = term;
+        setStatus('Guia cargada desde enlace compartido.');
+        onSearch(term);
+      }
+
+      function buildShareUrl(term){
+        const url = new URL(window.location.href);
+        url.search = '';
+        url.searchParams.set('guia', normalizeGuideInput(term));
+        return url.toString();
+      }
+
+      function syncUrlWithGuide(term){
+        try {
+          const url = new URL(window.location.href);
+          url.search = '';
+          url.searchParams.set('guia', normalizeGuideInput(term));
+          window.history.replaceState({}, '', url.toString());
+        } catch (err) {}
+      }
+
+      function clearGuideFromUrl(){
+        try {
+          const url = new URL(window.location.href);
+          url.search = '';
+          window.history.replaceState({}, '', url.toString());
+        } catch (err) {}
+      }
+
+      function applyRowsFromPayload(payload, term){
         if (payload && payload.ok === false) {
           currentRows = [];
           renderResults(currentRows);
@@ -158,8 +604,28 @@
         renderResults(currentRows);
         setStatus(currentRows.length ? ('Consulta exitosa: ' + currentRows.length + ' registro(s).') : 'Consulta sin coincidencias.');
 
-        if (currentRows.length === 1) renderDetail(currentRows[0]);
-        if (!currentRows.length) $('#detail-box').style.display = 'none';
+        if (currentRows.length) renderDetail(currentRows[0], true);
+        if (!currentRows.length) {
+          $('#detail-box').style.display = 'none';
+          showNotFoundModal(term);
+        }
+      }
+
+      function showNotFoundModal(term){
+        const cleanTerm = String(term || '').trim();
+        const msg = cleanTerm
+          ? ('No se encontraron guias en la base de datos para: ' + cleanTerm + '.')
+          : 'No se encontraron guias en la base de datos.';
+        const msgEl = $('#not-found-msg');
+        if (msgEl) msgEl.innerText = msg;
+
+        if (window.bootstrap && $('#not-found-modal')) {
+          if (!notFoundModal) notFoundModal = new bootstrap.Modal($('#not-found-modal'));
+          notFoundModal.show();
+          return;
+        }
+
+        alert(msg + '\nRevisa la informacion o valida la guia emitida.');
       }
 
       async function fetchJson(url){
@@ -280,7 +746,7 @@
         if (n === 'pendiente') return '<span class="status status-pend">Pendiente</span>';
         if (n.includes('transito')) return '<span class="status status-trans">En transito</span>';
         if (n === 'entregado') return '<span class="status status-ent">Entregado</span>';
-        return '<span class="status">' + escapeHtml(v || '-') + '</span>';
+        return '<span class="status status-empty">' + escapeHtml(v || '-') + '</span>';
       }
 
       function fmtDate(v){
@@ -304,7 +770,7 @@
         }
 
         body.innerHTML = rows.map(g => `
-          <tr data-id="${g.__id}" style="cursor:pointer;">
+          <tr data-id="${g.__id}" class="result-row">
             <td><strong>${escapeHtml(g.numero || '-')}</strong></td>
             <td>${estadoBadge(g.estado)}</td>
             <td>${escapeHtml(g.remitente || '-')}</td>
@@ -318,16 +784,17 @@
           tr.addEventListener('click', () => {
             const id = Number(tr.dataset.id);
             const row = currentRows.find(x => x.__id === id);
-            if (row) renderDetail(row);
+            if (row) renderDetail(row, true);
           });
         });
       }
 
-      function renderDetail(g){
+      function renderDetail(g, syncActive){
         $('#detail-box').style.display = 'block';
         $('#detail-status').innerHTML = estadoBadge(g.estado);
         $('#d-num').innerText = g.numero || '-';
         $('#d-fecha').innerText = fmtDate(g.created_at);
+        $('#d-estado-text').innerText = g.estado || '-';
         $('#d-rem').innerText = g.remitente || '-';
         $('#d-dest').innerText = g.destinatario || '-';
         $('#d-dir').innerText = g.direccion || '-';
@@ -337,6 +804,7 @@
         ul.innerHTML = '';
         if (!g.pedidos.length) {
           ul.innerHTML = '<li class="small-muted">Sin pedidos registrados.</li>';
+          if (syncActive) markActiveRow(g.__id);
           return;
         }
 
@@ -345,6 +813,85 @@
           li.textContent = `${idx + 1}. ${it.descripcion || '-'}`;
           ul.appendChild(li);
         });
+
+        if (syncActive) markActiveRow(g.__id);
+      }
+
+      function markActiveRow(id){
+        document.querySelectorAll('#body-results .result-row').forEach((row) => {
+          row.classList.toggle('active', Number(row.dataset.id) === Number(id));
+        });
+      }
+
+      function setLoading(isLoading){
+        const btn = $('#btn-consultar');
+        if (!btn) return;
+        btn.disabled = !!isLoading;
+        btn.innerHTML = isLoading
+          ? '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Consultando...'
+          : '<i class="bi bi-search"></i> Consultar';
+      }
+
+      function buildCopyText(){
+        const pedidos = Array.from(document.querySelectorAll('#d-items li')).map((li) => li.textContent.trim()).filter(Boolean);
+        return [
+          'GUIA DE ENVIO',
+          'Numero: ' + ($('#d-num').innerText || '-'),
+          'Estado: ' + ($('#d-estado-text').innerText || '-'),
+          'Fecha: ' + ($('#d-fecha').innerText || '-'),
+          'Remitente: ' + ($('#d-rem').innerText || '-'),
+          'Destinatario: ' + ($('#d-dest').innerText || '-'),
+          'Direccion: ' + ($('#d-dir').innerText || '-'),
+          'Observaciones: ' + ($('#d-obs').innerText || '-'),
+          'Pedidos:',
+          (pedidos.length ? pedidos.join('\n') : 'Sin pedidos registrados.')
+        ].join('\n');
+      }
+
+      function onPrintCopy(){
+        if ($('#detail-box').style.display === 'none') {
+          alert('Primero consulta y selecciona una guia.');
+          $('#search-numero').focus();
+          return;
+        }
+        window.print();
+      }
+
+      async function onTopGuiaDigital(){
+        if ($('#detail-box').style.display === 'none') {
+          alert('Primero consulta y selecciona una guia.');
+          $('#search-numero').focus();
+          return;
+        }
+        $('#detail-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        await onCopyData();
+      }
+
+      async function onCopyData(){
+        if ($('#detail-box').style.display === 'none') {
+          alert('Primero consulta y selecciona una guia.');
+          $('#search-numero').focus();
+          return;
+        }
+        const txt = buildCopyText();
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(txt);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = txt;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          setStatus('Datos de la guia copiados al portapapeles.');
+        } catch (err) {
+          alert('No se pudo copiar la informacion.');
+        }
       }
     })();
   </script>

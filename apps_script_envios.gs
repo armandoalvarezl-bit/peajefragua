@@ -5,6 +5,7 @@ function doGet(e) {
     if (!action || action === 'search') return handleSearch_(p);
     if (action === 'upsert') return handleUpsert_(p, null);
     if (action === 'delete') return handleDelete_(p);
+    if (action === 'login') return handleLogin_(p);
     return jsonOut_({ ok: false, msg: 'Action no soportada' }, p.callback);
   } catch (err) {
     return jsonOut_({ ok: false, msg: String(err && err.message || err) }, (e && e.parameter && e.parameter.callback) || '');
@@ -21,6 +22,7 @@ function doPost(e) {
     if (action === 'upsert') return handleUpsert_(merged, e);
     if (action === 'delete') return handleDelete_(merged);
     if (action === 'search') return handleSearch_(merged);
+    if (action === 'login') return handleLogin_(merged);
     return jsonOut_({ ok: false, msg: 'Action no soportada' }, merged.callback);
   } catch (err) {
     return jsonOut_({ ok: false, msg: String(err && err.message || err) }, '');
@@ -119,6 +121,62 @@ function handleDelete_(p) {
   return jsonOut_({ ok: true, deleted: 1, numero: numero }, p.callback);
 }
 
+function handleLogin_(p) {
+  var ss = openSpreadsheet_(p.spreadsheetId);
+  var sheet = ss.getSheetByName(p.hoja || 'Usuarios');
+  if (!sheet) return jsonOut_({ ok: false, msg: 'No existe hoja de usuarios' }, p.callback);
+
+  var username = String(p.usuario || p.user || '').trim();
+  var password = String(p.password || p.pass || '').trim();
+  if (!username || !password) return jsonOut_({ ok: false, msg: 'Credenciales incompletas' }, p.callback);
+
+  var values = sheet.getDataRange().getValues();
+  if (!values || values.length < 2) return jsonOut_({ ok: false, msg: 'Sin usuarios configurados' }, p.callback);
+
+  var headers = values[0].map(function(h){ return String(h || '').trim(); });
+  var idxNombre = findHeaderIndex_(headers, ['nombre']);
+  var idxUsuario = findHeaderIndex_(headers, ['usuario', 'user']);
+  var idxPassword = findHeaderIndex_(headers, ['password', 'contrasena', 'clave']);
+  var idxRol = findHeaderIndex_(headers, ['rol', 'role', 'perfil']);
+  var idxEstado = findHeaderIndex_(headers, ['estado', 'status']);
+
+  if (idxUsuario === -1 || idxPassword === -1) {
+    return jsonOut_({ ok: false, msg: 'Hoja de usuarios sin columnas requeridas' }, p.callback);
+  }
+
+  var wanted = normalize_(username);
+  var rowFound = null;
+  for (var r = 1; r < values.length; r++) {
+    var u = String(values[r][idxUsuario] || '').trim();
+    if (normalize_(u) === wanted) {
+      rowFound = values[r];
+      break;
+    }
+  }
+
+  if (!rowFound) return jsonOut_({ ok: false, msg: 'Usuario no encontrado.' }, p.callback);
+
+  var estado = (idxEstado >= 0) ? String(rowFound[idxEstado] || '').trim() : 'Activo';
+  if (estado && normalize_(estado) !== 'activo') {
+    return jsonOut_({ ok: false, msg: 'Tu usuario esta inactivo. Contacta al administrador.' }, p.callback);
+  }
+
+  var storedPassword = String(rowFound[idxPassword] || '').trim();
+  if (!passwordMatches_(password, storedPassword)) {
+    return jsonOut_({ ok: false, msg: 'Contrasena incorrecta.' }, p.callback);
+  }
+
+  return jsonOut_({
+    ok: true,
+    user: {
+      nombre: idxNombre >= 0 ? String(rowFound[idxNombre] || '').trim() : '',
+      usuario: String(rowFound[idxUsuario] || '').trim(),
+      rol: idxRol >= 0 ? String(rowFound[idxRol] || '').trim() : '',
+      estado: estado || 'Activo'
+    }
+  }, p.callback);
+}
+
 function readGuia_(p) {
   var guia = {};
   if (p.guia) {
@@ -195,6 +253,53 @@ function rowToObj_(headers, row) {
 
 function normalize_(v) {
   return String(v || '').toLowerCase().trim();
+}
+
+function normalizeHeader_(v) {
+  return normalize_(v)
+    .replace(/[\u00e1\u00e0\u00e4\u00e2]/g, 'a')
+    .replace(/[\u00e9\u00e8\u00eb\u00ea]/g, 'e')
+    .replace(/[\u00ed\u00ec\u00ef\u00ee]/g, 'i')
+    .replace(/[\u00f3\u00f2\u00f6\u00f4]/g, 'o')
+    .replace(/[\u00fa\u00f9\u00fc\u00fb]/g, 'u')
+    .replace(/\u00f1/g, 'n');
+}
+
+function findHeaderIndex_(headers, aliases) {
+  var normalizedAliases = (aliases || []).map(function(a){ return normalizeHeader_(a); });
+  for (var i = 0; i < headers.length; i++) {
+    var h = normalizeHeader_(headers[i]);
+    if (normalizedAliases.indexOf(h) !== -1) return i;
+  }
+  return -1;
+}
+
+function passwordMatches_(plainText, storedValue) {
+  var candidate = String(plainText || '');
+  var stored = String(storedValue || '').trim();
+  if (!stored) return false;
+
+  if (stored.indexOf('sha256:') === 0) {
+    var expected = stored.substring(7).toLowerCase();
+    return sha256Hex_(candidate) === expected;
+  }
+
+  return stored === candidate;
+}
+
+function sha256Hex_(text) {
+  var bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(text || ''),
+    Utilities.Charset.UTF_8
+  );
+  var out = [];
+  for (var i = 0; i < bytes.length; i++) {
+    var v = (bytes[i] + 256) % 256;
+    var h = v.toString(16);
+    out.push(h.length === 1 ? '0' + h : h);
+  }
+  return out.join('');
 }
 
 function merge_(a, b) {

@@ -124,6 +124,11 @@
     (function(){
       'use strict';
 
+      if (localStorage.getItem('sessionActive') !== '1') {
+        window.location.replace('login.html');
+        return;
+      }
+
       const API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
       const API_HOJA = 'Tabla_1';
       const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
