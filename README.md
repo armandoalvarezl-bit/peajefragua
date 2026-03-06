@@ -1,651 +1,419 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Acceso | Empresa Zima Seguridad Ltda</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mantenimiento | Envios Zima</title>
+  <meta name="description" content="Pagina de mantenimiento de Envios Zima" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-1: #e9eef5;
-      --bg-2: #d9e3ef;
-      --accent: #0f5f8f;
-      --accent-2: #1e87bd;
-      --text: #102230;
-      --muted: #5c6f7c;
-      --danger: #b42318;
-      --card: rgba(255, 255, 255, 0.95);
-      --ring: rgba(30, 135, 189, 0.28);
-      --shadow-soft: 0 18px 34px rgba(12, 26, 45, 0.14);
-      --shadow-card: 0 16px 30px rgba(15, 23, 42, 0.12);
+    :root{
+      --bg-1:#05143f;
+      --bg-2:#0b2a6f;
+      --bg-3:#15449f;
+      --panel:rgba(255,255,255,.08);
+      --panel-border:rgba(255,255,255,.2);
+      --text:#e7eefc;
+      --muted:#c6d3f8;
+      --ok:#34d399;
+      --warn:#f59e0b;
+      --shadow:0 24px 50px rgba(2,6,23,.42);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Sora", sans-serif;
-    }
-
-    html,
-    body {
-      min-height: 100%;
-    }
-
-    body {
-      display: block;
-      padding: 0;
-      margin: 0;
-      color: var(--text);
+    *{ box-sizing:border-box; }
+    html,body{
+      margin:0;
+      min-height:100%;
+      color:var(--text);
+      font-family:"Manrope","Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
       background:
-        radial-gradient(circle at 14% 12%, rgba(15, 95, 143, 0.11), transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(30, 135, 189, 0.1), transparent 45%),
-        linear-gradient(165deg, var(--bg-1), var(--bg-2));
-      overflow-x: hidden;
+        radial-gradient(circle at 10% 12%, rgba(94,234,212,.16), transparent 34%),
+        radial-gradient(circle at 85% 15%, rgba(59,130,246,.24), transparent 30%),
+        radial-gradient(circle at 88% 88%, rgba(37,99,235,.2), transparent 34%),
+        linear-gradient(145deg,var(--bg-1) 0%,var(--bg-2) 52%,var(--bg-3) 100%);
     }
 
-    .login-shell {
-      width: 100%;
-      max-width: 100%;
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1.03fr 0.97fr;
-      border-radius: 0;
-      overflow: hidden;
-      box-shadow: none;
-      background: var(--card);
-      backdrop-filter: blur(6px);
+    .bg-shape{
+      position:fixed;
+      inset:auto auto 8% 6%;
+      width:260px;
+      height:260px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(45,212,191,.22), rgba(45,212,191,0));
+      filter:blur(4px);
+      pointer-events:none;
+      animation:floaty 6s ease-in-out infinite;
+    }
+    .bg-shape.b{
+      inset:8% 10% auto auto;
+      width:220px;
+      height:220px;
+      background:radial-gradient(circle, rgba(96,165,250,.28), rgba(96,165,250,0));
+      animation-delay:1.4s;
+    }
+    @keyframes floaty{
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(-10px); }
     }
 
-    .brand-panel {
-      padding: 56px;
-      background:
-        linear-gradient(165deg, rgba(15, 95, 143, 0.26), rgba(11, 51, 78, 0.44)),
-        url("img/Dise%C3%B1o%20sin%20t%C3%ADtulo%20(4).png") center/cover no-repeat;
-      position: relative;
-      isolation: isolate;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      clip-path: polygon(0 0, 88% 0, 100% 52%, 88% 100%, 0 100%);
+    .shell{
+      width:min(1060px, 92vw);
+      margin:clamp(20px, 5vw, 48px) auto;
     }
 
-    .brand-panel::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background: linear-gradient(145deg, rgba(7, 27, 44, 0.52), rgba(17, 70, 91, 0.55));
+    .topline{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:16px;
+      color:var(--muted);
+      font-size:.9rem;
     }
 
-    .brand-panel::before {
-      content: "";
-      position: absolute;
-      inset: 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(215, 235, 248, 0.2);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
-      pointer-events: none;
-    }
-    .brand-panel::selection {
-      background: rgba(255, 255, 255, 0.25);
-      color: #fff;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:.55rem;
+      font-weight:800;
+      letter-spacing:.01em;
+      color:#fff;
     }
 
-    .brand-copy {
-      max-width: 420px;
-      color: #f8fffe;
-      text-align: center;
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--warn);
+      box-shadow:0 0 0 6px rgba(245,158,11,.18);
+      animation:pulse 1.8s infinite;
+    }
+    @keyframes pulse{
+      0%{ transform:scale(.95); box-shadow:0 0 0 0 rgba(245,158,11,.36); }
+      70%{ transform:scale(1); box-shadow:0 0 0 11px rgba(245,158,11,0); }
+      100%{ transform:scale(.95); box-shadow:0 0 0 0 rgba(245,158,11,0); }
     }
 
-    .brand-kicker {
-      font-size: 0.9rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #d7ebf7;
-      margin-bottom: 14px;
-      font-weight: 600;
+    .panel{
+      display:grid;
+      grid-template-columns:1.25fr .95fr;
+      gap:18px;
+      background:var(--panel);
+      border:1px solid var(--panel-border);
+      border-radius:24px;
+      padding:clamp(18px, 2.4vw, 34px);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(8px);
     }
 
-    .brand-copy h1 {
-      font-size: clamp(2rem, 3.2vw, 2.6rem);
-      line-height: 1.25;
-      margin-bottom: 16px;
-      text-wrap: balance;
-      letter-spacing: 0.01em;
-      text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    .hero h1{
+      margin:.3rem 0 .65rem;
+      line-height:1.05;
+      font-size:clamp(1.7rem, 3.9vw, 3.2rem);
+      letter-spacing:-.02em;
+      color:#fff;
+    }
+    .hero p{
+      margin:0 0 .9rem;
+      color:var(--muted);
+      max-width:60ch;
+      font-size:clamp(.97rem, 1.4vw, 1.08rem);
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      border:1px solid rgba(255,255,255,.28);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      border-radius:999px;
+      padding:.34rem .66rem;
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
     }
 
-    .brand-copy p {
-      line-height: 1.6;
-      color: #dbeaf4;
-      font-size: 1.05rem;
+    .only-info{
+      margin-top:1rem;
+      border:1px dashed rgba(255,255,255,.28);
+      border-radius:12px;
+      padding:.7rem .8rem;
+      color:#dbe7ff;
+      background:rgba(255,255,255,.05);
+      font-size:.93rem;
     }
 
-    .form-panel {
-      padding: 52px 36px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      max-width: 100%;
-      width: 100%;
-      margin: 0;
-      background:
-        radial-gradient(circle at 100% 0%, rgba(30, 135, 189, 0.14), transparent 44%),
-        linear-gradient(180deg, #ffffff, #f5f9fe);
+    .meta{
+      margin-top:1rem;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(140px,1fr));
+      gap:.65rem;
     }
-    .form-panel > *{
-      width: min(620px, 100%);
+    .meta-box{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;
+      padding:.64rem .7rem;
     }
-
-    .logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
+    .meta-k{
+      color:var(--muted);
+      font-size:.74rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:700;
     }
-
-    .logo-wrap img {
-      width: 70px;
-      height: 70px;
-      border-radius: 16px;
-      object-fit: cover;
-      border: 2px solid rgba(15, 95, 143, 0.2);
-      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+    .meta-v{
+      color:#fff;
+      margin-top:.22rem;
+      font-size:.95rem;
+      font-weight:700;
+      word-break:break-word;
     }
-
-    .logo-wrap strong {
-      display: block;
-      font-size: 1.12rem;
-      font-weight: 700;
+    .countdown-box{
+      grid-column:1 / -1;
     }
-
-    .logo-wrap span {
-      font-size: 0.95rem;
-      color: var(--muted);
+    .countdown-time{
+      margin-top:.3rem;
+      font-size:clamp(1.4rem, 3.5vw, 2.2rem);
+      font-weight:800;
+      letter-spacing:.08em;
+      color:#ffffff;
     }
-
-    .heading {
-      margin-bottom: 28px;
+    .countdown-track{
+      margin-top:.55rem;
+      height:8px;
+      width:100%;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.22);
     }
-
-    .heading h2 {
-      font-size: 1.7rem;
-      margin-bottom: 10px;
-      letter-spacing: 0.01em;
+    .countdown-bar{
+      display:block;
+      height:100%;
+      width:0%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,#14b8a6,#0ea5e9);
+      transition:width .4s ease;
     }
-
-    .heading p {
-      color: var(--muted);
-      font-size: 1.02rem;
-      line-height: 1.5;
-    }
-
-    .field {
-      margin-bottom: 18px;
+    .countdown-note{
+      margin-top:.5rem;
+      font-size:.86rem;
+      color:#dbe7ff;
     }
 
-    .field label {
-      display: block;
-      font-size: 0.95rem;
-      color: #203645;
-      margin-bottom: 9px;
-      font-weight: 600;
+    .status{
+      background:rgba(4,12,40,.45);
+      border:1px solid rgba(255,255,255,.17);
+      border-radius:16px;
+      padding:1rem .95rem;
+    }
+    .status h2{
+      margin:.1rem 0 .8rem;
+      font-size:1rem;
+      letter-spacing:.01em;
+    }
+    .status-list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:.6rem;
+    }
+    .status-item{
+      display:flex;
+      align-items:flex-start;
+      gap:.58rem;
+      line-height:1.35;
+      color:var(--muted);
+      font-size:.93rem;
+    }
+    .status-item strong{ color:#fff; }
+    .check{
+      margin-top:.12rem;
+      width:15px;
+      height:15px;
+      border-radius:50%;
+      flex:0 0 15px;
+      background:var(--ok);
+      box-shadow:0 0 0 5px rgba(52,211,153,.16);
+    }
+    .check.warn{
+      background:var(--warn);
+      box-shadow:0 0 0 5px rgba(245,158,11,.2);
     }
 
-    .input-wrap {
-      position: relative;
-      width: 100%;
+    .foot{
+      margin-top:12px;
+      text-align:center;
+      color:var(--muted);
+      font-size:.84rem;
     }
 
-    .input-wrap i {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64808f;
-      font-size: 1.3rem;
-      pointer-events: none;
-    }
-
-    .input-wrap input {
-      width: 100%;
-      border: 1.4px solid #cbd9e5;
-      border-radius: 12px;
-      outline: none;
-      padding: 15px 54px 15px 46px;
-      font-size: 1rem;
-      transition: 0.2s border-color, 0.2s box-shadow, 0.2s transform, 0.2s background;
-      background: #fbfdff;
-    }
-
-    .input-wrap input:hover {
-      border-color: #abc4d8;
-      background: #ffffff;
-    }
-
-    .input-wrap input:focus {
-      border-color: var(--accent-2);
-      box-shadow: 0 0 0 4px var(--ring);
-      background: #ffffff;
-      transform: translateY(-1px);
-    }
-
-    .toggle-pass {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: rgba(15, 95, 143, 0.08);
-      color: #446272;
-      cursor: pointer;
-      font-size: 1.2rem;
-      line-height: 1;
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      transition: 0.2s color, 0.2s transform;
-    }
-
-    .toggle-pass:hover {
-      color: #0f5f8f;
-      transform: translateY(-50%) scale(1.05);
-    }
-
-    .row-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin: 10px 0 18px;
-      font-size: 0.93rem;
-      color: #3e5865;
-    }
-
-    .row-actions label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .row-actions a {
-      color: #0b6e88;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .row-actions a:hover {
-      text-decoration: underline;
-    }
-
-    .error-box {
-      display: none;
-      margin-bottom: 12px;
-      font-size: 0.92rem;
-      color: var(--danger);
-      background: #fff3f2;
-      border: 1px solid #f8ceca;
-      border-radius: 9px;
-      padding: 9px 11px;
-      box-shadow: 0 8px 14px rgba(185, 35, 24, 0.08);
-    }
-
-    .btn-login {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-weight: 700;
-      font-size: 1.03rem;
-      cursor: pointer;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 14px 24px rgba(15, 95, 143, 0.25);
-      transition: 0.2s transform, 0.2s filter, 0.2s box-shadow;
-    }
-
-    .btn-login:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.02);
-      box-shadow: 0 18px 28px rgba(15, 95, 143, 0.32);
-    }
-
-    .btn-login:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .support {
-      margin-top: 20px;
-      font-size: 0.92rem;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .support strong {
-      color: #0a5d6f;
-    }
-
-    .loading-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(91, 231, 222, 0.16), transparent 36%),
-        radial-gradient(circle at 80% 80%, rgba(14, 201, 191, 0.18), transparent 38%),
-        rgba(6, 16, 24, 0.72);
-      backdrop-filter: blur(9px);
-      z-index: 1200;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .loading-card {
-      width: min(420px, 100%);
-      border-radius: 18px;
-      padding: 24px 22px;
-      text-align: center;
-      color: #ecfeff;
-      background: linear-gradient(180deg, rgba(10, 28, 38, 0.82), rgba(10, 28, 38, 0.68));
-      border: 1px solid rgba(185, 241, 236, 0.28);
-      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
-    }
-
-    .loading-modal img {
-      width: 78px;
-      height: 78px;
-      object-fit: cover;
-      border-radius: 18px;
-      border: 2px solid rgba(236, 254, 255, 0.3);
-      margin-bottom: 14px;
-    }
-
-    .loader {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto;
-      border: 4px solid rgba(255, 255, 255, 0.18);
-      border-top-color: #5be7de;
-      border-radius: 50%;
-      animation: spin 0.85s linear infinite;
-    }
-
-    .loading-title {
-      margin-top: 14px;
-      font-size: 1.06rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-
-    .loading-subtitle {
-      margin-top: 6px;
-      color: #bfeeed;
-      font-size: 0.9rem;
-    }
-
-    .loading-progress {
-      margin-top: 14px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.18);
-      overflow: hidden;
-    }
-
-    .loading-progress span {
-      display: block;
-      height: 100%;
-      width: 45%;
-      background: linear-gradient(90deg, #0ec9bf, #5be7de);
-      border-radius: 999px;
-      animation: loadingBar 1.2s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes loadingBar {
-      0% { transform: translateX(-120%); }
-      100% { transform: translateX(260%); }
-    }
-
-    @media (max-width: 1100px) {
-      .brand-panel {
-        padding: 42px;
+    @media (max-width:900px){
+      .panel{
+        grid-template-columns:1fr;
       }
-
-      .form-panel {
-        padding: 40px 24px;
+      .meta{
+        grid-template-columns:1fr;
       }
-    }
-
-    @media (max-width: 900px) {
-      .login-shell {
-        grid-template-columns: 1fr;
-        min-height: 100vh;
-        box-shadow: none;
-      }
-
-      .brand-panel {
-        min-height: 30vh;
-        align-items: center;
-        clip-path: none;
-      }
-
-      .form-panel {
-        max-width: 100%;
-        padding: 34px 22px 42px;
+      .topline{
+        flex-direction:column;
+        align-items:flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <div class="loading-modal" id="loadingModal" aria-hidden="true">
-    <div class="loading-card" role="status" aria-live="polite">
-      <img src="img/OIP.jpeg" alt="Logo Envios Zima" />
-      <div class="loader" aria-hidden="true"></div>
-      <p class="loading-title">Validando acceso</p>
-      <p class="loading-subtitle">Preparando el panel de Envios Zima...</p>
-      <div class="loading-progress" aria-hidden="true"><span></span></div>
+  <div class="bg-shape"></div>
+  <div class="bg-shape b"></div>
+
+  <main class="shell">
+    <div class="topline">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Envios Zima</span>
+      </div>
+      <div id="now-time">Actualizando hora...</div>
     </div>
-  </div>
 
-  <main class="login-shell" aria-label="Acceso al sistema">
-    <section class="brand-panel" aria-hidden="true">
-      <div class="brand-copy">
-        <div class="brand-kicker">EMPRESA ZIMA SEGURIDAD LTDA</div>
-        <h1>Area de envio de paquetes y control de guias.</h1>
+    <section class="panel" aria-labelledby="mt-title">
+      <div class="hero">
+        <span class="tag">Mantenimiento programado</span>
+        <h1 id="mt-title">Estamos mejorando la plataforma para volver mas rapido y estable.</h1>
         <p>
-          Plataforma interna para registrar, organizar y dar seguimiento a cada envio
-          del equipo de logistica.
+          La pagina se encuentra temporalmente en mantenimiento mientras aplicamos ajustes de rendimiento y
+          mejoras de experiencia. Gracias por tu paciencia.
         </p>
-      </div>
-    </section>
+        <p>
+          Si necesitas soporte inmediato, escribe a
+          <strong>soporte@envioszima.com</strong> e incluye el numero de guia.
+        </p>
 
-    <section class="form-panel">
-      <div class="logo-wrap">
-        <img src="img/OIP.jpeg" alt="Logo Envios Zima" />
-        <div>
-          <strong>Empresa Zima Seguridad Ltda</strong>
-          <span>Area de Envio de Paquetes</span>
+        <div class="only-info">
+          Esta ventana permanecera en mantenimiento hasta finalizar la actualizacion del sistema.
         </div>
-      </div>
 
-      <div class="heading">
-        <h2>Iniciar sesion</h2>
-        <p>Ingresa tus credenciales para continuar.</p>
-      </div>
-
-      <form id="loginForm" novalidate>
-        <div class="error-box" id="errorBox" role="alert"></div>
-
-        <div class="field">
-          <label for="usuario">Usuario</label>
-          <div class="input-wrap">
-            <i class="bx bxs-user"></i>
-            <input id="usuario" name="usuario" type="text" autocomplete="username" placeholder="Tu usuario" required />
+        <div class="meta">
+          <div class="meta-box">
+            <div class="meta-k">Estado actual</div>
+            <div class="meta-v">Mantenimiento activo</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-k">Retorno estimado</div>
+            <div class="meta-v" id="eta-time">Calculando...</div>
+          </div>
+          <div class="meta-box countdown-box">
+            <div class="meta-k">Tiempo restante estimado (4 horas)</div>
+            <div class="countdown-time" id="countdown-time">04:00:00</div>
+            <div class="countdown-track" aria-hidden="true">
+              <span class="countdown-bar" id="countdown-progress"></span>
+            </div>
+            <div class="countdown-note" id="countdown-note">Mantenimiento en progreso.</div>
           </div>
         </div>
+      </div>
 
-        <div class="field">
-          <label for="password">Contrasena</label>
-          <div class="input-wrap">
-            <i class="bx bxs-lock-alt"></i>
-            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Tu contrasena" required />
-            <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar u ocultar contrasena">
-              <i class="bx bx-show"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="row-actions">
-          <label for="rememberSession">
-            <input id="rememberSession" type="checkbox" checked />
-            Mantener sesion activa
-          </label>
-          <a href="#" aria-disabled="true">Recuperar acceso</a>
-        </div>
-
-        <button class="btn-login" id="btnLogin" type="submit">Entrar</button>
-      </form>
-
-      <p class="support">Soporte: <strong>3145014258</strong></p>
+      <aside class="status" aria-label="Detalle del mantenimiento">
+        <h2>Estado del servicio</h2>
+        <ul class="status-list">
+          <li class="status-item">
+            <span class="check"></span>
+            <span><strong>Base de datos:</strong> operativa y sin perdida de informacion.</span>
+          </li>
+          <li class="status-item">
+            <span class="check warn"></span>
+            <span><strong>Modulo de consulta:</strong> en actualizacion.</span>
+          </li>
+          <li class="status-item">
+            <span class="check"></span>
+            <span><strong>Sincronizacion:</strong> colas y procesos en validacion final.</span>
+          </li>
+          <li class="status-item">
+            <span class="check"></span>
+            <span><strong>Seguridad:</strong> controles activos y monitoreo continuo.</span>
+          </li>
+        </ul>
+      </aside>
     </section>
+
+    <div class="foot">
+      Envios Zima | Pagina de mantenimiento
+    </div>
   </main>
 
   <script>
-    (function () {
-      const USERS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzh1K6G6tpOD6Ofng3cz7g8GxlT09U6rJkHwiRRkr9bvwsA5XvTwbgLMPi1ycrIBX74/exec";
+    (function(){
+      "use strict";
+      var MAINTENANCE_HOURS = 4;
+      var MAINTENANCE_KEY = "zima_maintenance_end_v1";
+      var DURATION_MS = MAINTENANCE_HOURS * 60 * 60 * 1000;
+      var maintenanceEnd = resolveMaintenanceEnd();
 
-      const form = document.getElementById("loginForm");
-      const inputUser = document.getElementById("usuario");
-      const inputPass = document.getElementById("password");
-      const errorBox = document.getElementById("errorBox");
-      const btnLogin = document.getElementById("btnLogin");
-      const rememberSession = document.getElementById("rememberSession");
-      const loadingModal = document.getElementById("loadingModal");
-      const togglePass = document.getElementById("togglePass");
-
-      if (localStorage.getItem("sessionActive") === "1") {
-        window.location.replace("home.html");
+      function formatDateTime(date){
+        return date.toLocaleString("es-CO", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
       }
 
-      togglePass.addEventListener("click", function () {
-        const show = inputPass.type === "password";
-        inputPass.type = show ? "text" : "password";
-        togglePass.innerHTML = show ? '<i class="bx bx-hide"></i>' : '<i class="bx bx-show"></i>';
-      });
+      function pad2(n){
+        return String(n).padStart(2, "0");
+      }
 
-      form.addEventListener("submit", async function (event) {
-        event.preventDefault();
+      function formatCountdown(ms){
+        var total = Math.max(0, Math.floor(ms / 1000));
+        var hours = Math.floor(total / 3600);
+        var minutes = Math.floor((total % 3600) / 60);
+        var seconds = total % 60;
+        return pad2(hours) + ":" + pad2(minutes) + ":" + pad2(seconds);
+      }
 
-        hideError();
-        const user = inputUser.value.trim();
-        const pass = inputPass.value.trim();
-
-        if (!user || !pass) {
-          showError("Debes completar usuario y contrasena.");
-          return;
-        }
-
-        btnLogin.disabled = true;
-
-        let authResult;
+      function resolveMaintenanceEnd(){
         try {
-          authResult = await authenticateFromSheet(user, pass);
-        } catch (err) {
-          showError("No se pudo validar el acceso. Revisa internet e intenta de nuevo.");
-          btnLogin.disabled = false;
-          return;
-        }
-
-        if (!authResult.ok) {
-          showError(authResult.message || "Credenciales incorrectas. Verifica e intenta de nuevo.");
-          inputPass.value = "";
-          inputPass.focus();
-          btnLogin.disabled = false;
-          return;
-        }
-
-        loadingModal.style.display = "flex";
-
-        if (rememberSession.checked) {
-          localStorage.setItem("sessionActive", "1");
-          localStorage.setItem("sessionUser", JSON.stringify(authResult.user));
-        } else {
-          localStorage.removeItem("sessionActive");
-          localStorage.removeItem("sessionUser");
-        }
-
-        setTimeout(function () {
-          window.location.href = "home.html";
-        }, 1400);
-      });
-
-      function showError(message) {
-        errorBox.textContent = message;
-        errorBox.style.display = "block";
+          var saved = Number(localStorage.getItem(MAINTENANCE_KEY));
+          if (Number.isFinite(saved) && saved > 0) return saved;
+        } catch (err) {}
+        var created = Date.now() + DURATION_MS;
+        try {
+          localStorage.setItem(MAINTENANCE_KEY, String(created));
+        } catch (err) {}
+        return created;
       }
 
-      function hideError() {
-        errorBox.style.display = "none";
-        errorBox.textContent = "";
+      function tick(){
+        var now = new Date();
+        var remaining = Math.max(0, maintenanceEnd - now.getTime());
+        var eta = new Date(maintenanceEnd);
+        var nowEl = document.getElementById("now-time");
+        var etaEl = document.getElementById("eta-time");
+        var cdEl = document.getElementById("countdown-time");
+        var barEl = document.getElementById("countdown-progress");
+        var noteEl = document.getElementById("countdown-note");
+        if (nowEl) nowEl.textContent = "Hora local: " + formatDateTime(now);
+        if (etaEl) etaEl.textContent = formatDateTime(eta);
+        if (cdEl) cdEl.textContent = remaining > 0 ? formatCountdown(remaining) : "00:00:00";
+        if (barEl) {
+          var progress = ((DURATION_MS - remaining) / DURATION_MS) * 100;
+          var safe = Math.min(100, Math.max(0, progress));
+          barEl.style.width = safe.toFixed(2) + "%";
+        }
+        if (noteEl) {
+          noteEl.textContent = remaining > 0
+            ? "Mantenimiento en progreso."
+            : "Tiempo estimado cumplido. Estamos finalizando despliegue.";
+        }
       }
 
-      async function authenticateFromSheet(username, password) {
-        const response = await fetch(USERS_ENDPOINT, { method: "GET", cache: "no-store" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-
-        const raw = await response.json();
-        if (!Array.isArray(raw) || raw.length < 2) throw new Error("Formato invalido");
-
-        const rows = raw.slice(1);
-        const users = rows
-          .filter((row) => Array.isArray(row) && row.length >= 6)
-          .map((row) => ({
-            nombre: String(row[1] || "").trim(),
-            usuario: String(row[2] || "").trim(),
-            password: String(row[3] || "").trim(),
-            rol: String(row[4] || "").trim(),
-            estado: String(row[5] || "").trim()
-          }));
-
-        const found = users.find((u) => u.usuario.toLowerCase() === username.toLowerCase());
-        if (!found) return { ok: false, message: "Usuario no encontrado." };
-
-        if (found.estado.toLowerCase() !== "activo") {
-          return { ok: false, message: "Tu usuario esta inactivo. Contacta al administrador." };
-        }
-
-        if (found.password !== password) {
-          return { ok: false, message: "Contrasena incorrecta." };
-        }
-
-        return {
-          ok: true,
-          user: {
-            nombre: found.nombre,
-            usuario: found.usuario,
-            rol: found.rol,
-            estado: found.estado
-          }
-        };
-      }
+      tick();
+      setInterval(tick, 1000);
     })();
   </script>
 </body>
