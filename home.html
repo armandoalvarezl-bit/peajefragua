@@ -453,6 +453,46 @@
       border-radius:10px;
       font-weight:700;
     }
+    .mobile-menu-toggle{
+      display:none;
+      align-items:center;
+      gap:.45rem;
+      border:1px solid rgba(11,42,111,.25);
+      border-radius:12px;
+      background:#fff;
+      color:#0f172a;
+      font-weight:700;
+      padding:.52rem .8rem;
+      box-shadow: 0 8px 16px rgba(2,6,23,.12);
+    }
+    .mobile-menu-toggle:hover{
+      background:#f8fafc;
+    }
+    .mobile-menu-backdrop{
+      display:none;
+      border:0;
+      margin:0;
+      padding:0;
+      background:rgba(2,6,23,.5);
+    }
+    .sidebar-mobile-head{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:.6rem;
+      margin-bottom:.2rem;
+    }
+    .sidebar-mobile-close{
+      border:1px solid rgba(147,197,253,.28);
+      background:rgba(2,6,23,.25);
+      color:#eff6ff;
+      border-radius:10px;
+      width:36px;
+      height:36px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
     .nav-action{
       border:1px solid rgba(147,197,253,.2);
       border-radius:10px;
@@ -758,10 +798,48 @@
         flex-direction:column;
         padding:0;
       }
+      .app-main{
+        padding:12px;
+      }
+      .mobile-menu-toggle{
+        display:inline-flex;
+        margin-bottom:.65rem;
+      }
       .app-sidebar{
-        width:100%;
-        position:static;
-        min-height: auto;
+        width:min(86vw, 320px);
+        position:fixed;
+        left:0;
+        top:0;
+        height:100dvh;
+        min-height:100dvh;
+        overflow-y:auto;
+        overflow-x:hidden;
+        border-radius:0 18px 18px 0;
+        z-index:1200;
+        transform:translateX(-105%);
+        transition:transform .22s ease;
+      }
+      body.sidebar-open .app-sidebar{
+        transform:translateX(0);
+      }
+      body.sidebar-open{
+        overflow:hidden;
+      }
+      .mobile-menu-backdrop{
+        display:block;
+        position:fixed;
+        inset:0;
+        z-index:1190;
+        opacity:0;
+        pointer-events:none;
+        transition:opacity .2s ease;
+      }
+      body.sidebar-open .mobile-menu-backdrop{
+        opacity:1;
+        pointer-events:auto;
+      }
+      .sidebar-mobile-head{
+        display:flex;
       }
       .app-main-header{
         justify-content:flex-start;
@@ -777,20 +855,19 @@
         max-width:none;
       }
       .sidebar-actions{
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction:column;
+        flex-wrap:nowrap;
         gap:.45rem;
       }
       .sidebar-actions .btn{
-        flex: 1 1 48%;
-        text-align:center;
+        flex:0 0 auto;
+        text-align:left;
       }
       .sidebar-footer{
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction:column;
       }
       .sidebar-footer .btn{
-        flex: 1 1 auto;
+        flex:0 0 auto;
       }
     }
     .print-sheet{
@@ -1017,7 +1094,13 @@
   </head>
 <body>
   <div class="page-shell">
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-mobile-head">
+        <strong>Menu</strong>
+        <button class="sidebar-mobile-close" id="btn-mobile-close" type="button" aria-label="Cerrar menu">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
       <a class="navbar-brand brand-link text-white" href="#">
         <img class="brand-logo" src="./img/OIP.jpeg" alt="Ziam seguridad LTDA">
       </a>
@@ -1035,8 +1118,12 @@
         <button class="btn nav-danger w-100" id="btn-clear" title="Vaciar base de datos"><i class="bi bi-trash"></i></button>
       </div>
     </aside>
+    <button class="mobile-menu-backdrop" id="mobile-menu-backdrop" type="button" aria-label="Cerrar menu"></button>
     <main class="app-main">
       <div class="app-main-header">
+        <button class="mobile-menu-toggle" id="btn-mobile-menu" type="button" aria-controls="app-sidebar" aria-expanded="false">
+          <i class="bi bi-list"></i> Menu
+        </button>
         <div class="main-head-card">
           <div>
             <h1 class="main-head-title">Panel general de envios | Zima</h1>
@@ -1549,6 +1636,24 @@
       requestAnimationFrame(() => chip.classList.add('show'));
       notifyTimer = setTimeout(() => chip.classList.remove('show'), 2600);
     }
+    function isMobileViewport(){
+      return window.matchMedia('(max-width: 992px)').matches;
+    }
+    function setSidebarOpen(open){
+      const shouldOpen = Boolean(open) && isMobileViewport();
+      document.body.classList.toggle('sidebar-open', shouldOpen);
+      const menuBtn = $('#btn-mobile-menu');
+      if (menuBtn) menuBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    }
+    function closeSidebar(){
+      setSidebarOpen(false);
+    }
+    function toggleSidebar(){
+      setSidebarOpen(!document.body.classList.contains('sidebar-open'));
+    }
+    function syncSidebarWithViewport(){
+      if (!isMobileViewport()) closeSidebar();
+    }
 
     function showConfirmModal(title, message, iconClass = 'bi-check-circle-fill'){
       const titleEl = $('#confirm-modal-title');
@@ -1651,10 +1756,12 @@
       bsModalConfirm = new bootstrap.Modal($('#modalConfirm'), { backdrop: 'static', keyboard: false });
       startClock();
       bindEvents();
+      syncSidebarWithViewport();
       const deleteConfirmBtn = $('#delete-modal-confirm');
       if (deleteConfirmBtn) deleteConfirmBtn.addEventListener('click', () => performPendingDelete());
       const modalDelete = $('#modalDelete');
       if (modalDelete) modalDelete.addEventListener('hidden.bs.modal', () => { pendingDeleteData = null; });
+      window.addEventListener('resize', syncSidebarWithViewport);
       window.addEventListener('online', () => { flushPendingSyncQueue(); });
       await flushPendingSyncQueue();
       await refreshTabla();
@@ -1683,6 +1790,9 @@
       on('#btn-export-pdf', 'click', exportPDFCurrent);
       on('#btn-print', 'click', printCurrentGuide);
       on('#btn-logout', 'click', logout);
+      on('#btn-mobile-menu', 'click', toggleSidebar);
+      on('#btn-mobile-close', 'click', closeSidebar);
+      on('#mobile-menu-backdrop', 'click', closeSidebar);
       on('#btn-seed', 'click', seedDemo);
         on('#btn-backup', 'click', exportJSON);
         on('#btn-sync-excel', 'click', syncGuiasFromExcel);
@@ -1704,6 +1814,13 @@
         const r = indexedDB.deleteDatabase(DB_NAME);
         r.onsuccess = () => { alert('Base de datos eliminada. Recarga la pagina.'); location.reload(); };
         r.onerror = () => alert('No se pudo eliminar la base de datos.');
+      });
+      on('#app-sidebar', 'click', (e) => {
+        if (!isMobileViewport()) return;
+        if (e.target.closest('.nav-action, .nav-danger')) closeSidebar();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSidebar();
       });
 
       on('#body-guias', 'click', (e) => {
