@@ -1104,11 +1104,8 @@
       <a class="navbar-brand brand-link text-white" href="#">
         <img class="brand-logo" src="./img/OIP.jpeg" alt="Ziam seguridad LTDA">
       </a>
-      <span class="sidebar-chip"><i class="bi bi-shield-check"></i> Ziam | Control local</span>
+      <span class="sidebar-chip"><i class="bi bi-shield-check"></i> Zima | Control local</span>
       <div class="sidebar-actions">
-        <button class="btn nav-action" id="btn-seed"><i class="bi bi-stars"></i> Cargar ejemplo</button>
-        <button class="btn nav-action" id="btn-backup"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-        <button class="btn nav-action" id="btn-restore"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
         <button class="btn nav-action" id="btn-sync-excel"><i class="bi bi-cloud-arrow-down"></i> Cargar desde Excel</button>
         <button class="btn nav-action" id="btn-resync"><i class="bi bi-cloud-arrow-up"></i> Reenviar Excel</button>
         <a class="btn nav-action" href="consulta.html"><i class="bi bi-search"></i> Consultar envio</a>
@@ -1793,22 +1790,8 @@
       on('#btn-mobile-menu', 'click', toggleSidebar);
       on('#btn-mobile-close', 'click', closeSidebar);
       on('#mobile-menu-backdrop', 'click', closeSidebar);
-      on('#btn-seed', 'click', seedDemo);
-        on('#btn-backup', 'click', exportJSON);
-        on('#btn-sync-excel', 'click', syncGuiasFromExcel);
-        on('#btn-resync', 'click', resyncAllGuiasToExcel);
-      on('#btn-restore', 'click', ()=> {
-        const f = document.createElement('input');
-        f.type = 'file'; f.accept = '.json,application/json';
-        f.onchange = async (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const txt = await file.text();
-          await importJSON(txt);
-          await refreshTabla();
-        };
-        f.click();
-      });
+      on('#btn-sync-excel', 'click', syncGuiasFromExcel);
+      on('#btn-resync', 'click', resyncAllGuiasToExcel);
       on('#btn-clear', 'click', async ()=> {
         if (!confirm('Eliminar toda la base de datos local? Esta accion NO tiene vuelta atras.')) return;
         const r = indexedDB.deleteDatabase(DB_NAME);
