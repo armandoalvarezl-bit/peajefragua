@@ -1,0 +1,4 @@
+Tool: built-in image_gen
+Asset: login-camion.png
+Prompt:
+Create a photorealistic background asset for the LEFT HALF of a logistics sign-in webpage. Portrait 4:5 composition. A modern dark navy semi truck pulling a long cargo trailer, driving to the right on a paved highway at golden sunset. Truck occupies lower right quadrant, front three-quarter view, sun near right horizon, dramatic clouds. Left two thirds mostly very dark navy negative space for white HTML headline. Premium cinematic logistics advertising photography, deep blue shadows and warm amber road reflections. No text, letters, numbers, logos, watermarks, website controls, panels, UI, badges, or flags anywhere. Image only, edge to edge.

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Fragua</title>
+  <rect width="64" height="64" rx="12" fill="#12233e"/>
+  <g fill="none" stroke="#f58220" stroke-width="5" stroke-linejoin="miter">
+    <path d="m9 18 11 14L9 46m12-28 11 14-11 14"/>
+  </g>
+  <path d="M38 17h18v6H45v7h10v6H45v12h-7Z" fill="#fff"/>
+</svg>

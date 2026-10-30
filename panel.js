@@ -10,6 +10,8 @@
   let pendingDelete = '';
   let notifyTimer;
   let modals;
+  let refreshPromise = null;
+  let lastTrackingTerm = '';
   const views = {home:{hash:'inicio',title:'Inicio',heading:'home-heading'},guides:{hash:'guias',title:'Guías enviadas',heading:'guides-heading'},form:{hash:'nuevo-envio',title:'Formulario de envío',heading:'form-heading'},tracking:{hash:'seguimiento',title:'Seguimiento de guía',heading:'tracking-heading'}};
 
   function switchView(name, focus = true, updateHash = true) {
@@ -66,7 +68,10 @@
     busy = true;
     $('#save-result').hidden = true;
     loading(true, message);
-    try { return await action(); }
+    try {
+      if (refreshPromise) await refreshPromise.catch(() => {});
+      return await action();
+    }
     catch (err) {
       const outcome = $('#save-result');
       outcome.hidden = false;
@@ -96,6 +101,12 @@
     return { Numero:guide.numero, Remitente:guide.remitente, Destinatario:guide.destinatario, Direccion:guide.direccion, Peso:guide.peso, Estado:guide.estado, Observaciones:guide.obs, Fecha:guide.created_at || new Date().toISOString(), Pedidos:JSON.stringify(guide.pedidos || []), ActualizadoEn:guide.updated_at || '' };
   }
   async function reloadGuides() {
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = loadGuides();
+    try { return await refreshPromise; }
+    finally { refreshPromise = null; }
+  }
+  async function loadGuides() {
     status('Consultando guías…', 'loading');
     try {
       const result = await FraguaAPI.request('search');
@@ -103,14 +114,25 @@
       guides = new Map(result.data.filter(row => row.Numero).map(row => { const guide = mapGuide(row); return [guide.id, guide]; }));
       connected = true;
       render();
+      if (lastTrackingTerm) renderTrackingResults([...guides.values()].filter(g => normalized(g.numero).includes(normalized(lastTrackingTerm))));
+      const current = $('#ficha-container').dataset.current;
+      if ($('#modalFicha').classList.contains('show') && !$('#modalItem').classList.contains('show')) {
+        if (guides.has(current)) showGuide(current);
+        else modals.ficha.hide();
+      }
       status('En línea · ' + new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}), 'connected');
-      $('#guides-source').textContent = guides.size + ' guía(s) registradas en el servicio. Todos los cambios se guardan en línea.';
+      $('#guides-source').textContent = guides.size + ' guía(s) registradas. El panel se actualiza automáticamente cada 30 segundos.';
     } catch (err) {
       connected = false;
       status('Servicio no disponible', 'offline');
-      $('#guides-source').textContent = 'No se puede guardar sin conexión. Actualiza para consultar el servicio nuevamente.';
+      $('#guides-source').textContent = 'No se puede guardar sin conexión. El panel reintentará la consulta automáticamente.';
       throw err;
     }
+  }
+  async function autoRefresh() {
+    if (busy || refreshPromise || document.hidden || navigator.onLine === false || !FraguaAPI.hasSession()) return;
+    try { await reloadGuides(); }
+    catch (_) { /* El estado de conexión informa el fallo; se reintenta en el siguiente ciclo. */ }
   }
   function badge(state) {
     const n = normalized(state);
@@ -165,7 +187,7 @@
     $('#items-list').innerHTML = g.pedidos.length ? g.pedidos.map((item,index) => `<div class="d-flex justify-content-between align-items-center p-2 mb-2 border rounded"><div><strong>${esc(item.descripcion)}</strong> <span class="small-muted">×${esc(item.cantidad)}</span><div class="small-muted">Peso: ${esc(item.peso ?? '—')} kg · Valor: ${item.valor == null ? 'No informado' : '$' + Number(item.valor).toLocaleString('es-CO')}</div></div><div class="btn-group"><button class="btn btn-sm btn-light" data-item-action="edit" data-idx="${index}" aria-label="Editar pedido"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" data-item-action="delete" data-idx="${index}" aria-label="Eliminar pedido"><i class="bi bi-trash"></i></button></div></div>`).join('') : '<div class="small-muted">Sin pedidos registrados.</div>';
   }
   function assertOnline() {
-    if (!connected || navigator.onLine === false) throw new Error('Conéctate y actualiza las guías antes de guardar. No se guardan cambios sin conexión.');
+    if (!connected || navigator.onLine === false) throw new Error('Espera a que se restablezca la conexión antes de guardar. El panel se actualiza automáticamente.');
   }
   async function saveGuide(g, mode) {
     assertOnline();
@@ -185,7 +207,7 @@
     } else {
       message = 'Guía guardada y correo enviado a peajezaragoza@zimaseguridad.com.co.';
     }
-    if (!refreshed) { message += ' Actualiza la lista para consultar los cambios.'; warning = true; }
+    if (!refreshed) { message += ' El panel reintentará la consulta automáticamente.'; warning = true; }
     const outcome = $('#save-result');
     outcome.hidden = false;
     outcome.textContent = message;
@@ -276,19 +298,22 @@
     await run('Consultando el estado de tu envío…',async () => {
       const result = await FraguaAPI.request('search',{numero:term});
       if (!Array.isArray(result.data)) throw new Error('El servicio no devolvió un resultado válido.');
-      if (!result.data.length) {
+      lastTrackingTerm = term;
+      renderTrackingResults(result.data.filter(row => row.Numero).map(mapGuide));
+    });
+  }
+  function renderTrackingResults(results) {
+      if (!results.length) {
         $('#tracking-result').innerHTML = '<div class="tracking-empty"><i class="bi bi-search"></i><h3>No encontramos esa guía.</h3><p>Revisa el número e intenta nuevamente.</p></div>';
         return;
       }
-      $('#tracking-result').innerHTML = result.data.filter(row => row.Numero).map(row => {
-        const g = mapGuide(row);
+      $('#tracking-result').innerHTML = results.map(g => {
         const current = normalized(g.estado).trim();
         const stage = current === 'entregado' ? 2 : current.includes('transito') ? 1 : current === 'pendiente' ? 0 : -1;
         const steps = ['Registro','En tránsito','Entregado'].map((label,index) => `<div class="tracking-step${index < stage ? ' completed' : ''}${index === stage ? ' current' : ''}"${index === stage ? ' aria-current="step"' : ''}><i class="bi ${index < stage ? 'bi-check-circle-fill' : index === stage ? 'bi-record-circle' : 'bi-circle'}" aria-hidden="true"></i>${label}</div>`).join('');
         return `<article class="tracking-card"><header><div><span class="section-eyebrow">NÚMERO DE GUÍA</span><h3>${esc(g.numero)}</h3></div>${badge(g.estado)}</header><div class="tracking-steps" aria-label="Estado actual del envío">${steps}</div>${FraguaJourney.render(g)}<div class="tracking-detail"><div><small>REMITENTE</small><p>${esc(g.remitente || 'No informado')}</p></div><div><small>DESTINATARIO</small><p>${esc(g.destinatario || 'No informado')}</p></div><div><small>DIRECCIÓN DE ENTREGA</small><p>${esc(g.direccion || 'No informada')}</p></div><div><small>OBSERVACIONES</small><p>${esc(g.obs || 'Sin observaciones')}</p></div></div></article>`;
       }).join('');
       FraguaJourney.update($('#tracking-result'));
-    });
   }
   function bind() {
     const on = (selector,event,handler) => $(selector).addEventListener(event,handler);
@@ -304,7 +329,6 @@
     });
     on('#search','input',render);
     on('#filter-estado','change',render);
-    on('#btn-refresh-guides','click',() => run('Consultando guías en línea…',reloadGuides));
     on('#btn-close-ficha','click',() => modals.ficha.hide());
     on('#btn-add-item','click',() => editItem(null));
     on('#btn-delete-guia','click',() => requestDelete($('#ficha-container').dataset.current));
@@ -339,7 +363,9 @@
     on('#mobile-menu-backdrop','click',closeSidebar);
     document.addEventListener('keydown',event => {if(event.key === 'Escape')closeSidebar();});
     window.addEventListener('offline',() => {connected=false;status('Sin conexión · guardado no disponible','offline');});
-    window.addEventListener('online',() => run('Restableciendo conexión…',reloadGuides));
+    window.addEventListener('online',autoRefresh);
+    window.addEventListener('focus',autoRefresh);
+    document.addEventListener('visibilitychange',() => {if (!document.hidden) autoRefresh();});
     window.addEventListener('fragua:session-expired',() => window.location.replace('login.html'));
   }
   document.addEventListener('DOMContentLoaded',async () => {
@@ -354,5 +380,6 @@
       $('#current-user').textContent = session.user.usuario;
       await reloadGuides();
     });
+    setInterval(autoRefresh,30000);
   });
 }());
