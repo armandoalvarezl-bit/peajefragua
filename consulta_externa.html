@@ -51,6 +51,7 @@
     .result-table th{ background:#f1f5f9; }
     .result-table td{ vertical-align:middle; }
   </style>
+  <script src="apps-script-client.js"></script>
 </head>
 <body>
   <header class="top py-4 mb-4">
@@ -124,14 +125,11 @@
     (function(){
       'use strict';
 
-      if (localStorage.getItem('sessionActive') !== '1') {
-        window.location.replace('login.html');
-        return;
-      }
 
-      const API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
+
+      const API_URL = 'https://script.google.com/macros/s/AKfycby5k82gRY9U9qGBM4GtUOxp_cT--CExZ2peB4RVRn19DJmJBffAlUF_tlIjGwb6EZOYyA/exec';
       const API_HOJA = 'Tabla_1';
-      const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+      const API_SPREADSHEET_ID = ''; // Hoja vinculada al servicio.
       const $ = (s) => document.querySelector(s);
       let currentRows = [];
 
@@ -298,11 +296,15 @@
       }
 
       function parsePedidos(raw){
-        return String(raw || '')
-          .split('|')
-          .map(s => s.trim())
-          .filter(Boolean)
-          .map((txt) => ({ descripcion: txt, cantidad: 1, peso: '', valor: '' }));
+        if (Array.isArray(raw)) return raw;
+        try {
+          const parsed = JSON.parse(raw || '[]');
+          if (Array.isArray(parsed)) return parsed.filter(item => item && typeof item === 'object');
+        } catch (_) {}
+        return String(raw || '').split('|').map(text => text.trim()).filter(Boolean).map(text => {
+          const match = text.match(/^(.*) x(\d+(?:\.\d+)?)$/);
+          return {descripcion: match ? match[1] : text, cantidad: match ? Number(match[2]) : 1, peso: '', valor: ''};
+        });
       }
 
       function normalizeEstado(v=''){

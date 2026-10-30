@@ -158,6 +158,9 @@
       #detail-actions { display:none !important; }
     }
   </style>
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="guia-impresion.js"></script>
+  <script src="apps-script-client.js"></script>
 </head>
 <body>
   <nav class="topbar py-3 mb-4">
@@ -329,21 +332,19 @@
     (function(){
       'use strict';
 
-      if (localStorage.getItem('sessionActive') !== '1') {
-        window.location.replace('login.html');
-        return;
-      }
+      if (!FraguaAPI.hasSession()) { window.location.replace('login.html'); return; }
 
-      const API_URL = 'https://script.google.com/macros/s/AKfycbz3RFQTXT8tul6buwKGwhwqYPhOeo3zpKbT7BJueT6rro1H6WOVkBzsDJN9IWnGpHYS/exec';
+      const API_URL = 'https://script.google.com/macros/s/AKfycby5k82gRY9U9qGBM4GtUOxp_cT--CExZ2peB4RVRn19DJmJBffAlUF_tlIjGwb6EZOYyA/exec';
       const API_HOJA = 'Tabla_1';
       // Si luego usas openById en Apps Script, pega aqui el ID del spreadsheet.
-      const API_SPREADSHEET_ID = '1UCBIoFb0A4V9DnOQFoMVF58dubEfI54fLgpqeO_3X7I';
+      const API_SPREADSHEET_ID = ''; // Hoja vinculada al servicio.
       const SHOW_MAINTENANCE_BANNER = false;
       const MAINTENANCE_MESSAGE = 'La pagina esta en mantenimiento por mejoras de consulta, historial y enlace compartible.';
-      const SEARCH_HISTORY_KEY = 'consultaSearchHistoryV1';
+      let searchHistory = [];
       const SEARCH_HISTORY_MAX = 8;
       const $ = (s) => document.querySelector(s);
       let currentRows = [];
+      let selectedGuide = null;
       let notFoundModal = null;
 
       document.addEventListener('DOMContentLoaded', () => {
@@ -493,20 +494,8 @@
         err.innerText = msg || '';
       }
 
-      function getSearchHistory(){
-        try {
-          const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
-          const parsed = JSON.parse(raw || '[]');
-          if (!Array.isArray(parsed)) return [];
-          return parsed.map(normalizeGuideInput).filter(isValidGuideTerm).slice(0, SEARCH_HISTORY_MAX);
-        } catch (err) {
-          return [];
-        }
-      }
-
-      function saveSearchHistory(list){
-        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(list.slice(0, SEARCH_HISTORY_MAX)));
-      }
+      function getSearchHistory(){ return searchHistory.slice(); }
+      function saveSearchHistory(list){ searchHistory = list.slice(0, SEARCH_HISTORY_MAX); }
 
       function rememberSearchTerm(term){
         const clean = normalizeGuideInput(term);
@@ -517,7 +506,7 @@
       }
 
       function onClearHistory(){
-        localStorage.removeItem(SEARCH_HISTORY_KEY);
+        searchHistory = [];
         renderSearchHistory();
         setStatus('Historial de busquedas limpiado.');
       }
@@ -695,6 +684,7 @@
           direccion: readAny(r, ['Direccion','direccion','Dirección','Direccion entrega']),
           created_at: readAny(r, ['Fecha','fecha','Fecha emision','Fecha Emision']),
           obs: readAny(r, ['Observaciones','observaciones','Obs','obs']),
+          peso: readAny(r, ['Peso','peso']),
           pedidos: parsePedidos(readAny(r, ['Pedidos','pedidos','Detalle','detalle','Detalle contenido']))
         };
       }
@@ -726,11 +716,15 @@
       }
 
       function parsePedidos(raw){
-        return String(raw || '')
-          .split('|')
-          .map(s => s.trim())
-          .filter(Boolean)
-          .map((txt) => ({ descripcion: txt, cantidad: 1, peso: '', valor: '' }));
+        if (Array.isArray(raw)) return raw;
+        try {
+          const parsed = JSON.parse(raw || '[]');
+          if (Array.isArray(parsed)) return parsed.filter(item => item && typeof item === 'object');
+        } catch (_) {}
+        return String(raw || '').split('|').map(text => text.trim()).filter(Boolean).map(text => {
+          const match = text.match(/^(.*) x(\d+(?:\.\d+)?)$/);
+          return {descripcion: match ? match[1] : text, cantidad: match ? Number(match[2]) : 1, peso: '', valor: ''};
+        });
       }
 
       function normalizeEstado(v=''){
@@ -790,6 +784,7 @@
       }
 
       function renderDetail(g, syncActive){
+        selectedGuide = g;
         $('#detail-box').style.display = 'block';
         $('#detail-status').innerHTML = estadoBadge(g.estado);
         $('#d-num').innerText = g.numero || '-';
@@ -854,7 +849,7 @@
           $('#search-numero').focus();
           return;
         }
-        window.print();
+        GuiaImpresion.print(selectedGuide);
       }
 
       async function onTopGuiaDigital(){

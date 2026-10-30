@@ -376,17 +376,7 @@
         return pad2(hours) + ":" + pad2(minutes) + ":" + pad2(seconds);
       }
 
-      function resolveMaintenanceEnd(){
-        try {
-          var saved = Number(localStorage.getItem(MAINTENANCE_KEY));
-          if (Number.isFinite(saved) && saved > 0) return saved;
-        } catch (err) {}
-        var created = Date.now() + DURATION_MS;
-        try {
-          localStorage.setItem(MAINTENANCE_KEY, String(created));
-        } catch (err) {}
-        return created;
-      }
+      function resolveMaintenanceEnd(){ return Date.now() + DURATION_MS; }
 
       function tick(){
         var now = new Date();
