@@ -12,6 +12,8 @@
   let modals;
   let refreshPromise = null;
   let lastTrackingTerm = '';
+  let guidesLoaded = false;
+  let notificationAudio = null;
   const views = {home:{hash:'inicio',title:'Inicio',heading:'home-heading'},guides:{hash:'guias',title:'Guías enviadas',heading:'guides-heading'},form:{hash:'nuevo-envio',title:'Formulario de envío',heading:'form-heading'},tracking:{hash:'seguimiento',title:'Seguimiento de guía',heading:'tracking-heading'}};
 
   function switchView(name, focus = true, updateHash = true) {
@@ -57,6 +59,35 @@
     clearTimeout(notifyTimer);
     notifyTimer = setTimeout(() => node.classList.remove('show'), 6500);
   }
+  function enableNotificationSound() {
+    if (notificationAudio) return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    try {
+      notificationAudio = new AudioContextClass();
+      notificationAudio.resume().catch(() => {});
+    } catch (_) { notificationAudio = null; }
+  }
+  function playNotificationSound() {
+    if (!notificationAudio || notificationAudio.state === 'closed') return;
+    notificationAudio.resume().then(() => {
+      const now = notificationAudio.currentTime;
+      [740, 980].forEach((frequency, index) => {
+        const oscillator = notificationAudio.createOscillator();
+        const gain = notificationAudio.createGain();
+        const start = now + index * 0.13;
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.12, start + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.19);
+        oscillator.connect(gain);
+        gain.connect(notificationAudio.destination);
+        oscillator.start(start);
+        oscillator.stop(start + 0.2);
+      });
+    }).catch(() => {});
+  }
   function loading(show, message = 'Conectando con Fragua…') {
     $('#op-loading-msg').textContent = message;
     $('#op-loading').classList.toggle('d-none', !show);
@@ -95,10 +126,10 @@
     });
   }
   function mapGuide(row) {
-    return { id:String(row.Numero), numero:String(row.Numero), remitente:row.Remitente || '', destinatario:row.Destinatario || '', direccion:row.Direccion || '', peso:row.Peso ?? '', estado:row.Estado || '', obs:row.Observaciones || '', created_at:row.Fecha || '', pedidos:parseItems(row.Pedidos), notification:row.Notificacion || '', notificationError:row.NotificacionError || '', notifiedAt:row.NotificadoEn || '', updated_at:String(row.ActualizadoEn || ''), departure:row.SalidaEn || '' };
+    return { id:String(row.Numero), numero:String(row.Numero), remitente:row.Remitente || '', destinatario:row.Destinatario || '', direccion:row.Direccion || '', correoDestinatarios:row.CorreoDestinatarios || '', peso:row.Peso ?? '', estado:row.Estado || '', obs:row.Observaciones || '', created_at:row.Fecha || '', pedidos:parseItems(row.Pedidos), notification:row.Notificacion || '', notificationError:row.NotificacionError || '', notifiedAt:row.NotificadoEn || '', updated_at:String(row.ActualizadoEn || ''), departure:row.SalidaEn || '' };
   }
   function serialize(guide) {
-    return { Numero:guide.numero, Remitente:guide.remitente, Destinatario:guide.destinatario, Direccion:guide.direccion, Peso:guide.peso, Estado:guide.estado, Observaciones:guide.obs, Fecha:guide.created_at || new Date().toISOString(), Pedidos:JSON.stringify(guide.pedidos || []), ActualizadoEn:guide.updated_at || '' };
+    return { Numero:guide.numero, Remitente:guide.remitente, Destinatario:guide.destinatario, Direccion:guide.direccion, CorreoDestinatarios:guide.correoDestinatarios || '', Peso:guide.peso, Estado:guide.estado, Observaciones:guide.obs, Fecha:guide.created_at || new Date().toISOString(), Pedidos:JSON.stringify(guide.pedidos || []), ActualizadoEn:guide.updated_at || '' };
   }
   async function reloadGuides() {
     if (refreshPromise) return refreshPromise;
@@ -111,7 +142,17 @@
     try {
       const result = await FraguaAPI.request('search');
       if (!Array.isArray(result.data)) throw new Error('El servicio no devolvió una lista de guías válida.');
-      guides = new Map(result.data.filter(row => row.Numero).map(row => { const guide = mapGuide(row); return [guide.id, guide]; }));
+      const previous = guides;
+      const refreshed = new Map(result.data.filter(row => row.Numero).map(row => { const guide = mapGuide(row); return [guide.id, guide]; }));
+      if (guidesLoaded && !busy) {
+        const changed = [...refreshed.values()].filter(guide => !previous.has(guide.id) || previous.get(guide.id).updated_at !== guide.updated_at);
+        if (changed.length) {
+          playNotificationSound();
+          notify(changed.length === 1 ? 'La guía ' + changed[0].numero + ' tiene una actualización.' : changed.length + ' guías tienen actualizaciones.');
+        }
+      }
+      guides = refreshed;
+      guidesLoaded = true;
       connected = true;
       render();
       if (lastTrackingTerm) renderTrackingResults([...guides.values()].filter(g => normalized(g.numero).includes(normalized(lastTrackingTerm))));
@@ -167,7 +208,7 @@
   }
   function editGuide(id) {
     const g = guideById(id);
-    const fields = {id:g.id,num:g.numero,rem:g.remitente,dest:g.destinatario,dir:g.direccion,peso:g.peso,estado:g.estado,obs:g.obs};
+    const fields = {id:g.id,num:g.numero,rem:g.remitente,dest:g.destinatario,dir:g.direccion,correo:g.correoDestinatarios,peso:g.peso,estado:g.estado,obs:g.obs};
     for (const [field,value] of Object.entries(fields)) $('#guia-' + field).value = value;
     $('#guia-num').disabled = true;
     $('#shipping-form-title').textContent = 'Editar guía ' + g.numero;
@@ -183,7 +224,7 @@
     $('#ficha-fecha').textContent = 'Creada: ' + (g.created_at ? new Date(g.created_at).toLocaleString('es-CO') : '—');
     for (const [field,value] of Object.entries({rem:g.remitente,dest:g.destinatario,dir:g.direccion,obs:g.obs,peso:g.peso})) $('#ficha-' + field).textContent = value || '—';
     $('#ficha-estado').innerHTML = badge(g.estado);
-    $('#email-status').textContent = g.notification === 'Enviada' ? 'Correo enviado a peajezaragoza@zimaseguridad.com.co' : 'Correo pendiente de envío' + (g.notificationError ? ': ' + g.notificationError : '');
+    $('#email-status').textContent = g.notification === 'Enviada' ? 'Correo enviado a ' + (g.correoDestinatarios || 'los destinatarios indicados') : 'Correo pendiente de envío' + (g.notificationError ? ': ' + g.notificationError : '');
     $('#items-list').innerHTML = g.pedidos.length ? g.pedidos.map((item,index) => `<div class="d-flex justify-content-between align-items-center p-2 mb-2 border rounded"><div><strong>${esc(item.descripcion)}</strong> <span class="small-muted">×${esc(item.cantidad)}</span><div class="small-muted">Peso: ${esc(item.peso ?? '—')} kg · Valor: ${item.valor == null ? 'No informado' : '$' + Number(item.valor).toLocaleString('es-CO')}</div></div><div class="btn-group"><button class="btn btn-sm btn-light" data-item-action="edit" data-idx="${index}" aria-label="Editar pedido"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" data-item-action="delete" data-idx="${index}" aria-label="Eliminar pedido"><i class="bi bi-trash"></i></button></div></div>`).join('') : '<div class="small-muted">Sin pedidos registrados.</div>';
   }
   function assertOnline() {
@@ -192,6 +233,7 @@
   async function saveGuide(g, mode) {
     assertOnline();
     const result = await FraguaAPI.request('upsert', {mode, guia:JSON.stringify(serialize(g))});
+    if (result.notification && result.notification.sent && !result.notification.alreadySent) playNotificationSound();
     let refreshed = true;
     try { await reloadGuides(); } catch (_) { refreshed = false; }
     let message;
@@ -205,7 +247,7 @@
     } else if (result.notification.alreadySent) {
       message = 'Guía guardada. Este estado ya fue notificado por correo.';
     } else {
-      message = 'Guía guardada y correo enviado a peajezaragoza@zimaseguridad.com.co.';
+      message = 'Guía guardada y correo enviado a ' + result.notification.to + '.';
     }
     if (!refreshed) { message += ' El panel reintentará la consulta automáticamente.'; warning = true; }
     const outcome = $('#save-result');
@@ -221,7 +263,7 @@
     await run('Guardando guía y verificando la notificación…', async () => {
       const id = $('#guia-id').value;
       const g = id ? guideById(id) : {pedidos:[]};
-      Object.assign(g, {numero:$('#guia-num').value.trim(),remitente:$('#guia-rem').value.trim(),destinatario:$('#guia-dest').value.trim(),direccion:$('#guia-dir').value.trim(),peso:$('#guia-peso').value,estado:$('#guia-estado').value,obs:$('#guia-obs').value});
+      Object.assign(g, {numero:$('#guia-num').value.trim(),remitente:$('#guia-rem').value.trim(),destinatario:$('#guia-dest').value.trim(),direccion:$('#guia-dir').value.trim(),correoDestinatarios:$('#guia-correo').value.trim(),peso:$('#guia-peso').value,estado:$('#guia-estado').value,obs:$('#guia-obs').value});
       await saveGuide(g, id ? 'update' : 'create');
       resetForm();
       switchView('guides');
@@ -276,14 +318,14 @@
     });
   }
   async function sendNotification() {
-    await run('Enviando notificación a Peaje Zaragoza…', async () => {
+    await run('Enviando notificación a los destinatarios de la guía…', async () => {
       assertOnline();
       const id = $('#ficha-container').dataset.current;
       const result = await FraguaAPI.request('notify', {numero:id, force:'true'});
       await reloadGuides();
       showGuide(id);
       if (!result.notification.sent) throw new Error('El correo quedó pendiente: ' + result.notification.error);
-      notify('Notificación enviada a peajezaragoza@zimaseguridad.com.co.');
+      notify('Notificación enviada a ' + result.notification.to + '.');
     });
   }
   function closeSidebar() {
@@ -370,6 +412,8 @@
   }
   document.addEventListener('DOMContentLoaded',async () => {
     if (!FraguaAPI.hasSession()) {window.location.replace('login.html');return;}
+    document.addEventListener('pointerdown', enableNotificationSound, {once:true});
+    document.addEventListener('keydown', enableNotificationSound, {once:true});
     modals = {item:new bootstrap.Modal($('#modalItem'),{backdrop:'static'}),ficha:new bootstrap.Modal($('#modalFicha')),delete:new bootstrap.Modal($('#modalDelete'),{backdrop:'static'})};
     initNavigation();
     bind();

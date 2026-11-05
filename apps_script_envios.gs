@@ -1,7 +1,7 @@
 var FRAGUA_CONFIG = {
   sheet: 'Tabla_1', usersSheet: 'Usuarios', sessionSeconds: 21600,
   // El remitente es la cuenta que ejecuta Apps Script. No requiere alias.
-  replyTo: 'enviosfragua@gmail.com', recipient: 'peajezaragoza@zimaseguridad.com.co'
+  replyTo: 'peajefragua@zimaseguridad.com.co', recipient: ''
 };
 
 function doGet(e) {
@@ -25,7 +25,7 @@ function doPost(e) {
       result = { ok: true };
     } else if (action === 'search') result = handleSearch_(p);
     else {
-      requireSession_(p);
+      p._sessionUser = requireSession_(p);
       if (action === 'upsert') result = withScriptLock_(function(){ return handleUpsert_(p); });
       else if (action === 'delete') result = withScriptLock_(function(){ return handleDelete_(p); });
       else if (action === 'notify') result = withScriptLock_(function(){ return handleNotify_(p); });
@@ -94,7 +94,7 @@ function guidesSheet_(create) {
 
 function handleSearch_(p) {
   var term = normalize_(p.numero || p.q || '');
-  if (!term) requireSession_(p);
+  var user = (term && !p.token) ? null : requireSession_(p);
   var sheet = guidesSheet_(false);
   if (!sheet) return { ok: true, data: [] };
   var values = sheet.getDataRange().getValues();
@@ -105,6 +105,7 @@ function handleSearch_(p) {
     var guide = rowToObj_(headers, values[i]);
     if (!guide.Numero) continue;
     if (term && normalize_(guide.Numero).indexOf(term) < 0) continue;
+    if (user && !isAdministrator_(user) && normalize_(guide.UsuarioCreador) !== normalize_(user.usuario)) continue;
     rows.push(guide);
   }
   return { ok: true, data: rows };
@@ -121,6 +122,9 @@ function findGuideRow_(sheet, headers, numero) {
 
 function handleUpsert_(p) {
   var guide = readGuia_(p);
+  var user = p._sessionUser;
+  if (!user) throw new Error('Inicia sesión para guardar la guía.');
+  shipmentRecipients_(guide);
   var numero = String(guide.Numero || '').trim();
   if (!numero || !String(guide.Remitente || '').trim() || !String(guide.Destinatario || '').trim()) throw new Error('Número, remitente y destinatario son obligatorios.');
   var sheet = guidesSheet_(true);
@@ -130,11 +134,13 @@ function handleUpsert_(p) {
   if (p.mode === 'create' && rowIndex > 0) throw new Error('Ya existe una guía con ese número.');
   if (p.mode === 'update' && rowIndex < 0) throw new Error('La guía ya no existe. Actualiza el panel.');
   var existing = rowIndex > 0 ? rowToObj_(headers, sheet.getRange(rowIndex, 1, 1, headers.length).getValues()[0]) : {};
+  if (rowIndex > 0 && !canAccessGuide_(user, existing)) throw new Error('Solo puedes modificar las guías que registraste.');
   if (p.mode === 'update' && existing.ActualizadoEn && revisionValue_(guide.ActualizadoEn) !== revisionValue_(existing.ActualizadoEn)) {
     throw new Error('Otra sesión actualizó esta guía. Actualiza el panel antes de guardar.');
   }
   var created = rowIndex < 0;
   var merged = merge_(existing, guide);
+  merged.UsuarioCreador = created ? String(user.usuario || '') : (existing.UsuarioCreador || String(user.usuario || ''));
   merged.Numero = numero;
   merged.Fecha = existing.Fecha || guide.Fecha || new Date().toISOString();
   merged.ActualizadoEn = new Date().toISOString();
@@ -143,7 +149,7 @@ function handleUpsert_(p) {
   // La salida se registra una sola vez al pasar a tránsito, no al editar pedidos.
   merged.SalidaEn = existing.SalidaEn || '';
   if (inTransit && !wasInTransit) merged.SalidaEn = new Date().toISOString();
-  var notificationFields = ['Notificacion','NotificadoEstado','NotificadoEn','NotificacionError'];
+  var notificationFields = ['Notificacion','NotificadoEstado','NotificadoEn','NotificadoActualizadoEn','NotificacionError'];
   notificationFields.forEach(function(key){ merged[key] = existing[key] || ''; });
   var row = headers.map(function(h){ return merged[h] != null ? merged[h] : ''; });
   // No cambiar formatos de toda la fila: las tablas de Sheets pueden tener columnas tipadas.
@@ -161,6 +167,10 @@ function handleDelete_(p) {
   if (!sheet) return { ok: true, deleted: 0 };
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   var row = findGuideRow_(sheet, headers, numero);
+  if (row > 0) {
+    var existing = rowToObj_(headers, sheet.getRange(row, 1, 1, headers.length).getValues()[0]);
+    if (!canAccessGuide_(p._sessionUser, existing)) throw new Error('Solo puedes eliminar las guías que registraste.');
+  }
   if (row > 0) sheet.deleteRow(row);
   return { ok: true, deleted: row > 0 ? 1 : 0 };
 }
@@ -173,34 +183,57 @@ function handleNotify_(p) {
   var row = findGuideRow_(sheet, headers, String(p.numero || '').trim());
   if (row < 0) throw new Error('Guía no encontrada.');
   var guide = rowToObj_(headers, sheet.getRange(row, 1, 1, headers.length).getValues()[0]);
+  if (!canAccessGuide_(p._sessionUser, guide)) throw new Error('Solo puedes reenviar notificaciones de tus propias guías.');
   return { ok: true, notification: notifyGuide_(sheet, headers, row, guide, p.force === 'true', false) };
 }
 
 function notifyGuide_(sheet, headers, row, guide, force, created) {
-  if (!force && guide.Notificacion === 'Enviada' && normalize_(guide.NotificadoEstado) === normalize_(guide.Estado)) return { sent: true, alreadySent: true, to: FRAGUA_CONFIG.recipient };
+  var recipients = shipmentRecipients_(guide);
+  if (!force && guide.Notificacion === 'Enviada' && normalize_(guide.NotificadoEstado) === normalize_(guide.Estado) && String(guide.NotificadoActualizadoEn || '') === String(guide.ActualizadoEn || '')) return { sent: true, alreadySent: true, to: recipients };
   var result;
   try {
     var options = { name: 'Envíos Fragua', replyTo: FRAGUA_CONFIG.replyTo, htmlBody: buildShipmentEmail_(guide, created) };
     options.inlineImages = { zimaLogo: Utilities.newBlob(Utilities.base64Decode(FRAGUA_ZIMA_LOGO_BASE64), 'image/jpeg', 'zima.jpg') };
     var subject = 'Fragua · ' + (created ? 'Nuevo envío' : 'Actualización de envío') + ' · ' + String(guide.Numero).replace(/[\r\n]/g, '') + ' · ' + String(guide.Estado || '').replace(/[\r\n]/g, '');
     var plain = 'ENVÍOS FRAGUA\nGuía: ' + guide.Numero + '\nEstado: ' + guide.Estado + '\nRemitente: ' + guide.Remitente + '\nDestinatario: ' + guide.Destinatario + '\nDirección: ' + guide.Direccion + '\nObservaciones: ' + (guide.Observaciones || 'Sin observaciones') + '\nContacto: ' + FRAGUA_CONFIG.replyTo;
-    MailApp.sendEmail(FRAGUA_CONFIG.recipient, subject, plain, options);
-    result = { sent: true, to: FRAGUA_CONFIG.recipient };
+    MailApp.sendEmail(recipients, subject, plain, options);
+    result = { sent: true, to: recipients };
     guide.Notificacion = 'Enviada';
     guide.NotificadoEstado = guide.Estado;
     guide.NotificadoEn = new Date().toISOString();
+    guide.NotificadoActualizadoEn = guide.ActualizadoEn || '';
     guide.NotificacionError = '';
   } catch (err) {
-    result = { sent: false, to: FRAGUA_CONFIG.recipient, error: String(err.message || err) };
+    result = { sent: false, to: recipients, error: String(err.message || err) };
     guide.Notificacion = 'Pendiente';
     guide.NotificacionError = result.error;
   }
   console.log(JSON.stringify({ evento:'notificacion_envio', numero:String(guide.Numero), estado:String(guide.Estado || ''), enviada:result.sent, error:result.error || '' }));
-  ['Notificacion','NotificadoEstado','NotificadoEn','NotificacionError'].forEach(function(key){
+  ['Notificacion','NotificadoEstado','NotificadoEn','NotificadoActualizadoEn','NotificacionError'].forEach(function(key){
     sheet.getRange(row, headers.indexOf(key) + 1).setValue(guide[key] || '');
   });
   SpreadsheetApp.flush();
   return result;
+}
+
+function shipmentRecipients_(guide) {
+  var raw = String(guide.CorreoDestinatarios || '').trim();
+  if (!raw) throw new Error('Escribe al menos un correo destinatario para este envío.');
+  var addresses = raw.split(/[;,]/).map(function(value){ return value.trim(); }).filter(Boolean);
+  if (addresses.length > 5 || addresses.some(function(address){ return !/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(address); })) {
+    throw new Error('Revisa los correos destinatarios. Puedes indicar hasta cinco direcciones válidas separadas por coma.');
+  }
+  return addresses.filter(function(address, index){ return addresses.indexOf(address) === index; }).join(',');
+}
+
+function isAdministrator_(user) {
+  var role = normalizeHeader_(user && user.rol || '');
+  return role === 'admin' || role === 'administrador' || role === 'administrador general';
+}
+
+function canAccessGuide_(user, guide) {
+  if (!user) return false;
+  return isAdministrator_(user) || normalize_(guide.UsuarioCreador) === normalize_(user.usuario);
 }
 
 function escapeEmail_(value) {
@@ -260,7 +293,7 @@ function buildShipmentEmail_(guide, created) {
   items = items.filter(function(item){ return item && typeof item === 'object'; });
   var detail = items.map(function(item){ return '<tr><td style="padding:12px 0;border-bottom:1px solid #e5eaf0">' + e(item.descripcion) + '</td><td style="padding:12px;text-align:center;border-bottom:1px solid #e5eaf0">' + e(item.cantidad) + '</td></tr>'; }).join('');
   var field = function(label, value){ return '<tr><td style="padding:14px 0;border-bottom:1px solid #e5eaf0;color:#65748b;width:35%;vertical-align:top">' + label + '</td><td style="padding:14px 0;border-bottom:1px solid #e5eaf0;font-weight:bold;color:#172941">' + e(value || 'No informado') + '</td></tr>'; };
-  return '<!doctype html><html lang="es"><body style="margin:0;background:#eef2f6;font-family:Arial,sans-serif;color:#172941"><span style="display:none">Guía ' + e(guide.Numero) + ': ' + e(guide.Estado) + '.</span><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:36px 12px"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#fff;border:1px solid #dce3eb;border-radius:18px;overflow:hidden"><tr><td style="padding:28px 32px;background:#12233e;border-bottom:4px solid #f58220"><table role="presentation" width="100%"><tr><td><div style="color:#f58220;font-size:12px;letter-spacing:3px;font-weight:bold">ENVÍOS Y TRANSPORTE</div><div style="font-size:32px;color:white;font-weight:bold;font-style:italic;margin-top:8px">❯❯ FRAGUA</div></td><td align="right"><img src="cid:zimaLogo" alt="Zima Seguridad Ltda" width="58" height="58" style="border-radius:12px;display:block"></td></tr></table></td></tr><tr><td style="padding:32px"><p style="font-size:11px;letter-spacing:2px;color:#bd5700;font-weight:bold">NOTIFICACIÓN DE ENVÍO</p><h1 style="font-size:26px;line-height:1.25;margin:12px 0">' + (created ? 'Un nuevo envío está registrado.' : 'Tu envío tiene una actualización.') + '</h1><p style="color:#65748b;line-height:1.6">Hola, equipo de Peaje Zaragoza. Compartimos la información del envío registrado por Fragua.</p><table role="presentation" width="100%" style="margin:24px 0;background:#fff7ee;border:1px solid #f4d5b5;border-radius:12px"><tr><td style="padding:20px"><div style="font-size:10px;letter-spacing:2px;color:#94602f">NÚMERO DE GUÍA</div><div style="font-size:25px;font-weight:bold;margin-top:8px">' + e(guide.Numero) + '</div><div style="font-size:13px;margin-top:10px">Estado: <strong>' + e(guide.Estado) + '</strong></div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px">' + field('Remitente', guide.Remitente) + field('Destinatario', guide.Destinatario) + field('Dirección', guide.Direccion) + field('Peso total', String(guide.Peso == null || guide.Peso === '' ? 'No informado' : guide.Peso + ' kg')) + field('Observaciones', guide.Observaciones) + '</table>' + (detail ? '<h2 style="font-size:15px;margin-top:28px">Contenido del envío</h2><table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px"><tr><th align="left">Descripción</th><th>Cantidad</th></tr>' + detail + '</table>' : '') + '<p style="font-size:12px;line-height:1.7;margin-top:28px;color:#65748b">Conserva este mensaje como referencia. Para cualquier novedad, responde a este correo e incluye el número de guía.</p></td></tr><tr><td style="padding:22px 32px;border-top:1px solid #e5eaf0;background:#f8fafc;font-size:11px;color:#65748b;line-height:1.7"><strong style="color:#172941">Envíos Fragua</strong><br><a href="mailto:' + FRAGUA_CONFIG.replyTo + '" style="color:#bd5700">' + FRAGUA_CONFIG.replyTo + '</a><br>Notificación automática para Peaje Zaragoza · Zima Seguridad Ltda</td></tr></table></td></tr></table></body></html>';
+  return '<!doctype html><html lang="es"><body style="margin:0;background:#eef2f6;font-family:Arial,sans-serif;color:#172941"><span style="display:none">Guía ' + e(guide.Numero) + ': ' + e(guide.Estado) + '.</span><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:36px 12px"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#fff;border:1px solid #dce3eb;border-radius:18px;overflow:hidden"><tr><td style="padding:28px 32px;background:#12233e;border-bottom:4px solid #f58220"><table role="presentation" width="100%"><tr><td><div style="color:#f58220;font-size:12px;letter-spacing:3px;font-weight:bold">ENVÍOS Y TRANSPORTE</div><div style="font-size:32px;color:white;font-weight:bold;font-style:italic;margin-top:8px">❯❯ FRAGUA</div></td><td align="right"><img src="cid:zimaLogo" alt="Zima Seguridad Ltda" width="58" height="58" style="border-radius:12px;display:block"></td></tr></table></td></tr><tr><td style="padding:32px"><p style="font-size:11px;letter-spacing:2px;color:#bd5700;font-weight:bold">NOTIFICACIÓN DE ENVÍO</p><h1 style="font-size:26px;line-height:1.25;margin:12px 0">' + (created ? 'Un nuevo envío está registrado.' : 'Tu envío tiene una actualización.') + '</h1><p style="color:#65748b;line-height:1.6">Hola. Compartimos la información del envío registrado por Fragua.</p><table role="presentation" width="100%" style="margin:24px 0;background:#fff7ee;border:1px solid #f4d5b5;border-radius:12px"><tr><td style="padding:20px"><div style="font-size:10px;letter-spacing:2px;color:#94602f">NÚMERO DE GUÍA</div><div style="font-size:25px;font-weight:bold;margin-top:8px">' + e(guide.Numero) + '</div><div style="font-size:13px;margin-top:10px">Estado: <strong>' + e(guide.Estado) + '</strong></div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px">' + field('Remitente', guide.Remitente) + field('Destinatario', guide.Destinatario) + field('Dirección', guide.Direccion) + field('Peso total', String(guide.Peso == null || guide.Peso === '' ? 'No informado' : guide.Peso + ' kg')) + field('Observaciones', guide.Observaciones) + '</table>' + (detail ? '<h2 style="font-size:15px;margin-top:28px">Contenido del envío</h2><table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px"><tr><th align="left">Descripción</th><th>Cantidad</th></tr>' + detail + '</table>' : '') + '<p style="font-size:12px;line-height:1.7;margin-top:28px;color:#65748b">Conserva este mensaje como referencia. Para cualquier novedad, responde a este correo e incluye el número de guía.</p></td></tr><tr><td style="padding:22px 32px;border-top:1px solid #e5eaf0;background:#f8fafc;font-size:11px;color:#65748b;line-height:1.7"><strong style="color:#172941">Envíos Fragua</strong><br><a href="mailto:' + FRAGUA_CONFIG.replyTo + '" style="color:#bd5700">' + FRAGUA_CONFIG.replyTo + '</a><br>Notificación automática enviada a los destinatarios indicados · Zima Seguridad Ltda</td></tr></table></td></tr></table></body></html>';
 }
 
 // Previsualiza el diseño desde el editor sin enviar ningún correo.
@@ -332,6 +365,64 @@ function cambiarAdministradorFragua() {
   return 'Administrador actualizado: Fragua. Los demás datos de la cuenta se conservaron.';
 }
 
+/**
+ * Ejecutar desde el editor de Apps Script vinculado a la hoja para crear o
+ * actualizar las cuentas solicitadas. Las contraseñas se guardan como SHA-256.
+ */
+function configurarUsuariosFragua() {
+  var ss = openSpreadsheet_();
+  if (!ss) throw new Error('Abre este script desde la hoja de usuarios del acceso.');
+  var sheet = ss.getSheetByName(FRAGUA_CONFIG.usersSheet);
+  if (!sheet) sheet = ss.insertSheet(FRAGUA_CONFIG.usersSheet);
+  var values = sheet.getDataRange().getValues();
+  var empty = values.every(function(row){ return row.every(function(value){ return String(value == null ? '' : value).trim() === ''; }); });
+  if (empty) {
+    var initialHeaders = ['ID', 'Nombre', 'Usuario', 'Password', 'Rol', 'Estado'];
+    sheet.getRange(1, 1, 1, initialHeaders.length).setValues([initialHeaders]);
+    sheet.setFrozenRows(1);
+    values = [initialHeaders];
+  }
+  var headers = values[0].map(function(value){ return String(value || '').trim(); });
+  var idx = {
+    id:findHeaderIndex_(headers, ['id']),
+    name:findHeaderIndex_(headers, ['nombre']),
+    username:findHeaderIndex_(headers, ['usuario','user']),
+    password:findHeaderIndex_(headers, ['password','contrasena','clave']),
+    role:findHeaderIndex_(headers, ['rol','role','perfil']),
+    status:findHeaderIndex_(headers, ['estado','status'])
+  };
+  if (idx.username < 0 || idx.password < 0 || idx.role < 0 || idx.status < 0) throw new Error('La hoja Usuarios debe tener columnas Usuario, Password, Rol y Estado.');
+  var accounts = [
+    {name:'Administrador general', username:'AdminGeneral', password:'2107', role:'Administrador general'},
+    {name:'Peaje Zaragoza', username:'Zaragoza', password:'2026', role:'Operador'}
+  ];
+  accounts.forEach(function(account) {
+    var matches = [];
+    for (var r = 1; r < values.length; r++) {
+      if (normalize_(values[r][idx.username]) === normalize_(account.username)) matches.push(r + 1);
+    }
+    if (matches.length > 1) throw new Error('Hay más de una fila para el usuario ' + account.username + '. No se modificó esa cuenta.');
+    var rowNumber = matches.length ? matches[0] : sheet.getLastRow() + 1;
+    if (!matches.length) {
+      var newRow = headers.map(function(){ return ''; });
+      if (idx.id >= 0) newRow[idx.id] = Utilities.getUuid();
+      if (idx.name >= 0) newRow[idx.name] = account.name;
+      newRow[idx.username] = account.username;
+      newRow[idx.role] = account.role;
+      newRow[idx.status] = 'Activo';
+      sheet.getRange(rowNumber, 1, 1, headers.length).setValues([newRow]);
+    } else {
+      if (idx.name >= 0) sheet.getRange(rowNumber, idx.name + 1).setValue(account.name);
+      sheet.getRange(rowNumber, idx.role + 1).setValue(account.role);
+      sheet.getRange(rowNumber, idx.status + 1).setValue('Activo');
+    }
+    sheet.getRange(rowNumber, idx.password + 1).setNumberFormat('@').setValue('sha256:' + sha256Hex_(account.password));
+  });
+  SpreadsheetApp.flush();
+  console.log('Cuentas AdminGeneral y Zaragoza configuradas en la hoja Usuarios.');
+  return { ok:true, usuarios:accounts.map(function(account){ return account.username; }) };
+}
+
 
 function readGuia_(p) {
   var guia = {};
@@ -373,7 +464,7 @@ function parseBody_(e) {
 }
 
 function ensureHeaders_(sheet) {
-  var required = ['Numero', 'Estado', 'Remitente', 'Destinatario', 'Direccion', 'Peso', 'Observaciones', 'Fecha', 'Pedidos', 'ActualizadoEn', 'Notificacion', 'NotificadoEstado', 'NotificadoEn', 'NotificacionError', 'SalidaEn'];
+  var required = ['Numero', 'Estado', 'Remitente', 'Destinatario', 'Direccion', 'Peso', 'Observaciones', 'CorreoDestinatarios', 'UsuarioCreador', 'Fecha', 'Pedidos', 'ActualizadoEn', 'Notificacion', 'NotificadoEstado', 'NotificadoEn', 'NotificadoActualizadoEn', 'NotificacionError', 'SalidaEn'];
   var lastCol = sheet.getLastColumn();
   var firstRow = (lastCol > 0) ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
 

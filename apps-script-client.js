@@ -1,7 +1,7 @@
 /* Los datos de envíos viven en el servidor. Solo el token de sesión dura en la pestaña. */
 (function () {
   'use strict';
-  const endpoint = 'https://script.google.com/macros/s/AKfycby5k82gRY9U9qGBM4GtUOxp_cT--CExZ2peB4RVRn19DJmJBffAlUF_tlIjGwb6EZOYyA/exec';
+  const endpoint = 'https://script.google.com/macros/s/AKfycbx0ZY48jUrX_3Vu-5X4kOLEEE02rNMNKABChUODw0s8OqjJYld7KnTiMfnakob2PPM19w/exec';
   const key = 'fragua_session_token';
   let sessionToken = sessionStorage.getItem(key) || '';
 

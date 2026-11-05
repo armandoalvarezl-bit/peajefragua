@@ -6,22 +6,23 @@ La aplicación consulta y guarda las guías y los pedidos directamente en Apps S
 
 1. Abre el proyecto de Apps Script asociado al enlace que utiliza la aplicación, vinculado a tu hoja de cálculo.
 2. Reemplaza el código por el contenido completo de `apps_script_envios.gs` y guarda.
-3. Si todavía no está creada la cuenta, ejecuta `cambiarAdministradorFragua` desde el editor. Crea la pestaña `Usuarios` y configura `Fragua / 2107` con contraseña almacenada como hash.
+3. Si todavía no está creada la cuenta inicial, ejecuta `cambiarAdministradorFragua` desde el editor. Crea la pestaña `Usuarios` y configura `Fragua / 2107` con contraseña almacenada como hash. Para agregar personas, crea una fila por cuenta en `Usuarios` con columnas `ID`, `Nombre`, `Usuario`, `Password`, `Rol` y `Estado`; usa `Activo` y asigna el rol correspondiente. La hoja vinculada no está disponible desde los archivos del sitio, así que esas filas se crean en Google Sheets. Ejecuta `configurarUsuariosFragua` desde el editor para crear o actualizar los accesos `AdminGeneral` y `Zaragoza`; conserva los datos de otras cuentas.
 4. Con la cuenta de Google que ejecutará el script, ejecuta `autorizarNotificacionesFragua` y concede el permiso de envío de correo. Esta función muestra el remitente real y verifica la cuota disponible, sin enviar correos. No requiere configurar alias.
 5. En **Implementar → Gestionar implementaciones**, edita la implementación existente, selecciona una nueva versión y consérvala ejecutándose como la cuenta que acabas de autorizar. Mantén la URL actual. El acceso de la implementación debe permitir las solicitudes del sitio; la aplicación valida sus propias sesiones.
 6. Publica juntos los archivos actualizados del sitio, incluidos `apps-script-client.js`, `panel.js`, `login.js`, `fragua-logo.svg`, `OIP.jpeg` y `guia-impresion.js`.
+7. Publica la nueva versión de Apps Script para que apliquen el filtro por usuario y la columna UsuarioCreador. AdminGeneral ve todas las guías; cada operador ve y modifica solo las que registró. Las guías antiguas sin usuario asignado quedan visibles para el administrador general.
 
 Si creas otra implementación con una URL distinta, actualiza `apps-script-client.js`, `consulta.html` y `consulta_externa.html`.
 
 ## 2. Notificaciones
 
 - Remitente: la cuenta autorizada que ejecuta Apps Script, con el nombre visible **Envíos Fragua**.
-- Dirección para las respuestas y contacto: **enviosfragua@gmail.com**.
-- Destinatario: **peajezaragoza@zimaseguridad.com.co**.
-- El correo se envía al crear una guía o cuando cambia su estado. Guardar pedidos o editar datos sin cambiar el estado no repite un correo ya enviado.
+- El destinatario se escribe en el formulario de cada guía; no hay un correo de destino predeterminado. Se aceptan hasta cinco direcciones separadas por coma.
+
+- El correo se envía al crear la guía y en cada actualización guardada, incluidos cambios de estado y del detalle de pedidos. El panel emite un sonido breve y un aviso cuando detecta guías nuevas o actualizadas. El navegador requiere una primera interacción para permitir el sonido.
 - En la ficha, **Reenviar notificación** envía de nuevo el mensaje con el detalle actual, por ejemplo después de agregar pedidos.
 - Si Gmail falla, la guía queda guardada en línea y las columnas `Notificacion` y `NotificacionError` registran el pendiente. El panel muestra el resultado real.
-- El envío usa `MailApp` sin establecer un remitente alternativo, así que no depende de alias de Gmail. Para que la dirección real de origen sea `enviosfragua@gmail.com`, ejecuta y despliega con esa cuenta. [Referencia oficial de MailApp](https://developers.google.com/apps-script/reference/mail/mail-app).
+- El envío usa `MailApp` sin establecer un remitente alternativo, así que no depende de alias de Gmail. La dirección de origen será la cuenta de Google que ejecuta Apps Script; las respuestas se dirigen a `peajefragua@zimaseguridad.com.co`. [Referencia oficial de MailApp](https://developers.google.com/apps-script/reference/mail/mail-app).
 
 Abre `vista-previa-notificacion.html` para revisar el diseño con datos de ejemplo. También puedes ejecutar `vistaPreviaCorreoFragua` desde el editor de Apps Script. Ninguna de esas vistas previas envía correo.
 
